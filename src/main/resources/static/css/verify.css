@@ -1,0 +1,93 @@
+/* ── VERIFY PAGE EXTRAS ── */
+
+.verify-card {
+  max-width: 440px;
+  animation: cardSurge 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.verify-card .form-subtitle {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 13px;
+  line-height: 1.7;
+  margin-top: 8px;
+}
+
+/* ── 5-digit PIN input row ── */
+.pin-inputs {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 32px 0;
+}
+
+.pin-digit {
+  width: 56px;
+  height: 68px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  color: white;
+  font-family: 'Oswald', sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.25s, background 0.25s,
+              transform 0.2s, box-shadow 0.25s;
+  caret-color: transparent;
+}
+
+.pin-digit:focus {
+  border-color: var(--orange, #e8762a);
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 3px rgba(232, 118, 42, 0.3);
+  transform: scale(1.06);
+}
+
+.pin-digit.filled {
+  border-color: rgba(60, 181, 74, 0.6);
+  background: rgba(60, 181, 74, 0.1);
+}
+
+.pin-digit.error {
+  border-color: rgba(255, 80, 80, 0.7);
+  animation: shake 0.4s ease;
+}
+
+/* Error message */
+.form-error {
+  background: rgba(255, 80, 80, 0.15);
+  border: 1px solid rgba(255, 80, 80, 0.4);
+  color: #ff8888;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.form-footer-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.form-footer-link a {
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.form-footer-link a:hover { color: white; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 400px) {
+  .pin-digit { width: 46px; height: 58px; font-size: 22px; }
+  .pin-inputs { gap: 8px; }
+}

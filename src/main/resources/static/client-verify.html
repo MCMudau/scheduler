@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mpho Yanga Construction — Verify Your Account</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/login.css">
+  <style>
+    html, body { overflow: auto !important; height: auto !important; min-height: 100vh; }
+
+    .verify-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .verify-card {
+      width: 100%;
+      max-width: 480px;
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(24px);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 48px 44px 40px;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+      animation: cardSurge 0.7s cubic-bezier(0.16,1,0.3,1) both;
+      text-align: center;
+    }
+
+    .verify-icon {
+      font-size: 52px;
+      margin-bottom: 16px;
+      display: block;
+      animation: floatIcon 3s ease-in-out infinite;
+    }
+
+    @keyframes floatIcon {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+
+    .verify-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .verify-sub {
+      font-size: 14px;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    .verify-email {
+      font-size: 14px;
+      color: #5debb8;
+      font-weight: 700;
+      margin-bottom: 36px;
+      word-break: break-all;
+    }
+
+    /* PIN input boxes */
+    .pin-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .pin-box {
+      width: 52px;
+      height: 60px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      font-size: 26px;
+      font-weight: 700;
+      font-family: 'Oswald', monospace;
+      text-align: center;
+      caret-color: #25d366;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+      outline: none;
+    }
+
+    .pin-box:focus {
+      border-color: #25d366;
+      background: rgba(37,211,102,0.08);
+      transform: scale(1.08);
+    }
+
+    .pin-box.filled { border-color: rgba(37,211,102,0.5); }
+    .pin-box.error  { border-color: rgba(255,80,80,0.7) !important; background: rgba(255,80,80,0.08) !important; }
+
+    .btn-verify {
+      width: 100%;
+      padding: 15px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #3cb54a, #25d366);
+      color: #fff;
+      font-family: 'Oswald', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 8px 30px rgba(37,211,102,0.3);
+      margin-bottom: 20px;
+    }
+    .btn-verify:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(37,211,102,0.5);
+    }
+    .btn-verify:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .form-error {
+      background: rgba(255,80,80,0.15);
+      border: 1px solid rgba(255,80,80,0.4);
+      color: #ff8888;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      animation: fadeIn 0.3s ease;
+      text-align: left;
+    }
+    .form-success {
+      background: rgba(37,211,102,0.15);
+      border: 1px solid rgba(37,211,102,0.4);
+      color: #5debb8;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      animation: fadeIn 0.3s ease;
+      text-align: left;
+    }
+
+    .resend-row {
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+    }
+    .resend-row a, .resend-row span {
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .resend-row a:hover, .resend-row span:hover { color: white; }
+    .resend-row .countdown { color: rgba(255,255,255,0.3); cursor: default; }
+
+    .expiry-note {
+      font-size: 12px;
+      color: rgba(255,255,255,0.25);
+      margin-top: 16px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity:0; transform: translateY(-6px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-8px); }
+      40%      { transform: translateX(8px); }
+      60%      { transform: translateX(-5px); }
+      80%      { transform: translateX(5px); }
+    }
+
+    @media (max-width: 520px) {
+      .verify-card { padding: 36px 24px; }
+      .pin-box { width: 44px; height: 52px; font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg" id="bg"></div>
+
+  <div class="shapes">
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><rect x="5" y="5" width="40" height="10" rx="2"/><rect x="5" y="20" width="40" height="10" rx="2"/><rect x="5" y="35" width="40" height="10" rx="2"/></svg>
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><path d="M10 40 L25 10 L40 40 Z"/></svg>
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><rect x="5" y="5" width="40" height="40" rx="4"/></svg>
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><circle cx="25" cy="25" r="20"/></svg>
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><path d="M5 25 L20 10 L45 10 L45 40 L5 40 Z"/></svg>
+  </div>
+
+  <div class="page verify-page">
+
+    <div class="logo-header">
+      <div class="logo-icons">
+        <div class="logo-icon blue">🔨</div>
+        <div class="logo-icon orange">🧱</div>
+        <div class="logo-icon green">🖌️</div>
+      </div>
+      <div class="logo-text">
+        <div class="brand">MPHO <span>YAN</span>GA</div>
+        <div class="sub">Construction</div>
+      </div>
+    </div>
+
+    <div class="verify-card" id="verify-card">
+      <span class="verify-icon">📬</span>
+      <div class="verify-title">Check Your Email</div>
+      <div class="verify-sub">We sent a 5-digit verification PIN to</div>
+      <div class="verify-email" id="display-email">your email address</div>
+
+      <div class="pin-row" id="pin-row">
+        <input class="pin-box" type="text" inputmode="numeric" maxlength="1" id="p0">
+        <input class="pin-box" type="text" inputmode="numeric" maxlength="1" id="p1">
+        <input class="pin-box" type="text" inputmode="numeric" maxlength="1" id="p2">
+        <input class="pin-box" type="text" inputmode="numeric" maxlength="1" id="p3">
+        <input class="pin-box" type="text" inputmode="numeric" maxlength="1" id="p4">
+      </div>
+
+      <div id="ver-error"   class="form-error"   style="display:none;"></div>
+      <div id="ver-success" class="form-success"  style="display:none;"></div>
+
+      <button class="btn-verify" id="ver-btn" onclick="submitVerification()">Verify Account →</button>
+
+      <div class="resend-row" id="resend-row">
+        Didn't receive it?
+        <span id="resend-link" onclick="resendPin()">Resend PIN</span>
+        <span id="resend-timer" class="countdown" style="display:none;"></span>
+      </div>
+
+      <div class="expiry-note">⏰ PIN expires after 24 hours</div>
+    </div>
+
+  </div>
+
+  <div class="bp-badge">BP No.0200269091</div>
+
+  <script>
+    // ── Read email from query params ──────────────────────────────────
+    const params = new URLSearchParams(window.location.search);
+    const email  = params.get('email') || '';
+    if (email) document.getElementById('display-email').textContent = email;
+
+    // ── PIN box auto-advance ──────────────────────────────────────────
+    const boxes = [0,1,2,3,4].map(i => document.getElementById('p' + i));
+
+    boxes.forEach((box, idx) => {
+      box.addEventListener('input', e => {
+        const val = e.target.value.replace(/\D/g, '');
+        box.value = val.slice(-1);
+        box.classList.toggle('filled', box.value !== '');
+        if (box.value && idx < 4) boxes[idx + 1].focus();
+      });
+
+      box.addEventListener('keydown', e => {
+        if (e.key === 'Backspace' && !box.value && idx > 0) {
+          boxes[idx - 1].value = '';
+          boxes[idx - 1].classList.remove('filled');
+          boxes[idx - 1].focus();
+        }
+        if (e.key === 'ArrowLeft' && idx > 0) boxes[idx - 1].focus();
+        if (e.key === 'ArrowRight' && idx < 4) boxes[idx + 1].focus();
+      });
+
+      box.addEventListener('paste', e => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'');
+        text.split('').slice(0, 5).forEach((ch, i) => {
+          if (boxes[i]) { boxes[i].value = ch; boxes[i].classList.add('filled'); }
+        });
+        const next = Math.min(text.length, 4);
+        boxes[next].focus();
+      });
+    });
+
+    // Auto-focus first box
+    boxes[0].focus();
+
+    // ── Helpers ───────────────────────────────────────────────────────
+    function getPin() { return boxes.map(b => b.value).join(''); }
+
+    function showError(msg) {
+      document.getElementById('ver-success').style.display = 'none';
+      const e = document.getElementById('ver-error');
+      e.textContent = msg; e.style.display = 'block';
+    }
+    function showSuccess(msg) {
+      document.getElementById('ver-error').style.display = 'none';
+      const s = document.getElementById('ver-success');
+      s.textContent = msg; s.style.display = 'block';
+    }
+
+    function shakeCard() {
+      const card = document.getElementById('verify-card');
+      card.style.animation = 'none'; void card.offsetWidth;
+      card.style.animation = 'shake 0.4s ease';
+      setTimeout(() => card.style.animation = '', 400);
+      boxes.forEach(b => { b.classList.add('error'); setTimeout(() => b.classList.remove('error'), 600); });
+    }
+
+    // ── Submit verification ───────────────────────────────────────────
+    async function submitVerification() {
+      const pin = getPin();
+      if (pin.length < 5) { shakeCard(); showError('Please enter all 5 digits.'); return; }
+
+      const btn = document.getElementById('ver-btn');
+      btn.textContent = 'Verifying…'; btn.disabled = true; btn.style.opacity = '0.75';
+
+      try {
+        const res  = await fetch('/api/client/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, pin })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showSuccess('✅ Account verified! Redirecting to your dashboard…');
+          setTimeout(() => { window.location.href = '/client/dashboard'; }, 2000);
+        } else {
+          shakeCard(); showError(data.message || 'Invalid PIN. Please try again.');
+          btn.textContent = 'Verify Account →'; btn.disabled = false; btn.style.opacity = '1';
+        }
+      } catch {
+        shakeCard(); showError('Network error. Please try again.');
+        btn.textContent = 'Verify Account →'; btn.disabled = false; btn.style.opacity = '1';
+      }
+    }
+
+    // ── Resend with cooldown ──────────────────────────────────────────
+    let cooldown = 0;
+    async function resendPin() {
+      if (cooldown > 0) return;
+      const link  = document.getElementById('resend-link');
+      const timer = document.getElementById('resend-timer');
+
+      try {
+        const res  = await fetch('/api/client/resend-pin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showSuccess('A new PIN has been sent to ' + email);
+          startCooldown(60);
+        } else {
+          showError(data.message || 'Could not resend PIN.');
+        }
+      } catch { showError('Network error. Please try again.'); }
+    }
+
+    function startCooldown(seconds) {
+      cooldown = seconds;
+      const link  = document.getElementById('resend-link');
+      const timer = document.getElementById('resend-timer');
+      link.style.display  = 'none';
+      timer.style.display = 'inline';
+
+      const iv = setInterval(() => {
+        cooldown--;
+        timer.textContent = `Resend in ${cooldown}s`;
+        if (cooldown <= 0) {
+          clearInterval(iv);
+          timer.style.display = 'none';
+          link.style.display  = 'inline';
+        }
+      }, 1000);
+      timer.textContent = `Resend in ${cooldown}s`;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mpho Yanga — Project Progress</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+          --blue:   #1a5fad; --orange: #e8762a; --green:  #3cb54a;
+          --dark:   #0d1b2a; --darker: #070f18;
+          --text:   rgba(255,255,255,0.85); --muted:  rgba(255,255,255,0.4);
+        }
+        html, body { min-height: 100vh; background: var(--darker); color: var(--text); font-family: 'Lato', sans-serif; overflow-x: hidden; }
+        .bg-gradient {
+          position: fixed; inset: 0; z-index: 0;
+          background: radial-gradient(ellipse 80% 60% at 10% 20%, rgba(26,95,173,0.22) 0%, transparent 60%),
+                      radial-gradient(ellipse 60% 50% at 90% 80%, rgba(60,181,74,0.12) 0%, transparent 60%), var(--darker);
+          pointer-events: none;
+        }
+        nav {
+          position: sticky; top: 0; z-index: 100;
+          background: rgba(7,15,24,0.85); backdrop-filter: blur(20px);
+          border-bottom: 1px solid rgba(255,255,255,0.07);
+          padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 68px;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .nav-icons { display: flex; gap: 5px; }
+        .nav-icon { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+        .nav-icon.b { background: var(--blue); } .nav-icon.o { background: var(--orange); } .nav-icon.g { background: var(--green); }
+        .nav-brand { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1px; color: #fff; }
+        .nav-brand span { color: var(--orange); }
+        .nav-right { display: flex; align-items: center; gap: 16px; }
+        .back-btn { display: flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .back-btn:hover { border-color: rgba(255,255,255,0.35); color: #fff; }
+        .nav-user { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); }
+        .nav-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), var(--green)); display: flex; align-items: center; justify-content: center; font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700; color: #fff; }
+        main { position: relative; z-index: 1; padding: 40px 32px 80px; max-width: 1200px; margin: 0 auto; }
+        .page-header { margin-bottom: 40px; animation: fadeUp 0.5s ease both; }
+        .page-title { font-family: 'Oswald', sans-serif; font-size: clamp(28px,5vw,48px); font-weight: 700; color: #fff; margin-bottom: 10px; }
+        .page-title em { font-style: normal; color: var(--blue); }
+        .page-sub { font-size: 15px; color: var(--muted); max-width: 500px; line-height: 1.6; }
+        .project-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 28px; animation: fadeUp 0.5s 0.1s ease both; margin-bottom: 28px; }
+        .project-header-section { display: flex; justify-content: space-between; align-items: flex-start; gap: 28px; margin-bottom: 28px; }
+        .project-info { flex: 1; }
+        .project-title { font-family: 'Oswald', sans-serif; font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+        .project-meta { font-size: 14px; color: var(--muted); margin-bottom: 4px; }
+        .project-status-block { display: flex; flex-direction: column; gap: 12px; align-items: flex-end; }
+        .status-badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+        .status-badge.ongoing { background: rgba(232,118,42,0.2); color: #ffb347; }
+        .status-badge.paused { background: rgba(255,152,0,0.15); color: #ffb347; }
+        .status-badge.completed { background: rgba(60,181,74,0.2); color: #5debb8; }
+        .progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--green)); transition: width 0.5s ease; }
+        .progress-text { font-size: 12px; color: var(--muted); margin-top: 8px; }
+        .project-details { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.07); }
+        .detail-item { display: flex; flex-direction: column; gap: 4px; }
+        .detail-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+        .detail-value { font-size: 14px; color: var(--text); font-weight: 500; }
+        .timeline-header { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 24px; }
+        .timeline-layout { display: flex; gap: 24px; }
+        .timeline-line { width: 2px; background: linear-gradient(180deg, var(--blue) 0%, var(--orange) 50%, var(--green) 100%); position: relative; min-height: 400px; }
+        .timeline-stages { flex: 1; display: flex; flex-direction: column; gap: 24px; }
+        .stage-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; transition: all 0.2s; }
+        .stage-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(26,95,173,0.3); }
+        .stage-number { position: absolute; left: -17px; width: 34px; height: 34px; background: rgba(26,95,173,0.3); border: 2px solid var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #6aaeff; font-weight: 700; font-size: 13px; }
+        .stage-number.has-images { background: rgba(60,181,74,0.3); border-color: var(--green); color: #5debb8; box-shadow: 0 0 0 3px rgba(60,181,74,0.1); }
+        .stage-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+        .stage-title { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 600; color: #fff; margin: 0; }
+        .stage-status { display: inline-block; padding: 3px 10px; border-radius: 12px; font-weight: 600; text-transform: uppercase; font-size: 9px; letter-spacing: 0.5px; }
+        .stage-status.pending { background: rgba(255,152,0,0.15); color: #ffb347; }
+        .stage-status.ongoing { background: rgba(232,118,42,0.15); color: #ffb347; }
+        .stage-status.completed { background: rgba(60,181,74,0.15); color: #5debb8; }
+        .stage-desc { font-size: 13px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+        .stage-meta { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+        .images-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; margin-top: 16px; }
+        .image-thumb { position: relative; overflow: hidden; border-radius: 12px; aspect-ratio: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); cursor: pointer; transition: all 0.3s; }
+        .image-thumb:hover { border-color: rgba(26,95,173,0.3); transform: translateY(-4px); box-shadow: 0 8px 25px rgba(26,95,173,0.3); }
+        .image-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+        .image-thumb:hover img { transform: scale(1.08); }
+        .image-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; backdrop-filter: blur(2px); }
+        .image-thumb:hover .image-overlay { opacity: 1; }
+        .image-icon { font-size: 24px; color: #fff; }
+        .no-images { padding: 16px; text-align: center; color: var(--muted); font-size: 13px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.08); border-radius: 12px; margin-top: 12px; }
+        .completion-marker { margin-top: 24px; padding-top: 24px; border-top: 1px dashed rgba(60,181,74,0.3); }
+        .completion-marker .stage-card { background: rgba(60,181,74,0.08); border: 1px solid rgba(60,181,74,0.25); }
+        .completion-marker .stage-card h3 { color: #5debb8; }
+        .modal-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal { background: rgba(13,27,42,0.95); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 36px; max-width: 700px; width: 100%; transform: translateY(20px); transition: transform 0.3s; position: relative; }
+        .modal-overlay.active .modal { transform: translateY(0); }
+        .modal-close { position: absolute; top: 20px; right: 20px; width: 36px; height: 36px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; font-size: 22px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .modal-close:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); }
+        .modal-image { max-width: 100%; max-height: 500px; border-radius: 12px; margin-bottom: 16px; }
+        .modal-image-name { font-size: 13px; color: var(--muted); text-align: center; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        @media (max-width: 900px) { main { padding-left: 20px; padding-right: 20px; } .project-header-section { flex-direction: column; gap: 20px; } }
+        @media (max-width: 600px) { nav, main { padding-left: 16px; padding-right: 16px; } .timeline-layout { flex-direction: column; } .project-details { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<div class="bg-gradient"></div>
+
+<nav>
+    <a href="client-dashboard.html" class="nav-logo">
+        <div class="nav-icons">
+            <div class="nav-icon b">🔨</div>
+            <div class="nav-icon o">🧱</div>
+            <div class="nav-icon g">🖌️</div>
+        </div>
+        <div class="nav-brand">MPHO <span>YAN</span>GA</div>
+    </a>
+    <div class="nav-right">
+        <a href="client-dashboard.html" class="back-btn">← Dashboard</a>
+        <div class="nav-user">
+            <div class="nav-avatar" id="nav-avatar">?</div>
+            <span id="nav-name">Client</span>
+        </div>
+    </div>
+</nav>
+
+<main>
+    <div class="page-header">
+        <h1 class="page-title">Project <em>Progress</em></h1>
+        <p class="page-sub">Track your project stages and view latest updates from your team</p>
+    </div>
+
+    <!-- Project Overview -->
+    <div class="project-card">
+        <div class="project-header-section">
+            <div class="project-info">
+                <h2 class="project-title" id="project-name">Loading...</h2>
+                <p class="project-meta" id="project-service">Service: —</p>
+                <p class="project-meta" id="project-location">Location: —</p>
+            </div>
+            <div class="project-status-block">
+                <span class="status-badge ongoing" id="status-badge">ONGOING</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="progress-text" id="progress-text">0% Complete</div>
+            </div>
+        </div>
+
+        <div style="color: var(--muted); font-size: 13px; line-height: 1.6; margin-bottom: 20px;">
+            <p id="project-description">—</p>
+        </div>
+
+        <div class="project-details">
+            <div class="detail-item">
+                <span class="detail-label">📅 Started</span>
+                <span class="detail-value" id="project-date">—</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">💰 Budget</span>
+                <span class="detail-value" id="project-budget">—</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline View -->
+    <h2 class="timeline-header">Project Timeline</h2>
+    <div class="project-card">
+        <div class="timeline-layout">
+            <div class="timeline-line"></div>
+            <div class="timeline-stages" id="stages-container">
+                <p style="color: var(--muted); text-align: center; padding: 40px 20px;">Loading stages...</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Image Modal -->
+<div class="modal-overlay" id="imageModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeImageModal()">&times;</button>
+        <img id="modalImage" class="modal-image" src="" alt="">
+        <p class="modal-image-name" id="modalImageName"></p>
+    </div>
+</div>
+
+<script>
+    const API_BASE = 'http://localhost:8080/api';
+    let currentProjectId = null;
+    let currentProject = null;
+    let allStages = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        currentProjectId = urlParams.get('id');
+
+        console.log('Page loaded. Current URL:', window.location.href);
+        console.log('Project ID from URL:', currentProjectId);
+
+        if (!currentProjectId) {
+            document.getElementById('stages-container').innerHTML = '<p style="color: #ff6b6b; text-align: center; padding: 40px 20px;">❌ No project ID provided. Please go back and select a project.</p>';
+            setTimeout(() => {
+                window.location.href = 'client-dashboard.html';
+            }, 3000);
+            return;
+        }
+
+        console.log('Loading project with ID:', currentProjectId);
+        loadProject();
+    });
+
+    async function loadProject() {
+        try {
+            console.log('Fetching project:', currentProjectId);
+            const response = await fetch(`${API_BASE}/projects/${currentProjectId}`, { credentials: 'include' });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Project result:', result);
+
+            if (result.success && result.data) {
+                currentProject = result.data;
+                console.log('Project loaded:', currentProject);
+                renderProjectInfo();
+                await loadStages();
+            } else {
+                console.error('Failed to load project:', result);
+                document.getElementById('stages-container').innerHTML = '<p style="color: var(--muted); text-align: center; padding: 40px 20px;">Failed to load project data</p>';
+            }
+        } catch (error) {
+            console.error('Error loading project:', error);
+            document.getElementById('stages-container').innerHTML = `<p style="color: var(--muted); text-align: center; padding: 40px 20px;">Error: ${error.message}</p>`;
+        }
+    }
+
+    function renderProjectInfo() {
+        console.log('Rendering project info:', currentProject);
+        
+        if (!currentProject) {
+            console.error('No project data to render');
+            return;
+        }
+
+        document.getElementById('project-name').textContent = currentProject.name || 'Unknown Project';
+        document.getElementById('project-service').textContent = `Service: ${currentProject.serviceType || '—'}`;
+        document.getElementById('project-location').textContent = `Location: ${currentProject.location || '—'}`;
+        document.getElementById('project-description').textContent = currentProject.description || '—';
+        document.getElementById('project-budget').textContent = currentProject.estimatedBudget ? `ZWL ${currentProject.estimatedBudget.toFixed(2)}` : '—';
+        document.getElementById('project-date').textContent = currentProject.createdAt ? new Date(currentProject.createdAt).toLocaleDateString() : '—';
+
+        const badge = document.getElementById('status-badge');
+        const status = currentProject.status || 'ONGOING';
+        badge.textContent = status;
+        badge.className = `status-badge ${status.toLowerCase()}`;
+        
+        console.log('Project info rendered successfully');
+    }
+
+    async function loadStages() {
+        try {
+            console.log('Fetching stages for project:', currentProjectId);
+            const response = await fetch(`${API_BASE}/projects/${currentProjectId}/stages`, { credentials: 'include' });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Stages result:', result);
+
+            if (result.success) {
+                allStages = result.data || [];
+                console.log('Loaded stages:', allStages);
+                
+                for (let stage of allStages) {
+                    await loadStageImages(stage.id);
+                }
+                
+                renderStages();
+                updateProgress();
+            } else {
+                console.error('Failed to load stages:', result);
+                document.getElementById('stages-container').innerHTML = '<p style="color: var(--muted); text-align: center; padding: 40px 20px;">No stages loaded</p>';
+            }
+        } catch (error) {
+            console.error('Error loading stages:', error);
+            document.getElementById('stages-container').innerHTML = `<p style="color: var(--muted); text-align: center; padding: 40px 20px;">Error loading stages: ${error.message}</p>`;
+        }
+    }
+
+    async function loadStageImages(stageId) {
+        try {
+            const response = await fetch(`${API_BASE}/projects/${currentProjectId}/stages/${stageId}/images`, { credentials: 'include' });
+            const result = await response.json();
+            const images = result.data || [];
+
+            const stage = allStages.find(s => s.id === stageId);
+            if (stage) {
+                stage.images = images;
+            }
+        } catch (error) {
+            console.error('Error loading stage images:', error);
+        }
+    }
+
+    function renderStages() {
+        const container = document.getElementById('stages-container');
+
+        if (allStages.length === 0) {
+            container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 40px 20px;">No stages added yet</p>';
+            return;
+        }
+
+        let html = '';
+        allStages.forEach((stage, index) => {
+            const images = stage.images || [];
+            const hasImages = images.length > 0;
+            
+            html += `
+                <div style="position: relative;">
+                    <div class="stage-number ${hasImages ? 'has-images' : ''}">${index + 1}</div>
+                    <div class="stage-card">
+                        <div class="stage-header">
+                            <h3 class="stage-title">${stage.stageName || stage.name}</h3>
+                            <span class="stage-status ${(stage.status || 'PENDING').toLowerCase()}">${stage.status || 'PENDING'}</span>
+                        </div>
+                        <p class="stage-desc">${stage.description || '—'}</p>
+                        <div class="stage-meta">📅 ${new Date(stage.createdAt).toLocaleDateString()} • 📸 ${images.length} image${images.length !== 1 ? 's' : ''}</div>
+                        ${images.length > 0 ? `
+                            <div class="images-gallery">
+                                ${images.map(img => `
+                                    <div class="image-thumb" onclick="openImageModal('/uploads/${img.filePath}', '${img.fileName}')">
+                                        <img src="/uploads/${img.filePath}" alt="${img.fileName}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22%3E%3Crect fill=%22%23333%22 width=%22120%22 height=%22120%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23666%22 font-size=%2214%22%3E?%3C/text%3E%3C/svg%3E'">
+                                        <div class="image-overlay"><span class="image-icon">🔍</span></div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : `<div class="no-images">No images yet</div>`}
+                    </div>
+                </div>
+            `;
+        });
+
+        if (currentProject && currentProject.status === 'COMPLETED') {
+            html += `
+                <div style="position: relative; margin-top: 24px;">
+                    <div class="stage-number" style="background: rgba(60,181,74,0.3); border-color: var(--green); color: #5debb8;">✓</div>
+                    <div class="stage-card completion-marker">
+                        <h3 class="stage-title">Project Completed</h3>
+                        <p class="stage-desc">All stages have been completed successfully</p>
+                        <div class="stage-meta">✓ ${new Date().toLocaleDateString()}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        container.innerHTML = html;
+    }
+
+    function updateProgress() {
+        if (allStages.length === 0) return;
+
+        const completedStages = allStages.filter(s => s.images && s.images.length > 0).length;
+        const percentage = Math.round((completedStages / allStages.length) * 100);
+
+        document.getElementById('progress-fill').style.width = percentage + '%';
+        document.getElementById('progress-text').textContent = `${percentage}% Complete (${completedStages}/${allStages.length} stages)`;
+    }
+
+    function openImageModal(src, name) {
+        document.getElementById('modalImage').src = src;
+        document.getElementById('modalImageName').textContent = name;
+        document.getElementById('imageModal').classList.add('active');
+    }
+
+    function closeImageModal() {
+        document.getElementById('imageModal').classList.remove('active');
+    }
+
+    document.getElementById('imageModal').addEventListener('click', (e) => {
+        if (e.target.id === 'imageModal') {
+            closeImageModal();
+        }
+    });
+
+    // Auto-refresh every 30 seconds
+    setInterval(() => {
+        loadProject();
+    }, 30000);
+</script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mpho Yanga — My Projects</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+          --blue:   #1a5fad; --orange: #e8762a; --green:  #3cb54a;
+          --dark:   #0d1b2a; --darker: #070f18;
+          --text:   rgba(255,255,255,0.85); --muted:  rgba(255,255,255,0.4);
+        }
+        html, body { min-height: 100vh; background: var(--darker); color: var(--text); font-family: 'Lato', sans-serif; overflow-x: hidden; }
+        .bg-gradient {
+          position: fixed; inset: 0; z-index: 0;
+          background: radial-gradient(ellipse 80% 60% at 10% 20%, rgba(26,95,173,0.22) 0%, transparent 60%),
+                      radial-gradient(ellipse 60% 50% at 90% 80%, rgba(60,181,74,0.12) 0%, transparent 60%), var(--darker);
+          pointer-events: none;
+        }
+        nav {
+          position: sticky; top: 0; z-index: 100;
+          background: rgba(7,15,24,0.85); backdrop-filter: blur(20px);
+          border-bottom: 1px solid rgba(255,255,255,0.07);
+          padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 68px;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .nav-icons { display: flex; gap: 5px; }
+        .nav-icon { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+        .nav-icon.b { background: var(--blue); } .nav-icon.o { background: var(--orange); } .nav-icon.g { background: var(--green); }
+        .nav-brand { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1px; color: #fff; }
+        .nav-brand span { color: var(--orange); }
+        .nav-right { display: flex; align-items: center; gap: 16px; }
+        .back-btn { display: flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .back-btn:hover { border-color: rgba(255,255,255,0.35); color: #fff; }
+        .nav-user { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); }
+        .nav-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), var(--green)); display: flex; align-items: center; justify-content: center; font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700; color: #fff; }
+        main { position: relative; z-index: 1; padding: 40px 32px 80px; max-width: 1200px; margin: 0 auto; }
+        .page-header { margin-bottom: 40px; animation: fadeUp 0.5s ease both; }
+        .page-title { font-family: 'Oswald', sans-serif; font-size: clamp(28px,5vw,48px); font-weight: 700; color: #fff; margin-bottom: 10px; }
+        .page-title em { font-style: normal; color: var(--blue); }
+        .page-sub { font-size: 15px; color: var(--muted); max-width: 600px; line-height: 1.6; }
+        .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; animation: fadeUp 0.5s 0.1s ease both; }
+        .project-card {
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 16px;
+          padding: 24px;
+          cursor: pointer;
+          transition: all 0.3s;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .project-card:hover {
+          background: rgba(255,255,255,0.06);
+          border-color: rgba(26,95,173,0.3);
+          transform: translateY(-4px);
+          box-shadow: 0 12px 40px rgba(26,95,173,0.2);
+        }
+        .project-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+        .project-card-title { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 600; color: #fff; margin: 0; flex: 1; }
+        .project-card-status { display: inline-block; padding: 4px 12px; border-radius: 12px; font-weight: 600; text-transform: uppercase; font-size: 9px; letter-spacing: 0.5px; white-space: nowrap; }
+        .project-card-status.ongoing { background: rgba(232,118,42,0.15); color: #ffb347; }
+        .project-card-status.paused { background: rgba(255,152,0,0.15); color: #ffb347; }
+        .project-card-status.completed { background: rgba(60,181,74,0.15); color: #5debb8; }
+        .project-card-meta { font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 6px; }
+        .project-card-meta span { display: flex; align-items: center; gap: 6px; }
+        .project-card-desc { font-size: 13px; color: var(--muted); line-height: 1.5; flex: 1; }
+        .project-card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.07); }
+        .project-progress { font-size: 12px; color: var(--muted); }
+        .progress-bar-small { width: 80px; height: 4px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; }
+        .progress-fill-small { height: 100%; background: linear-gradient(90deg, var(--blue), var(--green)); }
+        .view-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(26,95,173,0.5); background: rgba(26,95,173,0.1); color: #6aaeff; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .view-btn:hover { background: rgba(26,95,173,0.2); border-color: rgba(26,95,173,0.8); }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+        .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+        .empty-state-title { font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+        .empty-state-text { font-size: 14px; max-width: 300px; margin: 0 auto; }
+        .loading { text-align: center; padding: 60px 20px; }
+        .spinner { width: 40px; height: 40px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--blue); animation: spin 0.7s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        @media (max-width: 900px) { main { padding-left: 20px; padding-right: 20px; } .projects-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); } }
+        @media (max-width: 600px) { main { padding-left: 16px; padding-right: 16px; } .projects-grid { grid-template-columns: 1fr; } nav { padding: 0 16px; } }
+    </style>
+</head>
+<body>
+<div class="bg-gradient"></div>
+
+<nav>
+    <a href="client-dashboard.html" class="nav-logo">
+        <div class="nav-icons">
+            <div class="nav-icon b">🔨</div>
+            <div class="nav-icon o">🧱</div>
+            <div class="nav-icon g">🖌️</div>
+        </div>
+        <div class="nav-brand">MPHO <span>YAN</span>GA</div>
+    </a>
+    <div class="nav-right">
+        <a href="client-dashboard.html" class="back-btn">← Dashboard</a>
+        <div class="nav-user">
+            <div class="nav-avatar" id="nav-avatar">?</div>
+            <span id="nav-name">Client</span>
+        </div>
+    </div>
+</nav>
+
+<main>
+    <div class="page-header">
+        <h1 class="page-title">My <em>Projects</em></h1>
+        <p class="page-sub">View all your active and completed projects. Click any project to see progress updates and images.</p>
+    </div>
+
+    <div id="projects-container" class="projects-grid">
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading projects...</p>
+        </div>
+    </div>
+</main>
+
+<script>
+    const API_BASE = 'http://localhost:8080/api';
+    let clientId = null;
+    let allProjects = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Try to get client ID from URL first
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientIdFromUrl = urlParams.get('clientId');
+
+        if (clientIdFromUrl) {
+            clientId = parseInt(clientIdFromUrl, 10);
+            console.log('Client ID from URL:', clientId);
+            loadProjects();
+            setInterval(loadProjects, 30000);
+            return;
+        }
+
+        // Try to get from session storage
+        let clientData = sessionStorage.getItem('client');
+        if (clientData) {
+            try {
+                const parsed = JSON.parse(clientData);
+                clientId = parsed.id || parsed.clientId;
+                console.log('Client ID from session:', clientId);
+                updateNavWithClientData(parsed);
+                loadProjects();
+                setInterval(loadProjects, 30000);
+                return;
+            } catch (e) {
+                console.error('Error parsing client data:', e);
+            }
+        }
+
+        // Fallback: Get current client from API
+        console.log('Fetching current client from API...');
+        fetchCurrentClient();
+    });
+
+    async function fetchCurrentClient() {
+        try {
+            console.log('Calling /api/client/current endpoint...');
+            const response = await fetch(`${API_BASE}/client/current`, {
+                credentials: 'include'
+            });
+
+            console.log('Response status:', response.status);
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log('Client response:', result);
+
+                if (result.success && result.data) {
+                    clientId = result.data.id;
+                    console.log('Current client ID:', clientId);
+
+                    // Store in sessionStorage for future use
+                    sessionStorage.setItem('client', JSON.stringify(result.data));
+
+                    updateNavWithClientData(result.data);
+                    loadProjects();
+                    setInterval(loadProjects, 30000);
+                } else {
+                    showEmptyState('Session expired', 'Please log in again to view your projects.');
+                }
+            } else if (response.status === 401) {
+                showEmptyState('Not authenticated', 'Please log in to view your projects.');
+            } else {
+                showEmptyState('Error', `Failed to get client session (${response.status})`);
+            }
+        } catch (error) {
+            console.error('Error fetching current client:', error);
+            showEmptyState('Connection error', 'Failed to connect to the server.');
+        }
+    }
+
+    function updateNavWithClientData(data) {
+        if (data.name) {
+            document.getElementById('nav-name').textContent = data.name.split(' ')[0];
+            const initials = (data.name.match(/\b\w/g) || []).join('').substring(0, 2);
+            document.getElementById('nav-avatar').textContent = initials.toUpperCase();
+        }
+    }
+
+    async function loadProjects() {
+        try {
+            console.log('Loading projects for client:', clientId);
+            const response = await fetch(`${API_BASE}/projects/client/${clientId}`, {
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Projects response:', result);
+
+            if (result.success) {
+                allProjects = result.data || [];
+                console.log('Projects loaded:', allProjects);
+                renderProjects();
+            } else {
+                showEmptyState('No projects found', 'You don\'t have any projects yet.');
+            }
+        } catch (error) {
+            console.error('Error loading projects:', error);
+            showEmptyState('Error loading projects', error.message);
+        }
+    }
+
+    function renderProjects() {
+        const container = document.getElementById('projects-container');
+
+        if (allProjects.length === 0) {
+            showEmptyState('No projects yet', 'Your projects will appear here once created.');
+            return;
+        }
+
+        container.innerHTML = allProjects.map(project => {
+            const status = project.status || 'ONGOING';
+            const statusClass = status.toLowerCase();
+            const createdDate = new Date(project.createdAt).toLocaleDateString();
+
+            return `
+                <div class="project-card" onclick="openProject(${project.id})">
+                    <div class="project-card-header">
+                        <h3 class="project-card-title">${project.name}</h3>
+                        <span class="project-card-status ${statusClass}">${status}</span>
+                    </div>
+
+                    <p class="project-card-desc">${project.description || 'No description provided'}</p>
+
+                    <div class="project-card-meta">
+                        <span>🔧 ${project.serviceType || 'Service'}</span>
+                        <span>📍 ${project.location || 'Location'}</span>
+                        <span>📅 Started ${createdDate}</span>
+                        ${project.estimatedBudget ? `<span>💰 ZWL ${project.estimatedBudget.toFixed(2)}</span>` : ''}
+                    </div>
+
+                    <div class="project-card-footer">
+                        <div class="project-progress">
+                            <div style="font-size: 11px; color: var(--muted); margin-bottom: 4px;">Progress</div>
+                            <div class="progress-bar-small">
+                                <div class="progress-fill-small" style="width: ${getProjectProgress(project)}%"></div>
+                            </div>
+                        </div>
+                        <a class="view-btn">View Progress →</a>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function getProjectProgress(project) {
+        // Calculate based on number of stages with images
+        // This is a simple estimation - you can enhance this
+        if (project.totalStages && project.totalStages > 0) {
+            const stagesWithImages = project.stagesWithImages || 0;
+            return Math.round((stagesWithImages / project.totalStages) * 100);
+        }
+        return 0;
+    }
+
+    function openProject(projectId) {
+        console.log('Opening project:', projectId);
+        window.location.href = `client-project-progress.html?id=${projectId}`;
+    }
+
+    function showEmptyState(title, message) {
+        document.getElementById('projects-container').innerHTML = `
+            <div style="grid-column: 1/-1;">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📦</div>
+                    <h2 class="empty-state-title">${title}</h2>
+                    <p class="empty-state-text">${message}</p>
+                </div>
+            </div>
+        `;
+    }
+</script>
+</body>
+</html>

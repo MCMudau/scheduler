@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mpho Yanga — Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+</head>
+<body>
+
+<div class="app">
+
+    <!-- ── SIDEBAR ─────────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sb-logo">
+            <div class="sb-logo-icons">
+                <div class="sb-logo-icon b">🔨</div>
+                <div class="sb-logo-icon o">🧱</div>
+                <div class="sb-logo-icon g">🖌️</div>
+            </div>
+            <div class="sb-brand-text">
+                <span class="sb-brand">MPHO <em>YAN</em>GA</span>
+                <span class="sb-sub">Admin Portal</span>
+            </div>
+        </div>
+
+        <nav class="sb-nav">
+            <span class="sb-section-label">Main</span>
+            <button class="sb-item active" data-page="dashboard"><span class="sb-icon">⊞</span> Dashboard</button>
+            <a class="sb-item nav-link" href="projects.html" data-admin-id=""><span class="sb-icon">📋</span> Projects</a>
+            <a class="sb-item nav-link" href="quotations.html" data-admin-id=""><span class="sb-icon">📄</span> Quotations <span class="sb-badge">3</span></a>
+            <a class="sb-item nav-link" href="calendar.html" data-admin-id=""><span class="sb-icon">📅</span> Calendar</a>
+
+            <span class="sb-section-label">Manage</span>
+            <a class="sb-item nav-link" href="services.html" data-admin-id=""><span class="sb-icon">🔧</span> Services</a>
+            <a class="sb-item nav-link" href="clients.html" data-admin-id=""><span class="sb-icon">👥</span> Clients</a>
+            <a class="sb-item nav-link" href="team.html" data-admin-id=""><span class="sb-icon">👷</span> Team</a>
+            <a class="sb-item nav-link" href="reports.html" data-admin-id=""><span class="sb-icon">📊</span> Reports</a>
+
+            <span class="sb-section-label">Account</span>
+            <a class="sb-item nav-link" href="settings.html" data-admin-id=""><span class="sb-icon">⚙️</span> Settings</a>
+            <button class="sb-item" id="logout-btn"><span class="sb-icon">↩</span> Logout</button>
+        </nav>
+
+        <div class="sb-footer">
+            <div class="sb-avatar" id="sb-avatar">MA</div>
+            <div>
+                <span class="sb-user-name" id="sb-name">Admin</span>
+                <span class="sb-user-role">Administrator</span>
+            </div>
+        </div>
+    </aside>
+
+    <div class="overlay" id="overlay"></div>
+
+    <!-- ── MAIN ───────────────────────────────────────────── -->
+    <main class="main" id="main">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="tb-left">
+                <button class="hamburger" id="hamburger">
+                    <span></span><span></span><span></span>
+                </button>
+                <div class="page-heading">
+                    <h1 id="page-title">Dashboard</h1>
+                    <span class="page-date" id="page-date"></span>
+                </div>
+            </div>
+            <div class="tb-right">
+                <div class="tb-search">
+                    <span>🔍</span>
+                    <input type="text" placeholder="Search projects, clients...">
+                </div>
+                <button class="tb-icon-btn">
+                    🔔
+                    <span class="notif-dot"></span>
+                </button>
+                <div class="tb-avatar" id="tb-avatar">MA</div>
+            </div>
+        </header>
+
+        <!-- ── DASHBOARD ──────────────────────────────────────── -->
+        <div class="page" id="page-dashboard">
+
+            <!-- Welcome -->
+            <div class="welcome-banner">
+                <div class="wb-text">
+                    <h2>Good <span id="time-greeting">morning</span>, <em id="admin-name">Admin</em> 👋</h2>
+                    <p>Here's what's happening at Mpho Yanga Construction today.</p>
+                </div>
+                <div class="wb-deco">
+                    <div class="deco-block d1"></div>
+                    <div class="deco-block d2"></div>
+                    <div class="deco-block d3"></div>
+                    <div class="deco-block d4"></div>
+                    <div class="deco-block d5"></div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-strip">
+                <div class="stat-card s-blue" style="--d:0.05s">
+                    <div class="sc-row"><span class="sc-emoji">📋</span><span class="sc-pill up">+2 this week</span></div>
+                    <div class="sc-num" data-count="12">0</div>
+                    <div class="sc-lbl">Active Projects</div>
+                </div>
+                <div class="stat-card s-orange" style="--d:0.1s">
+                    <div class="sc-row"><span class="sc-emoji">📄</span><span class="sc-pill warn">3 pending</span></div>
+                    <div class="sc-num" data-count="8">0</div>
+                    <div class="sc-lbl">Quotations</div>
+                </div>
+                <div class="stat-card s-green" style="--d:0.15s">
+                    <div class="sc-row"><span class="sc-emoji">👥</span><span class="sc-pill up">+1 new</span></div>
+                    <div class="sc-num" data-count="34">0</div>
+                    <div class="sc-lbl">Total Clients</div>
+                </div>
+                <div class="stat-card s-blue" style="--d:0.2s">
+                    <div class="sc-row"><span class="sc-emoji">📅</span><span class="sc-pill up">5 open</span></div>
+                    <div class="sc-num" data-count="5">0</div>
+                    <div class="sc-lbl">Open Slots</div>
+                </div>
+                <div class="stat-card s-green" style="--d:0.25s">
+                    <div class="sc-row"><span class="sc-emoji">✅</span><span class="sc-pill up">this year</span></div>
+                    <div class="sc-num" data-count="47">0</div>
+                    <div class="sc-lbl">Completed Jobs</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <h2 class="sec-title">Quick Actions</h2>
+            <p class="sec-sub">Jump straight into the most common tasks</p>
+
+            <div class="qa-grid">
+
+                <div class="qa-card qa-blue" style="--d:0.05s" onclick="navigateToPage('projects.html')">
+                    <div class="qa-top">
+                        <div class="qa-icon-wrap">📋</div>
+                        <span class="qa-arrow">↗</span>
+                    </div>
+                    <h4>Start New Project</h4>
+                    <p>Create a project and begin tracking progress updates for a client in real time</p>
+                </div>
+
+                <div class="qa-card qa-orange" style="--d:0.1s" onclick="navigateToPage('clients-quotations.html')">
+                    <div class="qa-top">
+                        <div class="qa-icon-wrap">📄</div>
+                        <span class="qa-badge-dot">3 pending</span>
+                    </div>
+                    <h4>Review Quotations</h4>
+                    <p>Verify, accept or decline client quote requests before work begins</p>
+                </div>
+
+                <div class="qa-card qa-green" style="--d:0.15s" onclick="navigateToPage('calendar.html')">
+                    <div class="qa-top">
+                        <div class="qa-icon-wrap">📅</div>
+                        <span class="qa-arrow">↗</span>
+                    </div>
+                    <h4>Add Calendar Slot</h4>
+                    <p>Open new availability for consultations, site visits or client meetings</p>
+                </div>
+
+                <div class="qa-card qa-blue" style="--d:0.2s" onclick="navigateToPage('services.html')">
+                    <div class="qa-top">
+                        <div class="qa-icon-wrap">🔧</div>
+                        <span class="qa-arrow">↗</span>
+                    </div>
+                    <h4>Add New Service</h4>
+                    <p>Register a new service offering to the company's public portfolio</p>
+                </div>
+
+                <div class="qa-card qa-orange" style="--d:0.25s" onclick="navigateToPage('clients.html')">
+                    <div class="qa-top">
+                        <div class="qa-icon-wrap">👥</div>
+                        <span class="qa-arrow">↗</span>
+                    </div>
+                    <h4>Manage Clients</h4>
+                    <p>View client profiles, project history and active job assignments</p>
+                </div>
+
+                <div class="qa-card qa-green" style="--d:0.3s" onclick="navigateToPage('team.html')">
+                    <div class="qa-top">
+                        <div class="qa-icon-wrap">👷</div>
+                        <span class="qa-arrow">↗</span>
+                    </div>
+                    <h4>Manage Team</h4>
+                    <p>Assign workers to projects and keep track of workforce availability</p>
+                </div>
+
+                <div class="qa-card qa-blue" style="--d:0.35s" onclick="navigateToPage('reports.html')">
+                    <div class="qa-top">
+                        <div class="qa-icon-wrap">📊</div>
+                        <span class="qa-arrow">↗</span>
+                    </div>
+                    <h4>View Reports</h4>
+                    <p>Revenue summaries, project completion rates and performance analytics</p>
+                </div>
+
+                <div class="qa-card qa-orange" style="--d:0.4s" onclick="navigateToPage('settings.html')">
+                    <div class="qa-top">
+                        <div class="qa-icon-wrap">⚙️</div>
+                        <span class="qa-arrow">↗</span>
+                    </div>
+                    <h4>Settings</h4>
+                    <p>Manage your account details, notifications and system preferences</p>
+                </div>
+
+            </div>
+
+            <!-- Bottom panels -->
+            <div class="bottom-row">
+
+                <!-- Recent Activity -->
+                <div class="panel">
+                    <div class="panel-hdr">
+                        <h3>Recent Activity</h3>
+                        <a href="#" class="panel-link">View all →</a>
+                    </div>
+                    <div class="activity-feed">
+                        <div class="af-item"><div class="af-dot b"></div><div class="af-body"><strong>New quotation received</strong><span>Bathroom tiling — Tendai M. · Harare</span></div><span class="af-time">2h ago</span></div>
+                        <div class="af-item"><div class="af-dot g"></div><div class="af-body"><strong>Project marked complete</strong><span>Exterior painting — Simba M.</span></div><span class="af-time">5h ago</span></div>
+                        <div class="af-item"><div class="af-dot o"></div><div class="af-body"><strong>Quotation accepted</strong><span>Ceiling installation — Patricia N.</span></div><span class="af-time">1d ago</span></div>
+                        <div class="af-item"><div class="af-dot b"></div><div class="af-body"><strong>New project started</strong><span>Full plumbing install — Farai M.</span></div><span class="af-time">2d ago</span></div>
+                        <div class="af-item"><div class="af-dot g"></div><div class="af-body"><strong>New client registered</strong><span>Anesu Ncube — Harare</span></div><span class="af-time">3d ago</span></div>
+                        <div class="af-item"><div class="af-dot o"></div><div class="af-body"><strong>Progress update posted</strong><span>Kitchen tiling — Rudo K.</span></div><span class="af-time">3d ago</span></div>
+                    </div>
+                </div>
+
+                <!-- Pending Quotations -->
+                <div class="panel">
+                    <div class="panel-hdr">
+                        <h3>Pending Quotations</h3>
+                        <a href="#" class="panel-link" onclick="navigateToPage('quotations.html'); return false;">Review all →</a>
+                    </div>
+                    <div class="quote-list">
+                        <div class="quote-item">
+                            <div class="qi-left"><div class="qi-av b">TM</div><div class="qi-info"><strong>Tendai Moyo</strong><span>Bathroom Tiling · Harare</span></div></div>
+                            <div class="qi-btns"><button class="qi-btn acc">✓ Accept</button><button class="qi-btn dec">✕</button></div>
+                        </div>
+                        <div class="quote-item">
+                            <div class="qi-left"><div class="qi-av o">RN</div><div class="qi-info"><strong>Rudo Ncube</strong><span>Interior Painting · Bulawayo</span></div></div>
+                            <div class="qi-btns"><button class="qi-btn acc">✓ Accept</button><button class="qi-btn dec">✕</button></div>
+                        </div>
+                        <div class="quote-item">
+                            <div class="qi-left"><div class="qi-av g">FK</div><div class="qi-info"><strong>Farai Kambarami</strong><span>Ceiling Install · Chitungwiza</span></div></div>
+                            <div class="qi-btns"><button class="qi-btn acc">✓ Accept</button><button class="qi-btn dec">✕</button></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div><!-- end dashboard page -->
+
+        <!-- Placeholder sub-pages -->
+        <div class="page hidden" id="page-projects" data-href="projects.html"></div>
+        <div class="page hidden" id="page-quotations" data-href="quotations.html"></div>
+        <div class="page hidden" id="page-calendar" data-href="calendar.html"></div>
+        <div class="page hidden" id="page-services" data-href="services.html"></div>
+        <div class="page hidden" id="page-clients" data-href="clients.html"></div>
+        <div class="page hidden" id="page-team" data-href="team.html"></div>
+        <div class="page hidden" id="page-reports" data-href="reports.html"></div>
+        <div class="page hidden" id="page-settings" data-href="settings.html"></div>
+
+    </main>
+</div>
+
+<div class="bp-badge">BP No.0200269091</div>
+
+<script>
+    // ── API BASE URL ──────────────────────────────────────────
+const getApiBase = () => window.location.origin + '/api';
+const API_BASE = getApiBase();
+    // ── GLOBAL STATE ──────────────────────────────────────────
+    let currentAdminId = null;
+    let currentAdminName = null;
+
+    // ── SET DATE & GREETING ──────────────────────────────────────
+    const now = new Date();
+    const hour = now.getHours();
+    document.getElementById('time-greeting').textContent =
+      hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+
+    document.getElementById('page-date').textContent =
+      now.toLocaleDateString('en-ZW', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+    // ── LOAD ADMIN DATA FROM SESSION OR API ─────────────────────
+    async function loadAdminData() {
+        try {
+            console.log('Loading admin data from backend...');
+
+            // Try to get from backend session
+            const response = await fetch(`${API_BASE}/admin/current-session`, {
+                credentials: 'include'  // Include cookies for session
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const adminData = data.data;
+
+                console.log('Admin data from backend:', adminData);
+                currentAdminId = adminData.id;
+                currentAdminName = adminData.name;
+                updateAdminUI(adminData);
+
+                // Set admin ID on all nav links
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.setAttribute('data-admin-id', adminData.id);
+                });
+
+                return;
+            }
+        } catch (error) {
+            console.warn('Could not get admin from backend session:', error.message);
+        }
+
+        // Fallback: use default admin for development
+        console.warn('Using default admin data (development mode)');
+        currentAdminId = 1;
+        currentAdminName = 'Admin';
+
+        const defaultAdmin = {
+            id: 1,
+            name: 'John',
+            surname: 'Doe',
+            email: 'admin@mpho.com'
+        };
+
+        updateAdminUI(defaultAdmin);
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.setAttribute('data-admin-id', '1');
+        });
+    }
+
+    function updateAdminUI(data) {
+        if (!data) return;
+
+        const fullName = `${data.name} ${data.surname || ''}`.trim();
+        const initials = (data.name[0] + (data.surname ? data.surname[0] : '')).toUpperCase();
+
+        document.getElementById('admin-name').textContent = data.name;
+        document.getElementById('sb-name').textContent = fullName;
+        document.getElementById('sb-avatar').textContent = initials;
+        document.getElementById('tb-avatar').textContent = initials;
+    }
+
+    // ── NAVIGATE TO PAGE WITH BACKEND SESSION ──────────────────
+    async function navigateToPage(page) {
+        if (!currentAdminId) {
+            console.error('No admin ID available');
+            alert('Error: Admin information not available');
+            return;
+        }
+
+        try {
+            console.log(`Setting admin session for ID: ${currentAdminId}`);
+
+            // Call backend to set session
+            const response = await fetch(`${API_BASE}/admin/set-session/${currentAdminId}`, {
+                method: 'POST',
+                credentials: 'include',  // Include cookies
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                console.log('Admin session set on backend. Navigating to:', page);
+
+                // Save admin data to localStorage as backup
+                localStorage.setItem('admin', JSON.stringify(result.data));
+
+                // Navigate to the page
+                window.location.href = `${window.location.origin}/${page}`;
+            } else {
+                console.error('Failed to set admin session:', result.message);
+                alert('Error: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error setting admin session:', error);
+            alert('Failed to navigate: ' + error.message);
+        }
+    }
+
+    // Handle nav link clicks
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const href = link.getAttribute('href');
+            navigateToPage(href);
+        });
+    });
+
+    // ── COUNTER ANIMATION ─────────────────────────────────────────
+    function animateCount(el, target) {
+      let current = 0;
+      const increment = Math.max(1, Math.ceil(target / 30));
+      const timer = setInterval(() => {
+        current = Math.min(current + increment, target);
+        el.textContent = current;
+        if (current >= target) clearInterval(timer);
+      }, 35);
+    }
+    document.querySelectorAll('.sc-num[data-count]').forEach(el => {
+      animateCount(el, parseInt(el.dataset.count));
+    });
+
+    // ── SIDEBAR NAVIGATION ────────────────────────────────────────
+    const pages = { dashboard:true, projects:true, quotations:true, calendar:true, services:true, clients:true, team:true, reports:true, settings:true };
+    const pageTitles = { dashboard:'Dashboard', projects:'Projects', quotations:'Quotations', calendar:'Calendar', services:'Services', clients:'Clients', team:'Team', reports:'Reports', settings:'Settings' };
+
+    function goTo(page) {
+      if (!pages[page]) return;
+
+      document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+
+      const el = document.getElementById('page-' + page);
+      if (el) { el.classList.remove('hidden'); el.style.animation = 'none'; void el.offsetWidth; el.style.animation = 'fadeUp 0.4s ease both'; }
+
+      document.querySelector(`.sb-item[data-page="${page}"]`)?.classList.add('active');
+      document.getElementById('page-title').textContent = pageTitles[page] || page;
+      closeSidebar();
+    }
+
+    document.querySelectorAll('.sb-item[data-page]').forEach(btn => {
+      btn.addEventListener('click', () => goTo(btn.dataset.page));
+    });
+
+    // ── SIDEBAR TOGGLE ────────────────────────────────────────────
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+    }
+
+    document.getElementById('hamburger').addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('show');
+    });
+    overlay.addEventListener('click', closeSidebar);
+
+    // ── LOGOUT ───────────────────────────────────────────────────
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      try {
+        console.log('Logging out...');
+
+        // Clear backend session
+        await fetch(`${API_BASE}/admin/clear-session`, {
+            method: 'POST',
+            credentials: 'include'
+        });
+
+        // Clear frontend storage
+        localStorage.removeItem('admin');
+        sessionStorage.removeItem('admin');
+
+        console.log('Session cleared. Redirecting to login...');
+        window.location.href = 'login.html';
+      } catch (error) {
+        console.error('Logout error:', error);
+        // Still redirect even if there's an error
+        window.location.href = 'login.html';
+      }
+    });
+
+    // ── QUICK ACCEPT / DECLINE QUOTATIONS ─────────────────────────
+    document.querySelectorAll('.qi-btn.acc').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const item = this.closest('.quote-item');
+        item.style.transition = 'opacity 0.3s, transform 0.3s';
+        item.style.opacity = '0'; item.style.transform = 'translateX(20px)';
+        setTimeout(() => item.remove(), 300);
+      });
+    });
+    document.querySelectorAll('.qi-btn.dec').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const item = this.closest('.quote-item');
+        item.style.transition = 'opacity 0.3s, transform 0.3s';
+        item.style.opacity = '0'; item.style.transform = 'translateX(-20px)';
+        setTimeout(() => item.remove(), 300);
+      });
+    });
+
+    // Initialize on page load
+    window.addEventListener('load', () => {
+        loadAdminData();
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mpho Yanga — Quotation Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+          --blue:   #1a5fad; --orange: #e8762a; --green:  #3cb54a;
+          --dark:   #0d1b2a; --darker: #070f18;
+          --text:   rgba(255,255,255,0.85); --muted:  rgba(255,255,255,0.4);
+        }
+        html, body { min-height: 100vh; background: var(--darker); color: var(--text); font-family: 'Lato', sans-serif; overflow-x: hidden; }
+        .bg-gradient {
+          position: fixed; inset: 0; z-index: 0;
+          background: radial-gradient(ellipse 80% 60% at 10% 20%, rgba(26,95,173,0.22) 0%, transparent 60%),
+                      radial-gradient(ellipse 60% 50% at 90% 80%, rgba(60,181,74,0.12) 0%, transparent 60%), var(--darker);
+          pointer-events: none;
+        }
+
+        /* ════════════════════════════════════════════════════════════ */
+        /* NAVIGATION                                                    */
+        /* ════════════════════════════════════════════════════════════ */
+        nav {
+          position: sticky; top: 0; z-index: 100;
+          background: rgba(7,15,24,0.85); backdrop-filter: blur(20px);
+          border-bottom: 1px solid rgba(255,255,255,0.07);
+          padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 68px;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .nav-icons { display: flex; gap: 5px; }
+        .nav-icon { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+        .nav-icon.b { background: var(--blue); } .nav-icon.o { background: var(--orange); } .nav-icon.g { background: var(--green); }
+        .nav-brand { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1px; color: #fff; }
+        .nav-brand span { color: var(--orange); }
+        .nav-right { display: flex; align-items: center; gap: 16px; }
+        .nav-link { display: flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .nav-link:hover { border-color: rgba(255,255,255,0.35); color: #fff; background: rgba(255,255,255,0.05); }
+        .nav-link.active { border-color: var(--blue); color: #fff; background: rgba(26,95,173,0.15); }
+        .nav-user { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); }
+        .nav-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), var(--green)); display: flex; align-items: center; justify-content: center; font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700; color: #fff; }
+
+        main { position: relative; z-index: 1; padding: 40px 32px 80px; max-width: 1400px; margin: 0 auto; }
+
+        /* ════════════════════════════════════════════════════════════ */
+        /* PAGE HEADER                                                   */
+        /* ════════════════════════════════════════════════════════════ */
+        .page-header { margin-bottom: 40px; animation: fadeUp 0.5s ease both; display: flex; justify-content: space-between; align-items: start; }
+        .page-header-left { flex: 1; }
+        .page-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(26,95,173,0.12); border: 1px solid rgba(26,95,173,0.3); border-radius: 100px; padding: 6px 14px; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: #6aaeff; margin-bottom: 16px; }
+        .page-title { font-family: 'Oswald', sans-serif; font-size: clamp(28px,5vw,48px); font-weight: 700; color: #fff; margin-bottom: 10px; }
+        .page-title em { font-style: normal; color: var(--blue); }
+        .page-sub { font-size: 15px; color: var(--muted); max-width: 500px; line-height: 1.6; }
+
+        .btn-create-quote { padding: 12px 24px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--blue), #2a80d0); color: #fff; font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 6px 20px rgba(26,95,173,0.3); display: flex; align-items: center; gap: 8px; }
+        .btn-create-quote:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(26,95,173,0.45); }
+
+        /* ════════════════════════════════════════════════════════════ */
+        /* FILTERS                                                       */
+        /* ════════════════════════════════════════════════════════════ */
+        .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 32px; animation: fadeUp 0.5s 0.1s ease both; }
+        .filter-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; font-weight: 600; }
+        .filter-btn:hover { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.05); }
+        .filter-btn.active { border-color: var(--blue); color: #fff; background: rgba(26,95,173,0.2); }
+        .filter-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .filter-dot.draft { background: #9e9e9e; }
+        .filter-dot.sent { background: #6aaeff; }
+        .filter-dot.accepted { background: #5debb8; }
+        .filter-dot.rejected { background: #ff6b6b; }
+        .filter-dot.expired { background: var(--orange); }
+        .filter-dot.archived { background: #9ca3af; }
+
+        /* ════════════════════════════════════════════════════════════ */
+        /* QUOTATIONS GRID                                               */
+        /* ════════════════════════════════════════════════════════════ */
+        .quotations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 24px; animation: fadeUp 0.5s 0.2s ease both; }
+
+        .quote-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 24px; transition: all 0.3s; position: relative; overflow: hidden; }
+        .quote-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+
+        .quote-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 18px; }
+        .quote-title { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 700; color: #fff; }
+        .quote-number { font-size: 11px; letter-spacing: 0.5px; color: var(--muted); font-family: monospace; }
+
+        .quote-status { display: inline-block; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; padding: 5px 12px; border-radius: 100px; font-weight: 700; }
+        .quote-status.draft { background: rgba(158,158,158,0.2); color: #bdbdbd; }
+        .quote-status.sent { background: rgba(26,95,173,0.2); color: #6aaeff; }
+        .quote-status.accepted { background: rgba(60,181,74,0.2); color: #5debb8; }
+        .quote-status.rejected { background: rgba(255,107,107,0.2); color: #ff6b6b; }
+        .quote-status.expired { background: rgba(232,118,42,0.2); color: #ffb74d; }
+        .quote-status.archived { background: rgba(156,163,175,0.2); color: #d1d5db; }
+
+        .quote-info { background: rgba(26,95,173,0.08); border: 1px solid rgba(26,95,173,0.15); border-radius: 12px; padding: 16px; margin-bottom: 18px; }
+        .info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .info-row:last-child { margin-bottom: 0; }
+        .info-label { font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); }
+        .info-value { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 600; color: #fff; }
+        .total-value { font-size: 20px; background: linear-gradient(135deg, var(--blue), #2a80d0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        .quote-desc { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 16px; max-height: 60px; overflow: hidden; }
+
+        .items-box { background: rgba(0,0,0,0.2); border-radius: 10px; padding: 14px; margin-bottom: 18px; }
+        .items-header { font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .items-count { background: rgba(26,95,173,0.3); padding: 2px 8px; border-radius: 100px; font-size: 11px; color: #6aaeff; }
+        .items-list { display: flex; flex-direction: column; gap: 8px; max-height: 140px; overflow-y: auto; }
+        .item-row { background: rgba(255,255,255,0.03); border-left: 3px solid var(--orange); padding: 8px 10px; border-radius: 6px; font-size: 12px; display: flex; justify-content: space-between; cursor: pointer; transition: all 0.2s; }
+        .item-row:hover { background: rgba(255,255,255,0.08); border-left-color: var(--blue); }
+        .item-desc { color: #fff; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .item-price { color: #6aaeff; font-weight: 700; }
+
+        .quote-timestamp { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 6px; margin-bottom: 16px; }
+        .quote-timestamp i { color: var(--orange); }
+
+        .quote-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; }
+        .action-btn { padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.03); color: var(--muted); font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .action-btn:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.08); }
+
+        .btn-add-item { color: var(--green) !important; border-color: rgba(60,181,74,0.3) !important; }
+        .btn-add-item:hover { background: rgba(60,181,74,0.1) !important; border-color: rgba(60,181,74,0.5) !important; }
+
+        .btn-delete-items { color: var(--orange) !important; border-color: rgba(232,118,42,0.3) !important; }
+        .btn-delete-items:hover { background: rgba(232,118,42,0.1) !important; border-color: rgba(232,118,42,0.5) !important; }
+
+        .btn-done { background: rgba(60,181,74,0.15) !important; border-color: rgba(60,181,74,0.4) !important; color: #5debb8 !important; }
+        .btn-done:hover { background: rgba(60,181,74,0.25) !important; }
+
+        .btn-delete-draft { background: rgba(220,50,50,0.15) !important; border-color: rgba(220,50,50,0.4) !important; color: #ff6b6b !important; }
+        .btn-delete-draft:hover { background: rgba(220,50,50,0.25) !important; }
+
+        .btn-delete { background: rgba(220,50,50,0.15) !important; border-color: rgba(220,50,50,0.4) !important; color: #ff6b6b !important; }
+        .btn-delete:hover { background: rgba(220,50,50,0.25) !important; }
+
+        /* ════════════════════════════════════════════════════════════ */
+        /* EMPTY STATE                                                   */
+        /* ════════════════════════════════════════════════════════════ */
+        .empty-state { text-align: center; padding: 60px 20px; display: none; animation: fadeUp 0.5s ease both; }
+        .empty-state.show { display: block; }
+        .empty-icon { font-size: 4rem; color: var(--blue); margin-bottom: 20px; opacity: 0.4; }
+        .empty-title { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+        .empty-desc { font-size: 14px; color: var(--muted); }
+
+        /* ════════════════════════════════════════════════════════════ */
+        /* MODALS                                                        */
+        /* ════════════════════════════════════════════════════════════ */
+        .modal-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal { background: #0d1b2a; border: 1px solid rgba(255,255,255,0.12); border-radius: 18px; padding: 36px; max-width: 500px; width: 100%; transform: translateY(20px); transition: transform 0.3s; max-height: 90vh; overflow-y: auto; }
+        .modal-overlay.active .modal { transform: translateY(0); }
+
+        .modal-lg { max-width: 700px; }
+
+        .modal-title { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+        .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+        .form-group { margin-bottom: 18px; }
+        .form-label { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: block; font-weight: 600; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 11px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 14px; font-family: inherit; transition: all 0.2s; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: rgba(26,95,173,0.5); background: rgba(26,95,173,0.1); }
+        .form-textarea { resize: vertical; min-height: 80px; }
+        .form-input:disabled { background: rgba(255,255,255,0.02); color: var(--muted); cursor: not-allowed; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-row.full { grid-template-columns: 1fr; }
+
+        .img-upload-zone { border: 2px dashed rgba(26,95,173,0.4); border-radius: 12px; padding: 32px 20px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .img-upload-zone:hover { border-color: var(--blue); background: rgba(26,95,173,0.08); }
+        .img-upload-zone.dragover { border-color: var(--orange); background: rgba(232,118,42,0.1); }
+        .img-upload-zone i { font-size: 2rem; color: var(--blue); margin-bottom: 10px; }
+        .img-upload-zone p { font-size: 13px; color: var(--muted); margin: 0; }
+
+        .img-preview { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 12px; margin-top: 16px; }
+        .img-preview-item { position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; background: rgba(255,255,255,0.04); cursor: pointer; transition: all 0.2s; }
+        .img-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+        .img-preview-item:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .img-remove { position: absolute; top: 2px; right: 2px; background: rgba(220,50,50,0.8); color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .img-remove:hover { background: rgba(220,50,50,1); }
+
+        /* ════════════════════════════════════════════════════════════ */
+        /* ITEM DETAIL MODAL SPECIFIC                                    */
+        /* ════════════════════════════════════════════════════════════ */
+        .item-detail-tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .item-detail-tab { padding: 12px 16px; background: transparent; border: none; color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+        .item-detail-tab:hover { color: #fff; }
+        .item-detail-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+        .item-detail-content { display: none; }
+        .item-detail-content.active { display: block; }
+
+        .item-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        .item-detail-field { background: rgba(26,95,173,0.08); border: 1px solid rgba(26,95,173,0.15); border-radius: 10px; padding: 14px; }
+        .item-detail-label { font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+        .item-detail-value { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 600; color: #fff; word-break: break-word; }
+
+        .images-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+        .gallery-item { position: relative; width: 120px; height: 120px; border-radius: 10px; overflow: hidden; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.3s; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+        .gallery-item:hover img { transform: scale(1.08); }
+        .gallery-item:hover { box-shadow: 0 8px 24px rgba(26,95,173,0.3); border-color: var(--blue); }
+        .gallery-item-remove { position: absolute; top: 4px; right: 4px; background: rgba(220,50,50,0.9); color: #fff; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 12px; display: none; align-items: center; justify-content: center; transition: all 0.2s; z-index: 10; }
+        .gallery-item:hover .gallery-item-remove { display: flex; }
+        .gallery-item-remove:hover { background: rgba(220,50,50,1); transform: scale(1.1); }
+
+        .no-images { text-align: center; padding: 40px 20px; color: var(--muted); }
+        .no-images i { font-size: 3rem; opacity: 0.3; margin-bottom: 16px; }
+
+        .modal-actions { display: flex; gap: 12px; margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .btn-modal { flex: 1; padding: 12px; border-radius: 10px; border: none; font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-modal.primary { background: linear-gradient(135deg, var(--blue), #2a80d0); color: #fff; }
+        .btn-modal.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(26,95,173,0.35); }
+        .btn-modal.secondary { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: var(--muted); }
+        .btn-modal.secondary:hover { background: rgba(255,255,255,0.1); }
+
+        .btn-edit-item { background: linear-gradient(135deg, var(--orange), #f59c3f); color: #fff; }
+        .btn-edit-item:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(232,118,42,0.35); }
+
+        /* ════════════════════════════════════════════════════════════ */
+        /* TOAST NOTIFICATIONS                                           */
+        /* ════════════════════════════════════════════════════════════ */
+        .toast { position: fixed; bottom: 20px; right: 20px; z-index: 300; padding: 14px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(20px); transition: all 0.3s; pointer-events: none; }
+        .toast.show { opacity: 1; transform: translateY(0); pointer-events: all; }
+        .toast.success { background: rgba(60,181,74,0.2); border: 1px solid rgba(60,181,74,0.4); color: #5debb8; }
+        .toast.error { background: rgba(220,50,50,0.2); border: 1px solid rgba(220,50,50,0.4); color: #ff6b6b; }
+        .toast.info { background: rgba(26,95,173,0.2); border: 1px solid rgba(26,95,173,0.4); color: #6aaeff; }
+
+        /* ════════════════════════════════════════════════════════════ */
+        /* LIGHTBOX                                                      */
+        /* ════════════════════════════════════════════════════════════ */
+        .lightbox-overlay { position: fixed; inset: 0; z-index: 250; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .lightbox-overlay.active { opacity: 1; pointer-events: all; }
+        .lightbox-image { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 12px; }
+        .lightbox-close { position: absolute; top: 20px; right: 20px; background: rgba(220,50,50,0.8); color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .lightbox-close:hover { background: rgba(220,50,50,1); }
+
+        /* ════════════════════════════════════════════════════════════ */
+        /* ANIMATIONS                                                    */
+        /* ════════════════════════════════════════════════════════════ */
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ════════════════════════════════════════════════════════════ */
+        /* RESPONSIVE                                                    */
+        /* ════════════════════════════════════════════════════════════ */
+        @media (max-width: 768px) {
+          nav { padding: 0 16px; }
+          main { padding: 24px 16px 60px; }
+          .page-header { flex-direction: column; gap: 16px; }
+          .btn-create-quote { width: 100%; }
+          .quotations-grid { grid-template-columns: 1fr; }
+          .filter-bar { overflow-x: auto; }
+          .quote-actions { grid-template-columns: repeat(2, 1fr); }
+          .form-row { grid-template-columns: 1fr; }
+          .item-detail-grid { grid-template-columns: 1fr; }
+          .modal { padding: 24px; }
+          .item-detail-tabs { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+<div class="bg-gradient"></div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- NAVIGATION                                                    -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<nav>
+    <a href="#/" class="nav-logo">
+        <div class="nav-icons">
+            <div class="nav-icon b">📐</div>
+            <div class="nav-icon o">🧱</div>
+            <div class="nav-icon g">✓</div>
+        </div>
+        <div class="nav-brand">Mpho Yanga <span>Quotations</span></div>
+    </a>
+    <div class="nav-right">
+        <a href="#/dashboard" class="nav-link">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+        <div class="nav-user">
+            <span id="userName">Admin</span>
+            <div class="nav-avatar" id="userAvatar">A</div>
+        </div>
+    </div>
+</nav>
+
+<main>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-left">
+            <div class="page-tag"><i class="fas fa-file-invoice"></i> Quotations</div>
+            <h1 class="page-title">Quotation <em>Management</em></h1>
+            <p class="page-sub">Create, manage, and track quotations for your construction projects</p>
+        </div>
+        <button class="btn-create-quote" id="btnCreateQuote">
+            <i class="fas fa-plus"></i> New Quotation
+        </button>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar" id="filterBar">
+        <!-- Filters will be rendered here -->
+    </div>
+
+    <!-- Quotations Grid -->
+    <div class="quotations-grid" id="quotationsGrid">
+        <!-- Quotation cards will be rendered here -->
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState">
+        <div class="empty-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+        <h3 class="empty-title">No Quotations Yet</h3>
+        <p class="empty-desc">Create your first quotation to get started</p>
+    </div>
+</main>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- CREATE QUOTATION MODAL                                        -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="createQuoteModal">
+    <div class="modal">
+        <h2 class="modal-title">New Quotation</h2>
+        <p class="modal-sub">Create a new quotation for a client</p>
+        <form id="createQuoteForm">
+
+            <div class="form-group">
+                <label class="form-label">Quotation Title *</label>
+                <input type="text" class="form-input" id="quoteTitle" placeholder="e.g., Bathroom Renovation" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea class="form-textarea" id="quoteDesc" placeholder="Add detailed description..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-modal secondary" onclick="closeModal('createQuoteModal')">Cancel</button>
+                <button type="submit" class="btn-modal primary">Create Quotation</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- ADD ITEM MODAL                                                -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="addItemModal">
+    <div class="modal modal-lg">
+        <h2 class="modal-title">Add Item to Quotation</h2>
+        <p class="modal-sub">Add a new item with details and optional images</p>
+        <form id="addItemForm">
+            <input type="hidden" id="quotationIdForItem">
+
+            <div class="form-group">
+                <label class="form-label">Description *</label>
+                <textarea class="form-textarea" id="itemDesc" placeholder="Describe the item or service..." required></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Service Type</label>
+                    <select class="form-select" id="serviceType">
+                        <option value="">Select type...</option>
+                        <option value="Plumbing">Plumbing</option>
+                        <option value="Tiling">Tiling</option>
+                        <option value="Painting">Painting</option>
+                        <option value="Ceiling">Ceiling</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Quantity *</label>
+                    <input type="number" class="form-input" id="itemQty" step="0.01" placeholder="1.00" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Unit of Measure</label>
+                    <input type="text" class="form-input" id="itemUnit" placeholder="e.g., m², hours">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Unit Price (ZWL) *</label>
+                    <input type="number" class="form-input" id="itemPrice" step="0.01" placeholder="0.00" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Total Price (ZWL)</label>
+                <input type="number" class="form-input" id="itemTotal" readonly placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                <textarea class="form-textarea" id="itemNotes" placeholder="Additional notes..." style="min-height: 60px;"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Images (Optional)</label>
+                <div class="img-upload-zone" id="imgUploadZone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag images here or click to select</p>
+                    <input type="file" id="itemImages" multiple accept="image/*" style="display: none;">
+                </div>
+                <div class="img-preview" id="imgPreview"></div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-modal secondary" onclick="closeModal('addItemModal')">Cancel</button>
+                <button type="submit" class="btn-modal primary">Add Item</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- ITEM DETAIL MODAL                                             -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="itemDetailModal">
+    <div class="modal modal-lg">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 24px;">
+            <div>
+                <h2 class="modal-title" id="itemDetailTitle">Item Details</h2>
+                <p class="modal-sub">View and manage item information</p>
+            </div>
+            <button type="button" class="btn-modal btn-edit-item" id="btnEditItem" style="flex: 0 0 auto; width: auto;">
+                <i class="fas fa-edit"></i> Edit
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="item-detail-tabs">
+            <button type="button" class="item-detail-tab active" data-tab="details">Details</button>
+            <button type="button" class="item-detail-tab" data-tab="images">Images</button>
+        </div>
+
+        <!-- Details Tab -->
+        <div class="item-detail-content active" data-content="details" id="detailsContent">
+            <div class="item-detail-grid">
+                <div class="item-detail-field">
+                    <div class="item-detail-label">Description</div>
+                    <div class="item-detail-value" id="detailDesc">—</div>
+                </div>
+                <div class="item-detail-field">
+                    <div class="item-detail-label">Service Type</div>
+                    <div class="item-detail-value" id="detailServiceType">—</div>
+                </div>
+            </div>
+
+            <div class="item-detail-grid">
+                <div class="item-detail-field">
+                    <div class="item-detail-label">Quantity</div>
+                    <div class="item-detail-value" id="detailQuantity">—</div>
+                </div>
+                <div class="item-detail-field">
+                    <div class="item-detail-label">Unit of Measure</div>
+                    <div class="item-detail-value" id="detailUnitMeasure">—</div>
+                </div>
+            </div>
+
+            <div class="item-detail-grid">
+                <div class="item-detail-field">
+                    <div class="item-detail-label">Unit Price (ZWL)</div>
+                    <div class="item-detail-value" id="detailUnitPrice">—</div>
+                </div>
+                <div class="item-detail-field">
+                    <div class="item-detail-label">Total Price (ZWL)</div>
+                    <div class="item-detail-value" id="detailTotalPrice">—</div>
+                </div>
+            </div>
+
+            <div class="item-detail-grid full">
+                <div class="item-detail-field">
+                    <div class="item-detail-label">Notes</div>
+                    <div class="item-detail-value" id="detailNotes">—</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Images Tab -->
+        <div class="item-detail-content" data-content="images" id="imagesContent">
+            <div class="images-gallery" id="itemImagesGallery">
+                <!-- Images will be rendered here -->
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn-modal secondary" onclick="closeModal('itemDetailModal')">Close</button>
+            <button type="button" class="btn-modal" style="background: rgba(220,50,50,0.15); border: 1px solid rgba(220,50,50,0.4); color: #ff6b6b;" id="btnDeleteItem">
+                <i class="fas fa-trash"></i> Delete Item
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- EDIT ITEM MODAL                                               -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="editItemModal">
+    <div class="modal modal-lg">
+        <h2 class="modal-title">Edit Item</h2>
+        <p class="modal-sub">Update item details and images</p>
+        <form id="editItemForm">
+            <input type="hidden" id="editItemId">
+
+            <div class="form-group">
+                <label class="form-label">Description *</label>
+                <textarea class="form-textarea" id="editItemDesc" placeholder="Describe the item or service..." required></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Service Type</label>
+                    <select class="form-select" id="editServiceType">
+                        <option value="">Select type...</option>
+                        <option value="Plumbing">Plumbing</option>
+                        <option value="Tiling">Tiling</option>
+                        <option value="Painting">Painting</option>
+                        <option value="Ceiling">Ceiling</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Quantity *</label>
+                    <input type="number" class="form-input" id="editItemQty" step="0.01" placeholder="1.00" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Unit of Measure</label>
+                    <input type="text" class="form-input" id="editItemUnit" placeholder="e.g., m², hours">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Unit Price (ZWL) *</label>
+                    <input type="number" class="form-input" id="editItemPrice" step="0.01" placeholder="0.00" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Total Price (ZWL)</label>
+                <input type="number" class="form-input" id="editItemTotal" readonly placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                <textarea class="form-textarea" id="editItemNotes" placeholder="Additional notes..." style="min-height: 60px;"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Add More Images (Optional)</label>
+                <div class="img-upload-zone" id="editImgUploadZone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag images here or click to select</p>
+                    <input type="file" id="editItemImages" multiple accept="image/*" style="display: none;">
+                </div>
+                <div class="img-preview" id="editImgPreview"></div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-modal secondary" onclick="closeModal('editItemModal')">Cancel</button>
+                <button type="submit" class="btn-modal primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- CONFIRMATION MODAL                                            -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal" style="max-width: 400px;">
+        <h2 class="modal-title" id="confirmTitle">Confirm</h2>
+        <p class="modal-sub" id="confirmDesc"></p>
+        <div class="modal-actions">
+            <button type="button" class="btn-modal secondary" onclick="closeModal('confirmModal')">Cancel</button>
+            <button type="button" class="btn-modal primary" id="confirmBtn" style="background: linear-gradient(135deg, #dc3232, #a02222) !important;">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- LIGHTBOX FOR IMAGE PREVIEW                                    -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="lightbox-overlay" id="lightboxOverlay">
+    <button class="lightbox-close" onclick="closeLightbox()">
+        <i class="fas fa-times"></i>
+    </button>
+    <img id="lightboxImage" class="lightbox-image" src="" alt="Image preview">
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    // ════════════════════════════════════════════════════════════════════════════════
+    // QUOTATION MANAGEMENT - MAIN SCRIPT (UPDATED FOR NEW ENDPOINTS)
+    // ════════════════════════════════════════════════════════════════════════════════
+
+    class QuotationApp {
+        constructor() {
+            this.quotations = [];
+            this.clients = [];
+            this.currentFilter = 'all';
+            this.currentQuotationId = null;
+            this.currentItemId = null;
+            this.currentItem = null;
+            this.selectedImages = [];
+            this.editSelectedImages = [];
+            this.confirmAction = null;
+            this.init();
+        }
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        // INITIALIZATION
+        // ════════════════════════════════════════════════════════════════════════════════
+
+        init() {
+            this.setupNavigation();
+            this.setupEventListeners();
+            this.loadQuotations();
+            this.updateUserInfo();
+        }
+
+        setupNavigation() {
+            const currentPath = window.location.hash || '#';
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === currentPath || currentPath.includes(link.getAttribute('href'))) {
+                    link.classList.add('active');
+                }
+            });
+
+            window.addEventListener('hashchange', () => {
+                if (window.location.hash.includes('quotations')) {
+                    this.loadQuotations();
+                }
+            });
+        }
+
+        setupEventListeners() {
+            // Create Quotation
+            document.getElementById('btnCreateQuote').addEventListener('click', () => openModal('createQuoteModal'));
+            document.getElementById('createQuoteForm').addEventListener('submit', (e) => this.handleCreateQuotation(e));
+
+            // Add Item
+            document.getElementById('addItemForm').addEventListener('submit', (e) => this.handleAddItem(e));
+
+            // Edit Item
+            document.getElementById('editItemForm').addEventListener('submit', (e) => this.handleEditItem(e));
+            document.getElementById('btnEditItem').addEventListener('click', () => this.openEditItemModal());
+
+            // Delete Item Button
+            document.getElementById('btnDeleteItem').addEventListener('click', () => this.confirmDeleteItem());
+
+            // Item Detail Tabs
+            document.querySelectorAll('.item-detail-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => this.switchItemDetailTab(e.target.dataset.tab));
+            });
+
+            // Image Upload - Add Item
+            const imgUploadZone = document.getElementById('imgUploadZone');
+            const itemImages = document.getElementById('itemImages');
+            imgUploadZone.addEventListener('click', () => itemImages.click());
+            itemImages.addEventListener('change', (e) => this.handleImageSelect(e));
+            imgUploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                imgUploadZone.classList.add('dragover');
+            });
+            imgUploadZone.addEventListener('dragleave', () => {
+                imgUploadZone.classList.remove('dragover');
+            });
+            imgUploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                imgUploadZone.classList.remove('dragover');
+                this.handleImageDrop(e);
+            });
+
+            // Image Upload - Edit Item
+            const editImgUploadZone = document.getElementById('editImgUploadZone');
+            const editItemImages = document.getElementById('editItemImages');
+            editImgUploadZone.addEventListener('click', () => editItemImages.click());
+            editItemImages.addEventListener('change', (e) => this.handleEditImageSelect(e));
+            editImgUploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                editImgUploadZone.classList.add('dragover');
+            });
+            editImgUploadZone.addEventListener('dragleave', () => {
+                editImgUploadZone.classList.remove('dragover');
+            });
+            editImgUploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                editImgUploadZone.classList.remove('dragover');
+                this.handleEditImageDrop(e);
+            });
+
+            // Price Calculation
+            document.getElementById('itemQty').addEventListener('input', () => this.calculateTotal());
+            document.getElementById('itemPrice').addEventListener('input', () => this.calculateTotal());
+            document.getElementById('editItemQty').addEventListener('input', () => this.calculateEditTotal());
+            document.getElementById('editItemPrice').addEventListener('input', () => this.calculateEditTotal());
+
+            // Modal Overlay Click
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) {
+                        overlay.classList.remove('active');
+                    }
+                });
+            });
+
+            // Lightbox Close
+            document.getElementById('lightboxOverlay').addEventListener('click', () => closeLightbox());
+
+            // Confirmation Button
+            document.getElementById('confirmBtn').addEventListener('click', () => this.handleConfirmation());
+        }
+
+        updateUserInfo() {
+            const userName = sessionStorage.getItem('adminName') || sessionStorage.getItem('userName') || 'Admin';
+            const userInitial = userName.charAt(0).toUpperCase();
+            document.getElementById('userName').textContent = userName;
+            document.getElementById('userAvatar').textContent = userInitial;
+        }
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        // LOAD DATA
+        // ════════════════════════════════════════════════════════════════════════════════
+
+        async loadQuotations() {
+            try {
+                const response = await fetch('/api/quotations');
+                if (!response.ok) throw new Error('Failed to load quotations');
+                const data = await response.json();
+                this.quotations = data.data;
+
+                await this.inflateQuotationItems();
+                this.renderQuotations();
+                this.renderFilters();
+            } catch (error) {
+                console.error('Error loading quotations:', error);
+                this.showToast('Failed to load quotations', 'error');
+            }
+        }
+
+        async inflateQuotationItems() {
+            const promises = this.quotations.map(quote => this.loadQuotationItemsForCard(quote));
+            await Promise.all(promises);
+        }
+
+        async loadQuotationItemsForCard(quote) {
+            try {
+                const response = await fetch(`/api/quotations/${quote.quotationId}/items`);
+                if (!response.ok) {
+                    console.warn(`Failed to load items for quotation ${quote.quotationId}`);
+                    quote.quotationItems = [];
+                    return;
+                }
+
+                const itemsData = await response.json();
+                quote.quotationItems = Array.isArray(itemsData) ? itemsData : (itemsData.data || []);
+                quote.totalAmount = quote.quotationItems.reduce((sum, item) => {
+                    return sum + (item.totalPrice || 0);
+                }, 0);
+            } catch (error) {
+                console.error(`Error loading items for quotation ${quote.quotationId}:`, error);
+                quote.quotationItems = [];
+                quote.totalAmount = 0;
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        // RENDERING
+        // ════════════════════════════════════════════════════════════════════════════════
+
+        renderFilters() {
+            const filterBar = document.getElementById('filterBar');
+            const statuses = ['all', 'DRAFT', 'SENT', 'ACCEPTED', 'REJECTED', 'EXPIRED', 'ARCHIVED'];
+            const statusLabels = {
+                all: 'All Quotations',
+                DRAFT: 'Draft',
+                SENT: 'Sent',
+                ACCEPTED: 'Accepted',
+                REJECTED: 'Rejected',
+                EXPIRED: 'Expired',
+                ARCHIVED: 'Archived'
+            };
+
+            filterBar.innerHTML = statuses.map(status => {
+                const count = status === 'all' ? this.quotations.length : this.quotations.filter(q => q.status === status).length;
+                return `
+                    <button class="filter-btn ${this.currentFilter === status ? 'active' : ''}" data-filter="${status}">
+                        <span class="filter-dot ${status.toLowerCase()}"></span>
+                        ${statusLabels[status]} (${count})
+                    </button>
+                `;
+            }).join('');
+
+            filterBar.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    this.currentFilter = e.currentTarget.dataset.filter;
+                    this.renderQuotations();
+                });
+            });
+        }
+
+        renderQuotations() {
+            const grid = document.getElementById('quotationsGrid');
+            const emptyState = document.getElementById('emptyState');
+            grid.innerHTML = '';
+
+            let filtered = this.quotations;
+            if (this.currentFilter !== 'all') {
+                filtered = this.quotations.filter(q => q.status === this.currentFilter);
+            }
+
+            if (filtered.length === 0) {
+                emptyState.classList.add('show');
+                return;
+            }
+
+            emptyState.classList.remove('show');
+
+            filtered.forEach((quote, index) => {
+                const card = this.createQuotationCard(quote);
+                card.style.animation = `fadeUp 0.5s ${0.05 * index}s ease both`;
+                grid.appendChild(card);
+            });
+        }
+
+        createQuotationCard(quote) {
+            const card = document.createElement('div');
+            card.className = 'quote-card';
+
+            const statusClass = quote.status.toLowerCase();
+            const itemsCount = quote.quotationItems ? quote.quotationItems.length : 0;
+            const total = quote.totalAmount || 0;
+            const createdDate = new Date(quote.createdAt).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+
+            let itemsHtml = '';
+            if (itemsCount === 0) {
+                itemsHtml = '<div style="font-size: 12px; color: var(--muted); padding: 4px; text-align: center;">No items</div>';
+            } else {
+                itemsHtml = (quote.quotationItems || []).map(item => `
+                    <div class="item-row" onclick="app.openItemDetailModal(${item.id})">
+                        <span class="item-desc">${item.description.substring(0, 30)}</span>
+                        <span class="item-price">ZWL ${(item.totalPrice || 0).toFixed(2)}</span>
+                    </div>
+                `).join('');
+            }
+
+            let actionsHtml = '';
+            if (quote.status === 'DRAFT') {
+                actionsHtml = `
+                    <button class="action-btn btn-add-item" onclick="app.openAddItemModal(${quote.quotationId})">
+                        <i class="fas fa-plus"></i> Item
+                    </button>
+                    ${itemsCount > 0 ? `<button class="action-btn btn-delete-items" onclick="app.confirmDeleteAllItems(${quote.quotationId})"><i class="fas fa-trash"></i> Items</button>` : ''}
+                    <button class="action-btn btn-done" onclick="app.publishQuotation(${quote.quotationId})">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                    <button class="action-btn btn-delete-draft" onclick="app.confirmDelete(${quote.quotationId}, '${quote.title}')">
+                        <i class="fas fa-times"></i> Delete
+                    </button>
+                `;
+            } else {
+                actionsHtml = `
+                    <button class="action-btn btn-delete" onclick="app.confirmDelete(${quote.quotationId}, '${quote.title}')">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                `;
+            }
+
+            card.innerHTML = `
+                <div class="quote-header">
+                    <div>
+                        <div class="quote-title">${quote.title}</div>
+                        <div class="quote-number">${quote.quotationNumber}</div>
+                    </div>
+                    <span class="quote-status ${statusClass}">${quote.status.replace('_', ' ')}</span>
+                </div>
+
+                <div class="quote-info">
+                    <div class="info-row">
+                        <span class="info-label">Total Amount</span>
+                        <span class="info-value total-value">ZWL ${total.toFixed(2)}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Items</span>
+                        <span class="info-value">${itemsCount}</span>
+                    </div>
+                </div>
+
+                ${quote.description ? `<div class="quote-desc">${quote.description}</div>` : ''}
+
+                <div class="items-box">
+                    <div class="items-header">
+                        <span>Items</span>
+                        <span class="items-count">${itemsCount}</span>
+                    </div>
+                    <div class="items-list">
+                        ${itemsHtml}
+                    </div>
+                </div>
+
+                <div class="quote-timestamp">
+                    <i class="fas fa-calendar"></i> Created ${createdDate}
+                </div>
+
+                <div class="quote-actions">
+                    ${actionsHtml}
+                </div>
+            `;
+
+            return card;
+        }
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        // FORM HANDLERS
+        // ════════════════════════════════════════════════════════════════════════════════
+
+        async handleCreateQuotation(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('quoteTitle').value;
+            const description = document.getElementById('quoteDesc').value;
+
+            if (!title) {
+                this.showToast('Please fill required fields', 'error');
+                return;
+            }
+
+            try {
+                const params = new URLSearchParams({ title, description });
+                const response = await fetch(`/api/quotations/create?${params}`, { method: 'POST' });
+
+                if (!response.ok) throw new Error('Failed to create quotation');
+
+                this.showToast('Quotation created successfully! ✓', 'success');
+                closeModal('createQuoteModal');
+                document.getElementById('createQuoteForm').reset();
+                await this.loadQuotations();
+            } catch (error) {
+                console.error('Error:', error);
+                this.showToast('Failed to create quotation', 'error');
+            }
+        }
+
+        async handleAddItem(e) {
+            e.preventDefault();
+
+            const quotationId = document.getElementById('quotationIdForItem').value;
+            const description = document.getElementById('itemDesc').value;
+            const serviceType = document.getElementById('serviceType').value;
+            const quantity = document.getElementById('itemQty').value;
+            const unitOfMeasure = document.getElementById('itemUnit').value;
+            const unitPrice = document.getElementById('itemPrice').value;
+            const notes = document.getElementById('itemNotes').value;
+
+            if (!description || !quantity || !unitPrice) {
+                this.showToast('Please fill required fields', 'error');
+                return;
+            }
+
+            try {
+                const params = new URLSearchParams({
+                    description, serviceType, quantity, unitOfMeasure, unitPrice, notes
+                });
+
+                const response = await fetch(`/api/quotations/${quotationId}/items?${params}`, {
+                    method: 'POST'
+                });
+
+                if (!response.ok) throw new Error('Failed to add item');
+
+                const item = await response.json();
+
+                if (this.selectedImages.length > 0) {
+                    await this.uploadImages(item.id);
+                } else {
+                    this.showToast('Item added successfully! ✓', 'success');
+                    closeModal('addItemModal');
+                    document.getElementById('addItemForm').reset();
+                    await this.loadQuotations();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                this.showToast('Failed to add item', 'error');
+            }
+        }
+
+        async handleEditItem(e) {
+            e.preventDefault();
+
+            const itemId = document.getElementById('editItemId').value;
+            const description = document.getElementById('editItemDesc').value;
+            const serviceType = document.getElementById('editServiceType').value;
+            const quantity = document.getElementById('editItemQty').value;
+            const unitOfMeasure = document.getElementById('editItemUnit').value;
+            const unitPrice = document.getElementById('editItemPrice').value;
+            const notes = document.getElementById('editItemNotes').value;
+
+            if (!description || !quantity || !unitPrice) {
+                this.showToast('Please fill required fields', 'error');
+                return;
+            }
+
+            try {
+                const params = new URLSearchParams({
+                    description, serviceType, quantity, unitOfMeasure, unitPrice, notes
+                });
+
+                const response = await fetch(`/api/quotations/items/${itemId}?${params}`, {
+                    method: 'PUT'
+                });
+
+                if (!response.ok) throw new Error('Failed to update item');
+
+                if (this.editSelectedImages.length > 0) {
+                    await this.uploadEditImages(itemId);
+                } else {
+                    this.showToast('Item updated successfully! ✓', 'success');
+                    closeModal('editItemModal');
+                    await this.loadQuotations();
+                    await this.loadItemDetails(itemId);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                this.showToast('Failed to update item', 'error');
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        // ITEM DETAIL MODAL - FIXED ENDPOINTS
+        // ════════════════════════════════════════════════════════════════════════════════
+
+        async openItemDetailModal(itemId) {
+            this.currentItemId = itemId;
+            await this.loadItemDetails(itemId);
+            openModal('itemDetailModal');
+        }
+
+        async loadItemDetails(itemId) {
+            try {
+                // FIXED: Use the correct endpoint path
+                const response = await fetch(`/api/quotations/items/${itemId}/details`);
+                if (!response.ok) throw new Error('Failed to load item details');
+
+                // FIXED: Response structure - data is returned directly, not wrapped
+                const itemDetails = await response.json();
+                this.currentItem = itemDetails;
+
+                // Get images array from the response
+                const images = itemDetails.images || [];
+
+                this.renderItemDetails(itemDetails, images);
+            } catch (error) {
+                console.error('Error loading item details:', error);
+                this.showToast('Failed to load item details', 'error');
+            }
+        }
+
+        renderItemDetails(item, images) {
+            document.getElementById('itemDetailTitle').textContent = item.description.substring(0, 50);
+
+            document.getElementById('detailDesc').textContent = item.description;
+            document.getElementById('detailServiceType').textContent = item.serviceType || '—';
+            document.getElementById('detailQuantity').textContent = item.quantity || '—';
+            document.getElementById('detailUnitMeasure').textContent = item.unitOfMeasure || '—';
+            document.getElementById('detailUnitPrice').textContent = (item.unitPrice || 0).toFixed(2);
+            document.getElementById('detailTotalPrice').textContent = (item.totalCost || 0).toFixed(2);
+            document.getElementById('detailNotes').textContent = item.notes || '—';
+
+            this.renderItemImages(images);
+        }
+
+        renderItemImages(images) {
+            const gallery = document.getElementById('itemImagesGallery');
+
+            if (!images || images.length === 0) {
+                gallery.innerHTML = `
+                    <div class="no-images" style="grid-column: 1/-1;">
+                        <i class="fas fa-image"></i>
+                        <p>No images for this item</p>
+                    </div>
+                `;
+                return;
+            }
+
+            gallery.innerHTML = images.map(img => `
+                <div class="gallery-item">
+                    <img src="/${img.imagePath}" alt="${img.description}" onclick="openLightbox('/uploads/${img.imagePath}')">
+                    <button type="button" class="gallery-item-remove" onclick="app.deleteItemImage(${img.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        switchItemDetailTab(tabName) {
+            document.querySelectorAll('.item-detail-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.item-detail-content').forEach(c => c.classList.remove('active'));
+
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.querySelector(`[data-content="${tabName}"]`).classList.add('active');
+        }
+
+        openEditItemModal() {
+            const item = this.currentItem;
+            if (!item) return;
+
+            document.getElementById('editItemId').value = item.id;
+            document.getElementById('editItemDesc').value = item.description;
+            document.getElementById('editServiceType').value = item.serviceType || '';
+            document.getElementById('editItemQty').value = item.quantity || '';
+            document.getElementById('editItemUnit').value = item.unitOfMeasure || '';
+            document.getElementById('editItemPrice').value = item.unitPrice || '';
+            document.getElementById('editItemTotal').value = item.totalCost || '';
+            document.getElementById('editItemNotes').value = item.notes || '';
+
+            this.editSelectedImages = [];
+            document.getElementById('editImgPreview').innerHTML = '';
+
+            closeModal('itemDetailModal');
+            openModal('editItemModal');
+        }
+
+        confirmDeleteItem() {
+            if (!this.currentItemId) return;
+
+            this.confirmAction = { type: 'deleteItem', itemId: this.currentItemId };
+            document.getElementById('confirmTitle').textContent = 'Delete Item?';
+            document.getElementById('confirmDesc').textContent = 'Are you sure you want to delete this item? This cannot be undone.';
+            openModal('confirmModal');
+        }
+
+        async deleteItemImage(imageId) {
+            try {
+                const response = await fetch(`/api/quotations/images/${imageId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) throw new Error('Failed to delete image');
+
+                this.showToast('Image deleted! ✓', 'success');
+                await this.loadItemDetails(this.currentItemId);
+            } catch (error) {
+                console.error('Error:', error);
+                this.showToast('Failed to delete image', 'error');
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        // IMAGE HANDLING
+        // ════════════════════════════════════════════════════════════════════════════════
+
+        handleImageSelect(e) {
+            this.selectedImages = Array.from(e.target.files);
+            this.renderImagePreview();
+        }
+
+        handleImageDrop(e) {
+            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            this.selectedImages = files;
+            this.renderImagePreview();
+        }
+
+        handleEditImageSelect(e) {
+            this.editSelectedImages = Array.from(e.target.files);
+            this.renderEditImagePreview();
+        }
+
+        handleEditImageDrop(e) {
+            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            this.editSelectedImages = files;
+            this.renderEditImagePreview();
+        }
+
+        renderImagePreview() {
+            const preview = document.getElementById('imgPreview');
+            preview.innerHTML = this.selectedImages.map((file, index) => {
+                const url = URL.createObjectURL(file);
+                return `
+                    <div class="img-preview-item">
+                        <img src="${url}" alt="Preview">
+                        <button type="button" class="img-remove" onclick="app.removeImage(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        renderEditImagePreview() {
+            const preview = document.getElementById('editImgPreview');
+            preview.innerHTML = this.editSelectedImages.map((file, index) => {
+                const url = URL.createObjectURL(file);
+                return `
+                    <div class="img-preview-item">
+                        <img src="${url}" alt="Preview">
+                        <button type="button" class="img-remove" onclick="app.removeEditImage(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        removeImage(index) {
+            this.selectedImages.splice(index, 1);
+            this.renderImagePreview();
+        }
+
+        removeEditImage(index) {
+            this.editSelectedImages.splice(index, 1);
+            this.renderEditImagePreview();
+        }
+
+        async uploadImages(itemId) {
+            let uploaded = 0;
+
+            for (let i = 0; i < this.selectedImages.length; i++) {
+                const file = this.selectedImages[i];
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('displayOrder', i);
+
+                try {
+                    const response = await fetch(`/api/quotations/items/${itemId}/images`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        uploaded++;
+                        if (uploaded === this.selectedImages.length) {
+                            this.showToast('Item and images added successfully! ✓', 'success');
+                            closeModal('addItemModal');
+                            document.getElementById('addItemForm').reset();
+                            this.selectedImages = [];
+                            await this.loadQuotations();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error uploading image:', error);
+                }
+            }
+        }
+
+        async uploadEditImages(itemId) {
+            let uploaded = 0;
+
+            for (let i = 0; i < this.editSelectedImages.length; i++) {
+                const file = this.editSelectedImages[i];
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    const response = await fetch(`/api/quotations/items/${itemId}/images`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        uploaded++;
+                        if (uploaded === this.editSelectedImages.length) {
+                            this.showToast('Item and images updated successfully! ✓', 'success');
+                            closeModal('editItemModal');
+                            document.getElementById('editItemForm').reset();
+                            this.editSelectedImages = [];
+                            await this.loadQuotations();
+                            await this.loadItemDetails(itemId);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error uploading image:', error);
+                }
+            }
+        }
+
+        calculateTotal() {
+            const qty = parseFloat(document.getElementById('itemQty').value) || 0;
+            const price = parseFloat(document.getElementById('itemPrice').value) || 0;
+            const total = qty * price;
+            document.getElementById('itemTotal').value = total.toFixed(2);
+        }
+
+        calculateEditTotal() {
+            const qty = parseFloat(document.getElementById('editItemQty').value) || 0;
+            const price = parseFloat(document.getElementById('editItemPrice').value) || 0;
+            const total = qty * price;
+            document.getElementById('editItemTotal').value = total.toFixed(2);
+        }
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        // ACTIONS
+        // ════════════════════════════════════════════════════════════════════════════════
+
+        openAddItemModal(quotationId) {
+            this.currentQuotationId = quotationId;
+            document.getElementById('quotationIdForItem').value = quotationId;
+            document.getElementById('addItemForm').reset();
+            this.selectedImages = [];
+            document.getElementById('imgPreview').innerHTML = '';
+            openModal('addItemModal');
+        }
+
+        async publishQuotation(quotationId) {
+            try {
+                const params = new URLSearchParams({
+                    status: 'SENT',
+                    updatedBy: sessionStorage.getItem('adminName') || 'System'
+                });
+
+                const response = await fetch(`/api/quotations/${quotationId}/status?${params}`, {
+                    method: 'PUT'
+                });
+
+                if (!response.ok) throw new Error('Failed to publish');
+
+                this.showToast('Quotation published! ✓', 'success');
+                await this.loadQuotations();
+            } catch (error) {
+                console.error('Error:', error);
+                this.showToast('Failed to publish quotation', 'error');
+            }
+        }
+
+        confirmDelete(quotationId, title) {
+            this.confirmAction = { type: 'delete', quotationId };
+            document.getElementById('confirmTitle').textContent = 'Delete Quotation?';
+            document.getElementById('confirmDesc').textContent = `Are you sure you want to delete "${title}"? This cannot be undone.`;
+            openModal('confirmModal');
+        }
+
+        confirmDeleteAllItems(quotationId) {
+            this.confirmAction = { type: 'deleteItems', quotationId };
+            document.getElementById('confirmTitle').textContent = 'Delete All Items?';
+            document.getElementById('confirmDesc').textContent = 'This will remove all items from this quotation.';
+            openModal('confirmModal');
+        }
+
+        async handleConfirmation() {
+            if (!this.confirmAction) return;
+
+            const { type, quotationId, itemId } = this.confirmAction;
+
+            try {
+                if (type === 'delete') {
+                    const response = await fetch(`/api/quotations/${quotationId}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        this.showToast('Quotation deleted! ✓', 'success');
+                        await this.loadQuotations();
+                    }
+                } else if (type === 'deleteItems') {
+                    const quote = this.quotations.find(q => q.quotationId === quotationId);
+                    if (quote && quote.quotationItems) {
+                        for (const item of quote.quotationItems) {
+                            await fetch(`/api/quotations/items/${item.id}`, {
+                                method: 'DELETE'
+                            });
+                        }
+                        this.showToast('All items deleted! ✓', 'success');
+                        await this.loadQuotations();
+                    }
+                } else if (type === 'deleteItem') {
+                    const response = await fetch(`/api/quotations/items/${itemId}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        this.showToast('Item deleted! ✓', 'success');
+                        closeModal('itemDetailModal');
+                        await this.loadQuotations();
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                this.showToast('Failed to complete action', 'error');
+            }
+
+            closeModal('confirmModal');
+            this.confirmAction = null;
+        }
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        // UTILITIES
+        // ════════════════════════════════════════════════════════════════════════════════
+
+        showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3200);
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════════
+    // GLOBAL FUNCTIONS
+    // ════════════════════════════════════════════════════════════════════════════════
+
+    function openModal(modalId) {
+        document.getElementById(modalId).classList.add('active');
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('active');
+    }
+
+    function openLightbox(imageSrc) {
+        const lightbox = document.getElementById('lightboxOverlay');
+        document.getElementById('lightboxImage').src = imageSrc;
+        lightbox.classList.add('active');
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightboxOverlay').classList.remove('active');
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════════
+    // ROUTER
+    // ════════════════════════════════════════════════════════════════════════════════
+
+    window.addEventListener('hashchange', () => {
+        const hash = window.location.hash;
+        if (hash.includes('dashboard')) {
+            window.location.href = '/dashboard';
+        }
+    });
+
+    // ════════════════════════════════════════════════════════════════════════════════
+    // INITIALIZE APP
+    // ════════════════════════════════════════════════════════════════════════════════
+
+    let app;
+    document.addEventListener('DOMContentLoaded', () => {
+        app = new QuotationApp();
+    });
+</script>
+</body>
+</html>

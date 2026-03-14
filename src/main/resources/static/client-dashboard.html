@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mpho Yanga Construction — Client Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+          --blue:   #1a5fad;
+          --orange: #e8762a;
+          --green:  #3cb54a;
+          --dark:   #0d1b2a;
+          --darker: #070f18;
+          --text:   rgba(255,255,255,0.85);
+          --muted:  rgba(255,255,255,0.4);
+        }
+
+        html, body {
+          min-height: 100vh;
+          background: var(--darker);
+          color: var(--text);
+          font-family: 'Lato', sans-serif;
+          overflow-x: hidden;
+        }
+
+        .bg-gradient {
+          position: fixed; inset: 0; z-index: 0;
+          background:
+            radial-gradient(ellipse 80% 60% at 10% 20%, rgba(26,95,173,0.25) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 50% at 90% 80%, rgba(60,181,74,0.15) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 40% at 50% 50%, rgba(232,118,42,0.08) 0%, transparent 60%),
+            var(--darker);
+          pointer-events: none;
+        }
+
+        /* ── Nav ── */
+        nav {
+          position: sticky; top: 0; z-index: 100;
+          background: rgba(7,15,24,0.85);
+          backdrop-filter: blur(20px);
+          border-bottom: 1px solid rgba(255,255,255,0.07);
+          padding: 0 32px;
+          display: flex; align-items: center; justify-content: space-between;
+          height: 68px;
+        }
+
+        .nav-logo { display: flex; align-items: center; gap: 12px; }
+        .nav-icons { display: flex; gap: 5px; }
+        .nav-icon { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+        .nav-icon.b { background: var(--blue); }
+        .nav-icon.o { background: var(--orange); }
+        .nav-icon.g { background: var(--green); }
+        .nav-brand { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1px; color: #fff; }
+        .nav-brand span { color: var(--orange); }
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+        .nav-user { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); }
+        .nav-avatar {
+          width: 36px; height: 36px; border-radius: 50%;
+          background: linear-gradient(135deg, var(--blue), var(--green));
+          display: flex; align-items: center; justify-content: center;
+          font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700; color: #fff;
+        }
+        .btn-logout {
+          padding: 8px 18px; border-radius: 8px;
+          border: 1px solid rgba(255,255,255,0.15);
+          background: transparent; color: var(--muted);
+          font-size: 13px; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-logout:hover { border-color: rgba(255,255,255,0.35); color: #fff; }
+
+        /* ── Main ── */
+        main { position: relative; z-index: 1; padding: 0 32px 80px; max-width: 1200px; margin: 0 auto; }
+
+        /* ── Hero welcome ── */
+        .hero {
+          padding: 72px 0 48px;
+          border-bottom: 1px solid rgba(255,255,255,0.07);
+          margin-bottom: 56px;
+        }
+        .hero-tag {
+          display: inline-flex; align-items: center; gap: 8px;
+          background: rgba(60,181,74,0.12); border: 1px solid rgba(60,181,74,0.25);
+          border-radius: 100px; padding: 6px 14px;
+          font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+          color: #5debb8; margin-bottom: 24px;
+          animation: fadeUp 0.6s ease both;
+        }
+        .hero-greeting {
+          font-family: 'Oswald', sans-serif;
+          font-size: clamp(36px, 6vw, 64px);
+          font-weight: 700; line-height: 1.05;
+          color: #fff; margin-bottom: 12px;
+          animation: fadeUp 0.6s 0.1s ease both;
+        }
+        .hero-greeting .accent-blue   { color: var(--blue); }
+        .hero-greeting .accent-orange { color: var(--orange); }
+        .hero-greeting .accent-green  { color: var(--green); }
+        .hero-sub {
+          font-size: 18px; color: var(--muted); line-height: 1.7;
+          max-width: 560px; margin-bottom: 40px;
+          animation: fadeUp 0.6s 0.2s ease both;
+        }
+        .hero-actions {
+          display: flex; gap: 16px; flex-wrap: wrap;
+          animation: fadeUp 0.6s 0.3s ease both;
+        }
+        .btn-primary {
+          padding: 14px 32px; border-radius: 12px; border: none;
+          background: linear-gradient(135deg, var(--green), #25d366);
+          color: #fff; font-family: 'Oswald', sans-serif; font-size: 15px; font-weight: 600;
+          cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+          box-shadow: 0 8px 30px rgba(37,211,102,0.3); transition: all 0.3s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(37,211,102,0.45); }
+
+        .btn-calendar {
+          padding: 14px 32px; border-radius: 12px;
+          border: 1px solid rgba(26,95,173,0.5);
+          background: rgba(26,95,173,0.15); color: #fff;
+          font-family: 'Oswald', sans-serif; font-size: 15px; font-weight: 500;
+          cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+          transition: all 0.3s;
+        }
+        .btn-calendar:hover { background: rgba(26,95,173,0.3); border-color: rgba(26,95,173,0.8); transform: translateY(-2px); }
+
+        .btn-secondary {
+          padding: 14px 32px; border-radius: 12px;
+          border: 1px solid rgba(255,255,255,0.18);
+          background: rgba(255,255,255,0.05); color: #fff;
+          font-family: 'Oswald', sans-serif; font-size: 15px; font-weight: 500;
+          cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+          transition: all 0.3s;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+
+        /* ── Section labels ── */
+        .section-label {
+          font-family: 'Oswald', sans-serif; font-size: 13px; font-weight: 500;
+          letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+          margin-bottom: 24px; display: flex; align-items: center; gap: 12px;
+        }
+        .section-label::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
+
+        /* ── Cards ── */
+        .cards-grid {
+          display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 20px; margin-bottom: 56px;
+        }
+        .card {
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 18px; padding: 28px;
+          transition: all 0.3s; cursor: pointer;
+          animation: fadeUp 0.5s ease both;
+          text-decoration: none; color: inherit; display: block;
+        }
+        .card:hover {
+          background: rgba(255,255,255,0.07);
+          border-color: rgba(255,255,255,0.15);
+          transform: translateY(-3px);
+          box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .card.calendar-card {
+          border-color: rgba(26,95,173,0.3);
+          background: rgba(26,95,173,0.08);
+        }
+        .card.calendar-card:hover { border-color: rgba(26,95,173,0.6); background: rgba(26,95,173,0.15); }
+
+        .card-icon {
+          width: 52px; height: 52px; border-radius: 14px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 24px; margin-bottom: 18px;
+        }
+        .card-icon.blue   { background: rgba(26,95,173,0.2); }
+        .card-icon.orange { background: rgba(232,118,42,0.2); }
+        .card-icon.green  { background: rgba(60,181,74,0.2); }
+
+        .card-title { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+        .card-desc  { font-size: 14px; color: var(--muted); line-height: 1.6; }
+        .card-arrow { margin-top: 20px; font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; transition: gap 0.2s; }
+        .card:hover .card-arrow { gap: 10px; color: #fff; }
+
+        /* ── Services strip ── */
+        .services-strip {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 18px; padding: 36px;
+          display: flex; gap: 24px; flex-wrap: wrap;
+          align-items: center; margin-bottom: 56px;
+          animation: fadeUp 0.6s 0.5s ease both;
+        }
+        .services-strip-label { font-family: 'Oswald', sans-serif; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-right: 8px; }
+        .service-pill { padding: 8px 16px; border-radius: 100px; border: 1px solid rgba(255,255,255,0.12); font-size: 13px; color: var(--text); white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+
+        /* ── Projects Section ── */
+        .projects-section { margin-bottom: 72px; }
+
+        .section-header-block { margin-bottom: 32px; }
+        .section-tag-badge {
+          display: inline-block;
+          background: rgba(232,118,42,0.12); border: 1px solid rgba(232,118,42,0.25);
+          border-radius: 100px; padding: 5px 14px;
+          font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+          color: var(--orange); margin-bottom: 12px;
+        }
+        .section-big-title {
+          font-family: 'Oswald', sans-serif; font-size: clamp(28px, 4vw, 42px);
+          font-weight: 700; color: #fff; line-height: 1.1; margin-bottom: 10px;
+        }
+        .section-big-title em { font-style: normal; color: var(--orange); }
+        .section-big-sub { font-size: 15px; color: var(--muted); max-width: 500px; }
+
+        .filter-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 32px; }
+        .filter-btn {
+          padding: 8px 20px; border-radius: 100px;
+          border: 1px solid rgba(255,255,255,0.12);
+          background: transparent; color: var(--muted);
+          font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: 'Lato', sans-serif;
+        }
+        .filter-btn.active, .filter-btn:hover { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+        .projects-grid {
+          display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+          gap: 24px;
+        }
+        .project-card {
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 18px; overflow: hidden;
+          transition: all 0.3s;
+        }
+        .project-card:hover { transform: translateY(-4px); box-shadow: 0 24px 60px rgba(0,0,0,0.35); border-color: rgba(255,255,255,0.15); }
+        .pc-image { position: relative; height: 200px; overflow: hidden; }
+        .pc-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+        .project-card:hover .pc-image img { transform: scale(1.05); }
+        .pc-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(7,15,24,0.8) 0%, transparent 60%); display: flex; align-items: flex-end; padding: 16px; }
+        .pc-cat { background: var(--orange); color: #fff; font-family: 'Oswald', sans-serif; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; }
+        .pc-body { padding: 24px; }
+        .pc-meta { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+        .pc-meta h3 { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 600; color: #fff; }
+        .pc-loc { font-size: 12px; color: var(--muted); white-space: nowrap; }
+        .pc-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+        .pc-comments { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px; }
+        .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 12px; color: var(--muted); }
+        .comment-count { background: rgba(255,255,255,0.07); padding: 2px 8px; border-radius: 100px; }
+        .comment { display: flex; gap: 10px; margin-bottom: 12px; }
+        .comment:last-child { margin-bottom: 0; }
+        .comment-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; }
+        .comment-avatar.blue   { background: var(--blue); }
+        .comment-avatar.orange { background: var(--orange); }
+        .comment-avatar.green  { background: var(--green); }
+        .comment-content strong { font-size: 12px; color: #fff; display: block; margin-bottom: 4px; }
+        .comment-content p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+        /* Hidden project cards */
+        .project-card[style*="display: none"] { display: none !important; }
+
+        /* ── Testimonials ── */
+        .testimonials-section { margin-bottom: 72px; }
+        .testimonials-track { overflow: hidden; border-radius: 18px; margin-bottom: 24px; }
+        .testi-cards { display: flex; transition: transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94); }
+        .testi-card {
+          min-width: 100%; padding: 40px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 18px;
+        }
+        .testi-stars { color: var(--orange); font-size: 20px; margin-bottom: 20px; letter-spacing: 2px; }
+        .testi-card blockquote { font-size: 18px; line-height: 1.7; color: var(--text); margin-bottom: 24px; font-style: italic; }
+        .testi-author { display: flex; align-items: center; gap: 14px; }
+        .testi-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0; }
+        .testi-avatar.blue   { background: var(--blue); }
+        .testi-avatar.orange { background: var(--orange); }
+        .testi-avatar.green  { background: var(--green); }
+        .testi-author strong { display: block; font-size: 15px; color: #fff; margin-bottom: 2px; }
+        .testi-author span   { font-size: 12px; color: var(--muted); }
+        .testi-controls { display: flex; align-items: center; gap: 16px; justify-content: center; }
+        .testi-btn {
+          width: 40px; height: 40px; border-radius: 50%;
+          border: 1px solid rgba(255,255,255,0.15);
+          background: transparent; color: #fff; font-size: 18px;
+          cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+        }
+        .testi-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+        .testi-dots { display: flex; gap: 8px; }
+        .testi-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); cursor: pointer; transition: all 0.2s; border: none; }
+        .testi-dot.active { background: var(--orange); width: 24px; border-radius: 4px; }
+
+        /* ── WhatsApp CTA ── */
+        .whatsapp-cta {
+          background: linear-gradient(135deg, rgba(37,211,102,0.1), rgba(60,181,74,0.06));
+          border: 1px solid rgba(37,211,102,0.25);
+          border-radius: 20px; padding: 40px;
+          display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+          gap: 24px;
+          animation: fadeUp 0.6s 0.6s ease both;
+          margin-bottom: 56px;
+        }
+        .whatsapp-left h3 { font-family: 'Oswald', sans-serif; font-size: 24px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+        .whatsapp-left p  { font-size: 14px; color: var(--muted); }
+        .btn-whatsapp {
+          padding: 14px 28px; border-radius: 12px; border: none;
+          background: #25d366; color: #fff; font-family: 'Oswald', sans-serif;
+          font-size: 15px; font-weight: 600; cursor: pointer;
+          text-decoration: none; display: inline-flex; align-items: center; gap: 10px;
+          transition: all 0.3s; box-shadow: 0 8px 24px rgba(37,211,102,0.3);
+        }
+        .btn-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(37,211,102,0.45); }
+
+        /* ── Footer ── */
+        footer {
+          position: relative; z-index: 1;
+          border-top: 1px solid rgba(255,255,255,0.06);
+          padding: 24px 32px;
+          display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+          font-size: 12px; color: var(--muted);
+        }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 640px) {
+          nav, main { padding-left: 20px; padding-right: 20px; }
+          .hero { padding: 48px 0 32px; }
+          .whatsapp-cta { flex-direction: column; }
+          footer { flex-direction: column; text-align: center; }
+          .hero-actions { flex-direction: column; }
+          .projects-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-gradient"></div>
+
+<!-- NAV -->
+<nav>
+    <div class="nav-logo">
+        <div class="nav-icons">
+            <div class="nav-icon b">🔨</div>
+            <div class="nav-icon o">🧱</div>
+            <div class="nav-icon g">🖌️</div>
+        </div>
+        <div class="nav-brand">MPHO <span>YAN</span>GA</div>
+    </div>
+    <div class="nav-right">
+        <div class="nav-user">
+            <div class="nav-avatar" id="nav-avatar">?</div>
+            <span id="nav-name">Welcome</span>
+        </div>
+        <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-tag">✅ Account Verified &amp; Active</div>
+        <h1 class="hero-greeting" id="hero-heading">
+            Good <span class="accent-orange" id="time-greeting">day</span>,<br><span class="accent-green" id="client-name">Friend</span>!
+        </h1>
+        <p class="hero-sub">
+            Welcome to your Mpho Yanga Construction client portal. Book appointments, explore our past work, and reach out anytime — we're here for you.
+        </p>
+        <div class="hero-actions">
+            <a href="client-calendar.html" class="btn-calendar">
+                📅 View Calendar &amp; Book Appointment
+            </a>
+            <a href="https://wa.me/263770000000" class="btn-primary" target="_blank">
+                📲 Chat on WhatsApp
+            </a>
+            <a href="tel:+263770000000" class="btn-secondary">
+                📞 Call Us
+            </a>
+        </div>
+    </section>
+
+    <!-- QUICK ACTIONS -->
+    <p class="section-label">Quick Actions</p>
+    <a class="cards-grid">
+        <a href="client-calendar.html" class="card calendar-card" style="animation-delay:0.1s;">
+            <div class="card-icon blue">📅</div>
+            <div class="card-title">Book an Appointment</div>
+            <div class="card-desc">View available slots on the company calendar, book your appointment, edit or cancel at any time.</div>
+            <div class="card-arrow">Open calendar <span>→</span></div>
+        </a>
+        <a href="quotations.html" class="card calendar-card" style="animation-delay:0.1s;">
+            <div class="card-icon orange">📋</div>
+            <div class="card-title">Request a Quote</div>
+            <div class="card-desc">Tell us about your project and we'll get back to you with a detailed quote within 24 hours.</div>
+            <div class="card-arrow">Get started <span>→</span></div>
+        </a>
+
+            <a href="client-projects.html" class="card calendar-card" style="animation-delay:0.1s;">
+            <div class="card-icon green">🧾</div>
+            <div class="card-title">My Projects</div>
+            <div class="card-desc">View and Track your Projects,in one Place.</div>
+            <div class="card-arrow">Manage Projects <span>→</span></div>
+            </a>
+
+    </div>
+
+    <!-- SERVICES -->
+    <p class="section-label">Our Services</p>
+    <div class="services-strip">
+        <span class="services-strip-label">We handle</span>
+        <div class="service-pill">🔧 Plumbing</div>
+        <div class="service-pill">🪟 Tiling</div>
+        <div class="service-pill">🖌️ Painting</div>
+        <div class="service-pill">🏠 Ceiling Installations</div>
+        <div class="service-pill">🔨 Renovations</div>
+    </div>
+
+    <!-- PROJECTS -->
+    <section class="projects-section">
+        <div class="section-header-block">
+            <span class="section-tag-badge">Our Work</span>
+            <h2 class="section-big-title">Past <em>Projects</em></h2>
+            <p class="section-big-sub">A selection of completed work across Zimbabwe. Real projects, real results.</p>
+        </div>
+
+        <div class="filter-tabs">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="plumbing">Plumbing</button>
+            <button class="filter-btn" data-filter="tiling">Tiling</button>
+            <button class="filter-btn" data-filter="painting">Painting</button>
+            <button class="filter-btn" data-filter="ceiling">Ceilings</button>
+        </div>
+
+        <div class="projects-grid" id="projects-grid">
+
+            <div class="project-card" data-category="tiling">
+                <div class="pc-image">
+                    <img src="https://images.unsplash.com/photo-1604709177225-055f99402ea3?w=600&q=80" alt="Bathroom tiling project" loading="lazy">
+                    <div class="pc-overlay"><span class="pc-cat">Tiling</span></div>
+                </div>
+                <div class="pc-body">
+                    <div class="pc-meta">
+                        <h3>Luxury Bathroom Renovation</h3>
+                        <span class="pc-loc">📍 Harare, 2024</span>
+                    </div>
+                    <p class="pc-desc">Full floor and wall tiling with large format porcelain tiles. Included waterproofing, feature wall and underfloor heating grid installation.</p>
+                    <div class="pc-comments">
+                        <div class="comment-header"><span>💬 Client Comments</span><span class="comment-count">2 comments</span></div>
+                        <div class="comment">
+                            <div class="comment-avatar blue">TM</div>
+                            <div class="comment-content"><strong>Tendai M.</strong><p>"The finish is absolutely immaculate. They cleaned up after themselves every single day. Highly recommend!"</p></div>
+                        </div>
+                        <div class="comment">
+                            <div class="comment-avatar orange">RN</div>
+                            <div class="comment-content"><strong>Rudo N.</strong><p>"Perfect grouting, no hollow tiles. You can tell they take their time and do it right."</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card" data-category="painting">
+                <div class="pc-image">
+                    <img src="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600&q=80" alt="Exterior painting project" loading="lazy">
+                    <div class="pc-overlay"><span class="pc-cat">Painting</span></div>
+                </div>
+                <div class="pc-body">
+                    <div class="pc-meta">
+                        <h3>Commercial Building Repaint</h3>
+                        <span class="pc-loc">📍 Bulawayo, 2024</span>
+                    </div>
+                    <p class="pc-desc">Complete exterior repaint of a 3-storey commercial building. Surface preparation, crack filling, primer coat and two finish coats using weatherproof paint.</p>
+                    <div class="pc-comments">
+                        <div class="comment-header"><span>💬 Client Comments</span><span class="comment-count">1 comment</span></div>
+                        <div class="comment">
+                            <div class="comment-avatar green">SM</div>
+                            <div class="comment-content"><strong>Simba M.</strong><p>"Done on time, within budget. The building looks brand new. My tenants have been complimenting it."</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card" data-category="ceiling">
+                <div class="pc-image">
+                    <img src="https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=600&q=80" alt="Ceiling installation" loading="lazy">
+                    <div class="pc-overlay"><span class="pc-cat">Ceilings</span></div>
+                </div>
+                <div class="pc-body">
+                    <div class="pc-meta">
+                        <h3>Gypsum Ceiling — 5 Bedroom Home</h3>
+                        <span class="pc-loc">📍 Harare, 2023</span>
+                    </div>
+                    <p class="pc-desc">Full gypsum ceiling installation throughout a new build. Included recessed lighting cutouts, coving, cornices and a smooth skim finish ready for painting.</p>
+                    <div class="pc-comments">
+                        <div class="comment-header"><span>💬 Client Comments</span><span class="comment-count">2 comments</span></div>
+                        <div class="comment">
+                            <div class="comment-avatar blue">PN</div>
+                            <div class="comment-content"><strong>Patricia N.</strong><p>"Perfectly level throughout. No cracks, no sagging. They even helped me pick the right cornice style."</p></div>
+                        </div>
+                        <div class="comment">
+                            <div class="comment-avatar orange">JM</div>
+                            <div class="comment-content"><strong>Joseph M.</strong><p>"Finished in 4 days, which was ahead of schedule. Very neat team."</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card" data-category="plumbing">
+                <div class="pc-image">
+                    <img src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600&q=80" alt="Plumbing installation" loading="lazy">
+                    <div class="pc-overlay"><span class="pc-cat">Plumbing</span></div>
+                </div>
+                <div class="pc-body">
+                    <div class="pc-meta">
+                        <h3>Full Plumbing — New Build</h3>
+                        <span class="pc-loc">📍 Chitungwiza, 2023</span>
+                    </div>
+                    <p class="pc-desc">Complete plumbing installation for a new residential property — 3 bathrooms, kitchen, laundry room. All pipework, fixtures and hot water system.</p>
+                    <div class="pc-comments">
+                        <div class="comment-header"><span>💬 Client Comments</span><span class="comment-count">1 comment</span></div>
+                        <div class="comment">
+                            <div class="comment-avatar green">FM</div>
+                            <div class="comment-content"><strong>Farai M.</strong><p>"No leaks, no issues, everything works perfectly. They explained everything they were doing. Very professional."</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card" data-category="tiling">
+                <div class="pc-image">
+                    <img src="https://images.unsplash.com/photo-1600585152220-90363fe7e115?w=600&q=80" alt="Kitchen tiling" loading="lazy">
+                    <div class="pc-overlay"><span class="pc-cat">Tiling</span></div>
+                </div>
+                <div class="pc-body">
+                    <div class="pc-meta">
+                        <h3>Kitchen &amp; Patio Tiling</h3>
+                        <span class="pc-loc">📍 Harare, 2024</span>
+                    </div>
+                    <p class="pc-desc">Kitchen floor and splashback tiling plus outdoor patio with anti-slip porcelain tiles. Clean diagonal pattern with matching grout finish.</p>
+                    <div class="pc-comments">
+                        <div class="comment-header"><span>💬 Client Comments</span><span class="comment-count">1 comment</span></div>
+                        <div class="comment">
+                            <div class="comment-avatar blue">AN</div>
+                            <div class="comment-content"><strong>Anesu N.</strong><p>"My kitchen looks like something from a magazine. Couldn't be happier with the result."</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card" data-category="painting">
+                <div class="pc-image">
+                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80" alt="Interior painting" loading="lazy">
+                    <div class="pc-overlay"><span class="pc-cat">Painting</span></div>
+                </div>
+                <div class="pc-body">
+                    <div class="pc-meta">
+                        <h3>Full Interior — Family Home</h3>
+                        <span class="pc-loc">📍 Gweru, 2024</span>
+                    </div>
+                    <p class="pc-desc">Interior repaint of a 4-bedroom family home. Colour consultation included, walls and ceilings, feature walls in living and master bedroom.</p>
+                    <div class="pc-comments">
+                        <div class="comment-header"><span>💬 Client Comments</span><span class="comment-count">2 comments</span></div>
+                        <div class="comment">
+                            <div class="comment-avatar orange">CM</div>
+                            <div class="comment-content"><strong>Chipo M.</strong><p>"Transformed our home completely. The colour advice they gave us was spot on. Very happy!"</p></div>
+                        </div>
+                        <div class="comment">
+                            <div class="comment-avatar green">DZ</div>
+                            <div class="comment-content"><strong>David Z.</strong><p>"Clean edges, no mess on the floors. Real professionals."</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="testimonials-section">
+        <div class="section-header-block">
+            <span class="section-tag-badge" style="background:rgba(60,181,74,0.12);border-color:rgba(60,181,74,0.25);color:var(--green);">What Clients Say</span>
+            <h2 class="section-big-title">Real <em style="color:var(--green);">Testimonials</em></h2>
+            <p class="section-big-sub">Don't take our word for it — hear it from the people we've worked for.</p>
+        </div>
+
+        <div class="testimonials-track">
+            <div class="testi-cards" id="testi-cards">
+                <div class="testi-card">
+                    <div class="testi-stars">★★★★★</div>
+                    <blockquote>"Mpho Yanga did our entire home — tiling, painting and ceilings. The quality was exceptional and they finished on time. I refer them to everyone I know."</blockquote>
+                    <div class="testi-author">
+                        <div class="testi-avatar blue">NM</div>
+                        <div><strong>Nyasha Moyo</strong><span>Homeowner · Harare</span></div>
+                    </div>
+                </div>
+                <div class="testi-card">
+                    <div class="testi-stars">★★★★★</div>
+                    <blockquote>"We had a burst pipe emergency and they were on site within 2 hours. Fixed it properly and gave us a written report. Saved us from serious damage."</blockquote>
+                    <div class="testi-author">
+                        <div class="testi-avatar orange">BK</div>
+                        <div><strong>Blessing Kambarami</strong><span>Property Manager · Bulawayo</span></div>
+                    </div>
+                </div>
+                <div class="testi-card">
+                    <div class="testi-stars">★★★★★</div>
+                    <blockquote>"The ceiling installation was flawless. I was nervous because of previous contractors who left a mess — Mpho Yanga were clean, punctual and professional throughout."</blockquote>
+                    <div class="testi-author">
+                        <div class="testi-avatar green">TR</div>
+                        <div><strong>Tarisai Rusike</strong><span>Homeowner · Chitungwiza</span></div>
+                    </div>
+                </div>
+                <div class="testi-card">
+                    <div class="testi-stars">★★★★★</div>
+                    <blockquote>"Used them for painting our office block and warehouse. Very competitive pricing and the finish quality matched what I saw on their portfolio. Will use again."</blockquote>
+                    <div class="testi-author">
+                        <div class="testi-avatar blue">KD</div>
+                        <div><strong>Kudakwashe Dube</strong><span>Business Owner · Gweru</span></div>
+                    </div>
+                </div>
+                <div class="testi-card">
+                    <div class="testi-stars">★★★★★</div>
+                    <blockquote>"They tiled our new kitchen and bathrooms and the work is beautiful. Neat, precise and they gave us tips on maintenance. Genuinely good people to work with."</blockquote>
+                    <div class="testi-author">
+                        <div class="testi-avatar orange">SM</div>
+                        <div><strong>Sithembile Mpofu</strong><span>Homeowner · Masvingo</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="testi-controls">
+            <button class="testi-btn" id="testi-prev">←</button>
+            <div class="testi-dots" id="testi-dots"></div>
+            <button class="testi-btn" id="testi-next">→</button>
+        </div>
+    </section>
+
+    <!-- WHATSAPP CTA -->
+    <div class="whatsapp-cta">
+        <div class="whatsapp-left">
+            <h3>Need something done? Let's talk.</h3>
+            <p>Our team is available Monday – Saturday, 7am – 6pm. WhatsApp is the fastest way to reach us.</p>
+        </div>
+        <a href="https://wa.me/263770000000?text=Hi%2C%20I%20am%20a%20registered%20client%20and%20I%27d%20like%20to%20enquire%20about%20your%20services." class="btn-whatsapp" target="_blank">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            Open WhatsApp
+        </a>
+    </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+    <span>© 2025 Mpho Yanga Construction · BP No. 0200269091 · Zimbabwe</span>
+    <span>Built with trust, delivered with pride.</span>
+</footer>
+
+<script>
+    // ── Greeting ──
+    const hour = new Date().getHours();
+    const timeGreeting = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+    document.getElementById('time-greeting').textContent = timeGreeting;
+
+    // ── Client name from session ──
+    const storedName = sessionStorage.getItem('clientName') || 'there';
+    document.getElementById('client-name').textContent = storedName;
+    document.getElementById('nav-name').textContent = storedName;
+    const initial = storedName.charAt(0).toUpperCase();
+    if (initial && storedName !== 'there') document.getElementById('nav-avatar').textContent = initial;
+
+    function logout() {
+      sessionStorage.clear();
+      window.location.href = '/login';
+    }
+
+    // ── Project filter ──
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        document.querySelectorAll('.project-card').forEach(card => {
+          const show = filter === 'all' || card.dataset.category === filter;
+          card.style.display = show ? '' : 'none';
+        });
+      });
+    });
+
+    // ── Testimonials carousel ──
+    const track = document.getElementById('testi-cards');
+    const dotsContainer = document.getElementById('testi-dots');
+    const cards = track.querySelectorAll('.testi-card');
+    let current = 0;
+    let autoTimer;
+
+    cards.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'testi-dot' + (i === 0 ? ' active' : '');
+      dot.addEventListener('click', () => goTo(i));
+      dotsContainer.appendChild(dot);
+    });
+
+    function goTo(idx) {
+      current = (idx + cards.length) % cards.length;
+      track.style.transform = `translateX(-${current * 100}%)`;
+      document.querySelectorAll('.testi-dot').forEach((d, i) => d.classList.toggle('active', i === current));
+    }
+
+    function startAuto() { autoTimer = setInterval(() => goTo(current + 1), 5000); }
+    function resetAuto() { clearInterval(autoTimer); startAuto(); }
+
+    document.getElementById('testi-prev').addEventListener('click', () => { goTo(current - 1); resetAuto(); });
+    document.getElementById('testi-next').addEventListener('click', () => { goTo(current + 1); resetAuto(); });
+    startAuto();
+</script>
+</body>
+</html>

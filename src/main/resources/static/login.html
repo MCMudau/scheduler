@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mpho Yanga Construction — Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+<div class="bg" id="bg"></div>
+
+<!-- Floating background shapes -->
+<div class="shapes">
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><rect x="5" y="5" width="40" height="10" rx="2"/><rect x="5" y="20" width="40" height="10" rx="2"/><rect x="5" y="35" width="40" height="10" rx="2"/></svg>
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><path d="M10 40 L25 10 L40 40 Z"/></svg>
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><rect x="5" y="5" width="40" height="40" rx="4"/></svg>
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><circle cx="25" cy="25" r="20"/></svg>
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><path d="M5 25 L20 10 L45 10 L45 40 L5 40 Z"/></svg>
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><rect x="5" y="5" width="40" height="10" rx="2"/><rect x="5" y="20" width="30" height="10" rx="2"/><rect x="5" y="35" width="35" height="10" rx="2"/></svg>
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><path d="M10 40 L25 10 L40 40 Z"/></svg>
+</div>
+
+<div class="page">
+
+    <!-- LOGO -->
+    <div class="logo-header">
+        <div class="logo-icons">
+            <div class="logo-icon blue">🔨</div>
+            <div class="logo-icon orange">🧱</div>
+            <div class="logo-icon green">🖌️</div>
+        </div>
+        <div class="logo-text">
+            <div class="brand">MPHO <span>YAN</span>GA</div>
+            <div class="sub">Construction</div>
+        </div>
+    </div>
+
+    <!-- ROLE SELECTION -->
+    <div id="role-select">
+        <div class="select-label">Select your role to continue</div>
+        <div class="role-cards">
+            <div class="role-card client" onclick="selectRole('client')">
+                <div class="role-icon-wrap">👷</div>
+                <div class="role-name">Client</div>
+                <div class="role-desc">View your projects, quotes &amp; progress updates</div>
+            </div>
+            <div class="role-card admin" onclick="selectRole('admin')">
+                <div class="role-icon-wrap">⚙️</div>
+                <div class="role-name">Admin</div>
+                <div class="role-desc">Manage projects, teams &amp; company operations</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGIN FORM (hidden until role is selected) -->
+    <div id="login-form">
+        <div class="login-card" id="login-card">
+            <div class="card-accent" id="card-accent"></div>
+
+            <div class="form-header">
+                <div class="form-role-badge" id="role-badge"></div>
+                <div class="form-title">Welcome back</div>
+                <div class="form-subtitle">Enter your credentials to access your portal</div>
+            </div>
+
+            <div class="field">
+                <label>Email Address</label>
+                <input type="email" id="email-input" placeholder="you@mphoyanga.co.zw" autocomplete="email">
+            </div>
+            <div class="field">
+                <label>Password</label>
+                <input type="password" id="pass-input" placeholder="••••••••" autocomplete="current-password">
+            </div>
+
+            <div class="forgot"><a href="#">Forgot password?</a></div>
+            <div class="forgot"><a href="#" id="signup-link">Don't have an account? Sign up.</a></div>
+
+            <!-- Error message shown on failed login -->
+            <div id="login-error" style="display:none;
+             background:rgba(255,80,80,0.15);
+             border:1px solid rgba(255,80,80,0.4);
+             color:#ff8888;
+             border-radius:10px;
+             padding:10px 14px;
+             font-size:13px;
+             margin-bottom:14px;
+             animation: fadeIn 0.3s ease;">
+            </div>
+
+            <button class="btn-login" id="login-btn" onclick="submitLogin()">Sign In →</button>
+        </div>
+
+        <button class="back-btn" onclick="goBack()">← Choose a different role</button>
+    </div>
+
+</div>
+
+<div class="bp-badge">BP No.0200269091</div>
+
+<script>
+    let currentRole = null;
+
+    // ── ROLE SELECTION ANIMATIONS ─────────────────────────────────────────────
+
+    function selectRole(role) {
+      currentRole = role;
+      const bg          = document.getElementById('bg');
+      const roleSelect  = document.getElementById('role-select');
+      const clickedCard = document.querySelector(`.role-card.${role}`);
+
+      clickedCard.classList.add('selected');
+      bg.classList.add('blurred');
+
+      setTimeout(() => roleSelect.classList.add('hiding'), 300);
+      setTimeout(() => {
+        roleSelect.style.display = 'none';
+        showLoginForm(role);
+      }, 750);
+    }
+
+    function showLoginForm(role) {
+      const form       = document.getElementById('login-form');
+      const badge      = document.getElementById('role-badge');
+      const accent     = document.getElementById('card-accent');
+      const loginBtn   = document.getElementById('login-btn');
+      const emailInput = document.getElementById('email-input');
+      const passInput  = document.getElementById('pass-input');
+
+      badge.className    = `form-role-badge ${role}`;
+      badge.innerHTML    = role === 'client' ? '👷 Client Portal' : '⚙️ Admin Portal';
+      accent.className   = `card-accent ${role}`;
+      loginBtn.className = `btn-login ${role}`;
+      emailInput.className = role;
+      passInput.className  = role;
+
+      // Dynamic signup link based on role
+      const signupLink = document.getElementById('signup-link');
+      signupLink.href = role === 'client' ? '/registerClient' : '/registerAdmin';
+      signupLink.textContent = role === 'client'
+        ? "Don't have an account? Sign up as a Client."
+        : "Don't have an account? Sign up as an Admin.";
+
+      hideError();
+      form.classList.add('visible');
+    }
+
+    function goBack() {
+      const bg         = document.getElementById('bg');
+      const form       = document.getElementById('login-form');
+      const roleSelect = document.getElementById('role-select');
+      const card       = document.getElementById('login-card');
+
+      card.style.animation = 'cardLeave 0.4s cubic-bezier(.16,1,.3,1) both';
+
+      setTimeout(() => {
+        form.classList.remove('visible');
+        card.style.animation = '';
+        bg.classList.remove('blurred');
+        roleSelect.style.display = '';
+        roleSelect.classList.remove('hiding');
+        document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+        currentRole = null;
+        hideError();
+      }, 350);
+    }
+
+    // ── ERROR HELPERS ─────────────────────────────────────────────────────────
+
+    function showError(message) {
+      const el = document.getElementById('login-error');
+      el.textContent   = message;
+      el.style.display = 'block';
+    }
+
+    function hideError() {
+      const el = document.getElementById('login-error');
+      el.style.display = 'none';
+      el.textContent   = '';
+    }
+
+    function shakeCard() {
+      const card = document.getElementById('login-card');
+      card.style.animation = 'none';
+      void card.offsetWidth; // force reflow
+      card.style.animation = 'shake 0.4s ease';
+      setTimeout(() => card.style.animation = '', 400);
+    }
+
+    // ── LOGIN SUBMIT ──────────────────────────────────────────────────────────
+
+    async function submitLogin() {
+      const email = document.getElementById('email-input').value.trim();
+      const pass  = document.getElementById('pass-input').value.trim();
+      const btn   = document.getElementById('login-btn');
+
+      // ── Client-side validation ────────────────────────────────────────────
+      if (!email || !pass) {
+        shakeCard();
+        showError('Please enter your email and password.');
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        shakeCard();
+        showError('Please enter a valid email address.');
+        return;
+      }
+
+      // ── Loading state ─────────────────────────────────────────────────────
+      btn.textContent   = 'Signing in...';
+      btn.disabled      = true;
+      btn.style.opacity = '0.75';
+      hideError();
+
+      // ── POST to unified login endpoint ────────────────────────────────────
+      // LoginController reads the "role" field and routes to AdminService
+      // or ClientService accordingly. No need for separate endpoints here.
+      try {
+        const response = await fetch('/api/login', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            role:     currentRole,   // "admin" | "client"
+            email:    email,
+            password: pass
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Server tells us exactly where to go:
+          //   Admin verified   → /admin-dashboard.html
+          //   Admin unverified → /verify.html
+          //   Client verified  → /client-dashboard.html
+          //   Client unverified→ /verify-client.html
+          btn.textContent = '✓ Redirecting...';
+          window.location.href = data.redirect;
+
+        } else {
+          shakeCard();
+          showError(data.message || 'Incorrect email or password. Please try again.');
+          btn.textContent   = 'Sign In →';
+          btn.disabled      = false;
+          btn.style.opacity = '1';
+        }
+
+      } catch (err) {
+        // Network / server unreachable
+        shakeCard();
+        showError('Could not connect to the server. Please try again.');
+        btn.textContent   = 'Sign In →';
+        btn.disabled      = false;
+        btn.style.opacity = '1';
+      }
+    }
+
+    // Allow pressing Enter in either field to submit
+    document.getElementById('email-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') submitLogin();
+    });
+    document.getElementById('pass-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') submitLogin();
+    });
+
+    // ── KEYFRAMES ─────────────────────────────────────────────────────────────
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes cardLeave {
+        0%   { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(0.5) translateY(40px); }
+      }
+      @keyframes shake {
+        0%,100% { transform: translateX(0); }
+        20%     { transform: translateX(-8px); }
+        40%     { transform: translateX(8px); }
+        60%     { transform: translateX(-5px); }
+        80%     { transform: translateX(5px); }
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-6px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+    `;
+    document.head.appendChild(style);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mpho Yanga Construction — Client Registration</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/login.css">
+  <link rel="stylesheet" href="css/register.css">
+  <style>
+    /* Client-specific overrides */
+    .card-accent.client { background: linear-gradient(90deg, #3cb54a, #25d366); }
+    .form-role-badge.client {
+      background: rgba(37, 211, 102, 0.15);
+      border: 1px solid rgba(37, 211, 102, 0.3);
+      color: #5debb8;
+    }
+    .btn-login.client {
+      background: linear-gradient(135deg, #3cb54a, #25d366);
+      box-shadow: 0 8px 30px rgba(37, 211, 102, 0.3);
+    }
+    .btn-login.client:hover {
+      box-shadow: 0 12px 40px rgba(37, 211, 102, 0.5);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg" id="bg"></div>
+
+  <div class="shapes">
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><rect x="5" y="5" width="40" height="10" rx="2"/><rect x="5" y="20" width="40" height="10" rx="2"/><rect x="5" y="35" width="40" height="10" rx="2"/></svg>
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><path d="M10 40 L25 10 L40 40 Z"/></svg>
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><rect x="5" y="5" width="40" height="40" rx="4"/></svg>
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><circle cx="25" cy="25" r="20"/></svg>
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><path d="M5 25 L20 10 L45 10 L45 40 L5 40 Z"/></svg>
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><rect x="5" y="5" width="40" height="10" rx="2"/><rect x="5" y="20" width="30" height="10" rx="2"/></svg>
+    <svg class="shape" viewBox="0 0 50 50" fill="white"><path d="M10 40 L25 10 L40 40 Z"/></svg>
+  </div>
+
+  <div class="page reg-page">
+
+    <!-- LOGO -->
+    <div class="logo-header">
+      <div class="logo-icons">
+        <div class="logo-icon blue">🔨</div>
+        <div class="logo-icon orange">🧱</div>
+        <div class="logo-icon green">🖌️</div>
+      </div>
+      <div class="logo-text">
+        <div class="brand">MPHO <span>YAN</span>GA</div>
+        <div class="sub">Construction</div>
+      </div>
+    </div>
+
+    <!-- REGISTRATION CARD -->
+    <div class="reg-card" id="reg-card">
+      <div class="card-accent client"></div>
+
+      <div class="form-header">
+        <div class="form-role-badge client">🏠 Client Registration</div>
+        <div class="form-title">Create Account</div>
+        <div class="form-subtitle">Join us to track your projects &amp; quotes</div>
+      </div>
+
+      <div class="reg-grid">
+        <div class="field">
+          <label>First Name</label>
+          <input type="text" id="name" placeholder="John" autocomplete="given-name">
+        </div>
+        <div class="field">
+          <label>Surname</label>
+          <input type="text" id="surname" placeholder="Doe" autocomplete="family-name">
+        </div>
+        <div class="field full">
+          <label>Email Address</label>
+          <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+        </div>
+        <div class="field full">
+          <label>Phone Number</label>
+          <input type="tel" id="phone" placeholder="+263 77 XXX XXXX" autocomplete="tel">
+        </div>
+        <div class="field full">
+          <label>Home / Site Address <span style="opacity:0.4;font-size:11px;">(optional)</span></label>
+          <input type="text" id="address" placeholder="123 Example St, Harare" autocomplete="street-address">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <div class="input-wrap">
+            <input type="password" id="password" placeholder="Min. 8 characters" autocomplete="new-password">
+            <button class="eye-btn" onclick="togglePwd('password', this)" type="button" tabindex="-1">👁</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Confirm Password</label>
+          <div class="input-wrap">
+            <input type="password" id="confirmPassword" placeholder="Repeat password" autocomplete="new-password">
+            <button class="eye-btn" onclick="togglePwd('confirmPassword', this)" type="button" tabindex="-1">👁</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="reg-error" class="form-error" style="display:none;"></div>
+      <div id="reg-success" class="form-success" style="display:none;"></div>
+
+      <button class="btn-login client" id="reg-btn" onclick="submitRegistration()">
+        Create Client Account →
+      </button>
+
+      <div class="form-footer-link">
+        Already have an account? <a href="/login">Sign in here</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bp-badge">BP No.0200269091</div>
+
+  <script>
+    function togglePwd(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+      else { input.type = 'password'; btn.textContent = '👁'; }
+    }
+
+    function showError(msg) {
+      document.getElementById('reg-success').style.display = 'none';
+      const e = document.getElementById('reg-error');
+      e.textContent = msg; e.style.display = 'block';
+    }
+
+    function showSuccess(msg) {
+      document.getElementById('reg-error').style.display = 'none';
+      const s = document.getElementById('reg-success');
+      s.textContent = msg; s.style.display = 'block';
+    }
+
+    async function submitRegistration() {
+      const btn  = document.getElementById('reg-btn');
+      const card = document.getElementById('reg-card');
+
+      const name            = document.getElementById('name').value.trim();
+      const surname         = document.getElementById('surname').value.trim();
+      const email           = document.getElementById('email').value.trim();
+      const phoneNumber     = document.getElementById('phone').value.trim();
+      const address         = document.getElementById('address').value.trim();
+      const password        = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (!name || !surname || !email || !phoneNumber || !password || !confirmPassword) {
+        shakeCard(card); showError('Please fill in all required fields.'); return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        shakeCard(card); showError('Please enter a valid email address.'); return;
+      }
+      if (password.length < 8) {
+        shakeCard(card); showError('Password must be at least 8 characters.'); return;
+      }
+      if (password !== confirmPassword) {
+        shakeCard(card); showError('Passwords do not match.'); return;
+      }
+
+      btn.textContent = 'Creating Account...';
+      btn.disabled = true; btn.style.opacity = '0.75';
+
+      try {
+        const response = await fetch('/api/client/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, surname, email, phoneNumber, address, password, confirmPassword })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          showSuccess('Account created! A verification PIN has been sent to ' + email + '. Redirecting…');
+          setTimeout(() => { window.location.href = '/client/verify?email=' + encodeURIComponent(email); }, 2500);
+        } else {
+          shakeCard(card);
+          showError(data.message || 'Registration failed. Please try again.');
+          btn.textContent = 'Create Client Account →';
+          btn.disabled = false; btn.style.opacity = '1';
+        }
+      } catch (err) {
+        shakeCard(card);
+        showError('Network error. Please check your connection and try again.');
+        btn.textContent = 'Create Client Account →';
+        btn.disabled = false; btn.style.opacity = '1';
+      }
+    }
+
+    function shakeCard(card) {
+      card.style.animation = 'none';
+      void card.offsetWidth;
+      card.style.animation = 'shake 0.4s ease';
+      setTimeout(() => card.style.animation = '', 400);
+    }
+
+    const s = document.createElement('style');
+    s.textContent = `
+      @keyframes shake {
+        0%,100% { transform: translateX(0); }
+        20%      { transform: translateX(-8px); }
+        40%      { transform: translateX(8px); }
+        60%      { transform: translateX(-5px); }
+        80%      { transform: translateX(5px); }
+      }`;
+    document.head.appendChild(s);
+  </script>
+</body>
+</html>

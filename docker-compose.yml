@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: scheduler_db
+      POSTGRES_USER: scheduler_developer
+      POSTGRES_PASSWORD: scheduler2026
+    ports:
+      - "2026:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  app:
+    build: .
+    container_name: springboot_app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/scheduler_db
+      SPRING_DATASOURCE_USERNAME: scheduler_developer
+      SPRING_DATASOURCE_PASSWORD: scheduler2026
+    depends_on:
+      - db
+volumes:
+  pgdata:

@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mpho Yanga — Book Appointment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+          --blue:   #1a5fad; --orange: #e8762a; --green:  #3cb54a;
+          --dark:   #0d1b2a; --darker: #070f18;
+          --text:   rgba(255,255,255,0.85); --muted:  rgba(255,255,255,0.4);
+        }
+        html, body { min-height: 100vh; background: var(--darker); color: var(--text); font-family: 'Lato', sans-serif; overflow-x: hidden; }
+        .bg-gradient {
+          position: fixed; inset: 0; z-index: 0;
+          background: radial-gradient(ellipse 80% 60% at 10% 20%, rgba(26,95,173,0.22) 0%, transparent 60%),
+                      radial-gradient(ellipse 60% 50% at 90% 80%, rgba(60,181,74,0.12) 0%, transparent 60%), var(--darker);
+          pointer-events: none;
+        }
+        nav {
+          position: sticky; top: 0; z-index: 100;
+          background: rgba(7,15,24,0.85); backdrop-filter: blur(20px);
+          border-bottom: 1px solid rgba(255,255,255,0.07);
+          padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 68px;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .nav-icons { display: flex; gap: 5px; }
+        .nav-icon { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+        .nav-icon.b { background: var(--blue); } .nav-icon.o { background: var(--orange); } .nav-icon.g { background: var(--green); }
+        .nav-brand { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1px; color: #fff; }
+        .nav-brand span { color: var(--orange); }
+        .nav-right { display: flex; align-items: center; gap: 16px; }
+        .back-btn { display: flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .back-btn:hover { border-color: rgba(255,255,255,0.35); color: #fff; }
+        .nav-user { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); }
+        .nav-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), var(--green)); display: flex; align-items: center; justify-content: center; font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700; color: #fff; }
+        main { position: relative; z-index: 1; padding: 40px 32px 80px; max-width: 1200px; margin: 0 auto; }
+        .page-header { margin-bottom: 40px; animation: fadeUp 0.5s ease both; }
+        .page-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(26,95,173,0.12); border: 1px solid rgba(26,95,173,0.3); border-radius: 100px; padding: 6px 14px; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: #6aaeff; margin-bottom: 16px; }
+        .page-title { font-family: 'Oswald', sans-serif; font-size: clamp(28px,5vw,48px); font-weight: 700; color: #fff; margin-bottom: 10px; }
+        .page-title em { font-style: normal; color: var(--blue); }
+        .page-sub { font-size: 15px; color: var(--muted); max-width: 500px; line-height: 1.6; }
+        .cal-layout { display: grid; grid-template-columns: 1fr 360px; gap: 28px; align-items: start; }
+        .cal-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 28px; animation: fadeUp 0.5s 0.1s ease both; }
+        .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+        .cal-month { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 600; color: #fff; }
+        .cal-nav-btns { display: flex; gap: 8px; }
+        .cal-nav-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: #fff; font-size: 16px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .cal-nav-btn:hover { background: rgba(255,255,255,0.1); }
+        .cal-weekdays { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; margin-bottom: 8px; }
+        .cal-wd { text-align: center; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); padding: 8px 0; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+        .cal-day { aspect-ratio: 1; border-radius: 10px; border: 1px solid transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; transition: all 0.2s; font-size: 14px; color: var(--text); position: relative; }
+        .cal-day:hover:not(.empty):not(.past) { background: rgba(26,95,173,0.15); border-color: rgba(26,95,173,0.4); }
+        .cal-day.empty { cursor: default; }
+        .cal-day.past { opacity: 0.3; cursor: not-allowed; }
+        .cal-day.today { background: rgba(232,118,42,0.15); border-color: rgba(232,118,42,0.5); color: var(--orange); font-weight: 700; }
+        .cal-day.selected { background: var(--blue); border-color: var(--blue); color: #fff; }
+        .cal-day.has-slots::after { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--orange); position: absolute; bottom: 4px; }
+        .cal-day.has-my-booking::after { background: var(--green); }
+        .cal-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.07); }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .side-panel { display: flex; flex-direction: column; gap: 20px; animation: fadeUp 0.5s 0.2s ease both; }
+        .panel-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 24px; }
+        .panel-title { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+        .day-detail-date { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+        .day-detail-sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+        .no-selection { font-size: 14px; color: var(--muted); text-align: center; padding: 20px 0; }
+        .spinner { display: flex; justify-content: center; padding: 24px 0; }
+        .spinner::after { content: ''; width: 28px; height: 28px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--blue); animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .slots-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+        .slot-item { border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 14px; font-size: 13px; background: rgba(255,255,255,0.03); transition: all 0.2s; cursor: pointer; }
+        .slot-row { display: flex; align-items: center; justify-content: space-between; }
+        .slot-meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
+        .slot-item:hover:not(.slot-unavailable) { border-color: rgba(26,95,173,0.5); background: rgba(26,95,173,0.1); }
+        .slot-time { font-weight: 700; color: #fff; }
+        .slot-badge { font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; padding: 3px 8px; border-radius: 100px; }
+        .slot-badge.available { background: rgba(26,95,173,0.2); color: #6aaeff; }
+        .slot-badge.mine      { background: rgba(60,181,74,0.2);  color: #5debb8; }
+        .slot-badge.full      { background: rgba(255,255,255,0.07); color: var(--muted); }
+        .slot-unavailable     { opacity: 0.45; cursor: not-allowed; }
+        .slot-item.selected-slot { border-color: var(--blue); background: rgba(26,95,173,0.2); }
+        .btn-book { width: 100%; padding: 13px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--blue), #2a80d0); color: #fff; font-family: 'Oswald', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 6px 20px rgba(26,95,173,0.3); }
+        .btn-book:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(26,95,173,0.45); }
+        .btn-book:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+        .appt-list { display: flex; flex-direction: column; gap: 10px; }
+        .appt-item { border: 1px solid rgba(60,181,74,0.25); border-radius: 12px; padding: 14px; background: rgba(60,181,74,0.06); }
+        .appt-date    { font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600; color: #5debb8; margin-bottom: 4px; }
+        .appt-service { font-size: 13px; color: #fff; margin-bottom: 4px; }
+        .appt-type    { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+        .appt-actions { display: flex; gap: 8px; }
+        .appt-btn { padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; border: 1px solid; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; text-transform: uppercase; }
+        .appt-btn.cancel { border-color: rgba(220,50,50,0.5); color: #ff6b6b; background: rgba(220,50,50,0.1); }
+        .appt-btn.cancel:hover { background: rgba(220,50,50,0.25); }
+        .no-appts { font-size: 13px; color: var(--muted); text-align: center; padding: 16px 0; }
+        .modal-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal { background: #0d1b2a; border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 36px; max-width: 460px; width: 100%; transform: translateY(20px); transition: transform 0.3s; }
+        .modal-overlay.active .modal { transform: translateY(0); }
+        .modal-title { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+        .modal-sub   { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+        .slot-summary { background: rgba(26,95,173,0.1); border: 1px solid rgba(26,95,173,0.25); border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; }
+        .slot-summary-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+        .slot-summary-val   { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 600; color: #fff; }
+        .slot-summary-type  { font-size: 12px; color: #6aaeff; margin-top: 4px; }
+        .form-group  { margin-bottom: 16px; }
+        .form-label  { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: block; }
+        .form-select, .form-textarea { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: #fff; font-family: 'Lato', sans-serif; font-size: 14px; transition: border-color 0.2s; }
+        .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--blue); }
+        .form-select option { background: #0d1b2a; }
+        .form-textarea { resize: vertical; min-height: 80px; }
+        .modal-actions { display: flex; gap: 12px; margin-top: 24px; }
+        .btn-confirm { flex: 1; padding: 13px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--blue), #2a80d0); color: #fff; font-family: 'Oswald', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-confirm:hover { opacity: 0.9; }
+        .btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-cancel-modal { padding: 13px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: var(--muted); font-family: 'Oswald', sans-serif; font-size: 15px; cursor: pointer; transition: all 0.2s; }
+        .btn-cancel-modal:hover { border-color: rgba(255,255,255,0.3); color: #fff; }
+        .toast { position: fixed; bottom: 32px; right: 32px; z-index: 300; padding: 14px 22px; border-radius: 12px; font-size: 14px; color: #fff; font-weight: 600; box-shadow: 0 12px 40px rgba(0,0,0,0.4); transform: translateY(80px); opacity: 0; transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94); }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { background: linear-gradient(135deg, var(--green), #25d366); }
+        .toast.error   { background: linear-gradient(135deg, #d32f2f, #f44336); }
+        .toast.info    { background: linear-gradient(135deg, var(--blue), #2a80d0); }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        @media (max-width: 900px) { .cal-layout { grid-template-columns: 1fr; } nav, main { padding-left: 20px; padding-right: 20px; } }
+    </style>
+</head>
+<body>
+<div class="bg-gradient"></div>
+
+<nav>
+    <a href="/client-dashboard.html" class="nav-logo">
+        <div class="nav-icons">
+            <div class="nav-icon b">🔨</div>
+            <div class="nav-icon o">🧱</div>
+            <div class="nav-icon g">🖌️</div>
+        </div>
+        <div class="nav-brand">MPHO <span>YAN</span>GA</div>
+    </a>
+    <div class="nav-right">
+        <a href="/client-dashboard.html" class="back-btn">← Dashboard</a>
+        <div class="nav-user">
+            <div class="nav-avatar" id="nav-avatar">?</div>
+            <span id="nav-name">Client</span>
+        </div>
+    </div>
+</nav>
+
+<main>
+    <div class="page-header">
+        <div class="page-tag">📅 Appointment Calendar</div>
+        <h1 class="page-title">Book an <em>Appointment</em></h1>
+        <p class="page-sub">Orange dots show days with available slots. Select a date, pick a time, and confirm your booking.</p>
+    </div>
+
+    <div class="cal-layout">
+        <div class="cal-card">
+            <div class="cal-header">
+                <div class="cal-month" id="cal-month-label">Loading…</div>
+                <div class="cal-nav-btns">
+                    <button class="cal-nav-btn" id="cal-prev">‹</button>
+                    <button class="cal-nav-btn" id="cal-next">›</button>
+                </div>
+            </div>
+            <div class="cal-weekdays">
+                <div class="cal-wd">Sun</div><div class="cal-wd">Mon</div><div class="cal-wd">Tue</div>
+                <div class="cal-wd">Wed</div><div class="cal-wd">Thu</div><div class="cal-wd">Fri</div><div class="cal-wd">Sat</div>
+            </div>
+            <div class="cal-grid" id="cal-grid"></div>
+            <div class="cal-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div> Available slots</div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> My booking</div>
+                <div class="legend-item"><div class="legend-dot" style="background:rgba(232,118,42,0.5);outline:2px solid var(--orange);outline-offset:1px"></div> Today</div>
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <div class="panel-card">
+                <div id="day-panel-content">
+                    <div class="no-selection">← Select a date to view available slots</div>
+                </div>
+            </div>
+            <div class="panel-card">
+                <div class="panel-title">📋 My Appointments</div>
+                <div class="appt-list" id="appt-list">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Booking Modal -->
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+        <div class="modal-title" id="modal-title">Confirm Booking</div>
+        <div class="modal-sub"   id="modal-sub">Fill in the details and confirm your slot.</div>
+        <div class="slot-summary">
+            <div class="slot-summary-label">Selected Slot</div>
+            <div class="slot-summary-val"  id="summary-datetime">—</div>
+            <div class="slot-summary-type" id="summary-type">—</div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Service Required</label>
+            <select class="form-select" id="modal-service">
+                <option value="plumbing">🔧 Plumbing</option>
+                <option value="tiling">🪟 Tiling</option>
+                <option value="painting">🖌️ Painting</option>
+                <option value="ceiling">🏠 Ceiling Installation</option>
+                <option value="renovation">🔨 General Renovation</option>
+                <option value="quote">📋 Site Visit / Quotation</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Notes (optional)</label>
+            <textarea class="form-textarea" id="modal-notes" placeholder="Describe your project or any special requirements…"></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-cancel-modal" onclick="closeModal()">Cancel</button>
+            <button class="btn-confirm" id="modal-confirm-btn" onclick="confirmBooking()">Confirm Booking</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    // ══════════════════════════════════════════════════════════════
+    // STATE
+    // ══════════════════════════════════════════════════════════════
+    const today    = new Date();
+    let viewYear   = today.getFullYear();
+    let viewMonth  = today.getMonth();
+    let selectedDate = null;   // "YYYY-MM-DD"
+    let selectedSlot = null;   // full CalendarSlot object from backend
+
+    /**
+     * Loads the client's confirmed bookings from GET /api/bookings/my/active
+     * and maps the backend shape to the local shape the UI uses.
+     */
+    async function loadMyBookings() {
+      try {
+        const res  = await fetch('/api/bookings/my/active');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+        // Map backend shape → local shape
+        myBookings = (data.bookings || []).map(b => ({
+          id:      b.id,
+          slotId:  b.slot.id,
+          slotObj: b.slot,   // { id, startDateTime, endDateTime, slotType }
+          service: b.service,
+          notes:   b.notes || '',
+        }));
+      } catch (err) {
+        console.error('Could not load bookings:', err);
+        myBookings = [];
+      }
+    }
+
+    /**
+     * slotsByDate — Map<"YYYY-MM-DD", CalendarSlot[]>
+     * Populated exclusively from GET /api/calendar/slots/available
+     * Never hardcoded.
+     */
+    let slotsByDate = {};
+
+    /**
+     * myBookings — in-memory until BookingService is wired up.
+     * TODO: Replace with GET /api/bookings/my on bootstrap.
+     * Shape: { id, slotId, slotObj, service, notes }
+     */
+    let myBookings = [];
+
+    const SLOT_TYPE_LABELS = {
+      CONSULTATION: '💬 Consultation',
+      SITE_VISIT:   '🏗️ Site Visit',
+      QUOTATION:    '📋 Quotation',
+      FOLLOW_UP:    '🔁 Follow-Up',
+    };
+    const SERVICE_LABELS = {
+      plumbing:'🔧 Plumbing', tiling:'🪟 Tiling', painting:'🖌️ Painting',
+      ceiling:'🏠 Ceiling Installation', renovation:'🔨 General Renovation', quote:'📋 Site Visit / Quotation',
+    };
+
+    // ══════════════════════════════════════════════════════════════
+    // BOOTSTRAP
+    // ══════════════════════════════════════════════════════════════
+    async function bootstrap() {
+      // 1. Confirm the visitor is a logged-in client
+      try {
+        const res  = await fetch('/api/session');
+        const data = await res.json();
+        if (!data.loggedIn || data.role !== 'client') {
+          window.location.href = '/login.html';
+          return;
+        }
+        const name = data.name || 'Client';
+        document.getElementById('nav-name').textContent   = name;
+        document.getElementById('nav-avatar').textContent = name.charAt(0).toUpperCase();
+      } catch {
+        // Session check failed — allow page to render but slots might be empty
+        document.getElementById('nav-name').textContent = 'Client';
+      }
+
+      // 2. Load live slots from the backend
+      await loadAvailableSlots();
+
+      // 3. Load client's existing bookings from the backend
+      await loadMyBookings();
+
+      // 4. Paint the UI
+      renderCalendar();
+      renderMyAppointments();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // DATA LOADING  — only source of slot data is the backend
+    // ══════════════════════════════════════════════════════════════
+
+    /**
+     * Fetches all available (bookable) slots from:
+     *   GET /api/calendar/slots/available
+     *
+     * The CalendarSlotController already exposes this endpoint publicly.
+     * It returns slots where isAvailable=true AND currentBookings < maxBookings
+     * AND startDateTime > now — exactly what a client should see.
+     */
+    async function loadAvailableSlots() {
+      try {
+        const res = await fetch('/api/calendar/slots/available');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const slots = await res.json();   // CalendarSlot[]
+
+        // Rebuild the date-keyed map
+        slotsByDate = {};
+        slots.forEach(slot => {
+          // startDateTime: "2026-03-10T09:00:00" — take the date portion
+          const key = slot.startDateTime.substring(0, 10);
+          if (!slotsByDate[key]) slotsByDate[key] = [];
+          slotsByDate[key].push(slot);
+        });
+      } catch (err) {
+        console.error('Could not load slots:', err);
+        showToast('Could not load available slots from server.', 'error');
+        slotsByDate = {};
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // CALENDAR
+    // ══════════════════════════════════════════════════════════════
+    const MONTHS = ['January','February','March','April','May','June',
+                    'July','August','September','October','November','December'];
+
+    function renderCalendar() {
+      const grid = document.getElementById('cal-grid');
+      document.getElementById('cal-month-label').textContent = `${MONTHS[viewMonth]} ${viewYear}`;
+      grid.innerHTML = '';
+
+      const todayKey    = today.toISOString().substring(0, 10);
+      const firstDay    = new Date(viewYear, viewMonth, 1).getDay();
+      const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) {
+        const el = document.createElement('div');
+        el.className = 'cal-day empty';
+        grid.appendChild(el);
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const key      = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const cellDate = new Date(viewYear, viewMonth, d);
+        const isPast   = cellDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const isToday  = key === todayKey;
+        const hasSlots = !!(slotsByDate[key] && slotsByDate[key].length > 0);
+        const hasMine  = myBookings.some(b => b.slotObj.startDateTime.startsWith(key));
+
+        const el = document.createElement('div');
+        let cls  = 'cal-day';
+        if (isPast)            cls += ' past';
+        else if (key === selectedDate) cls += ' selected';
+        else if (isToday)      cls += ' today';
+        if (hasSlots && !isPast) cls += ' has-slots';
+        if (hasMine)             cls += ' has-my-booking';
+        el.className   = cls;
+        el.textContent = d;
+        if (!isPast) el.addEventListener('click', () => selectDate(key));
+        grid.appendChild(el);
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // DAY PANEL
+    // ══════════════════════════════════════════════════════════════
+    function selectDate(key) {
+      selectedDate = key;
+      selectedSlot = null;
+      renderCalendar();
+      showDayPanel(key);
+    }
+
+    function showDayPanel(key) {
+      const [y, m, d] = key.split('-').map(Number);
+      const dateObj   = new Date(y, m - 1, d);
+      const dayName   = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+      const fullDate  = dateObj.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+
+      const panel     = document.getElementById('day-panel-content');
+      const slotsOnDay = (slotsByDate[key] || []).slice().sort((a, b) =>
+        a.startDateTime.localeCompare(b.startDateTime));
+
+      if (slotsOnDay.length === 0) {
+        panel.innerHTML = `
+          <div class="day-detail-date">${dayName}</div>
+          <div class="day-detail-sub">${fullDate}</div>
+          <div class="no-selection" style="padding:24px 0;">
+            No available slots on this day.<br>
+            <small style="font-size:12px;">Try another date or check back later.</small>
+          </div>`;
+        return;
+      }
+
+      let slotsHTML = '';
+      slotsOnDay.forEach(slot => {
+        const startTime = fmtTime(slot.startDateTime);
+        const endTime   = fmtTime(slot.endDateTime);
+        const typeLabel = SLOT_TYPE_LABELS[slot.slotType] || slot.slotType;
+        const isMine    = myBookings.some(b => b.slotId === slot.id);
+        // A slot is unavailable if it's marked unavailable OR full
+        const isFull    = !slot.isAvailable || slot.currentBookings >= slot.maxBookings;
+        const remaining = Math.max(0, slot.maxBookings - slot.currentBookings);
+
+        let badge, extraCls = '';
+        if (isMine)       { badge = '<span class="slot-badge mine">My Booking</span>'; }
+        else if (isFull)  { badge = '<span class="slot-badge full">Full</span>'; extraCls = ' slot-unavailable'; }
+        else              { badge = '<span class="slot-badge available">Available</span>'; }
+
+        const capacityNote = (!isMine && !isFull && slot.maxBookings > 1)
+          ? `<div class="slot-meta">${remaining} of ${slot.maxBookings} spaces left</div>` : '';
+
+        const adminNotes = (slot.notes && !isMine && !isFull)
+          ? `<div class="slot-meta" style="color:rgba(255,255,255,0.5)">📌 ${slot.notes}</div>` : '';
+
+        slotsHTML += `
+          <div class="slot-item${extraCls}" data-id="${slot.id}"
+               onclick="selectSlot(${slot.id}, ${isMine}, ${isFull})">
+            <div class="slot-row">
+              <span class="slot-time">${startTime} – ${endTime}</span>
+              ${badge}
+            </div>
+            <div class="slot-meta">${typeLabel}</div>
+            ${capacityNote}${adminNotes}
+          </div>`;
+      });
+
+      panel.innerHTML = `
+        <div class="day-detail-date">${dayName}</div>
+        <div class="day-detail-sub">${fullDate}</div>
+        <div class="slots-list">${slotsHTML}</div>
+        <button class="btn-book" id="book-btn" disabled onclick="openBookingModal()">
+          Select a slot to book
+        </button>`;
+    }
+
+    function selectSlot(slotId, isMine, isFull) {
+      if (isFull && !isMine) return;  // blocked — can't book a full slot
+
+      const slotsOnDay = slotsByDate[selectedDate] || [];
+      selectedSlot     = slotsOnDay.find(s => s.id === slotId) || null;
+      if (!selectedSlot) return;
+
+      document.querySelectorAll('.slot-item').forEach(el => el.classList.remove('selected-slot'));
+      const el = document.querySelector(`.slot-item[data-id="${slotId}"]`);
+      if (el) el.classList.add('selected-slot');
+
+      const btn = document.getElementById('book-btn');
+      if (btn) {
+        btn.disabled    = false;
+        btn.textContent = isMine
+          ? `Manage ${fmtTime(selectedSlot.startDateTime)} booking`
+          : `Book ${fmtTime(selectedSlot.startDateTime)} slot`;
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // BOOKING MODAL
+    // ══════════════════════════════════════════════════════════════
+    function openBookingModal() {
+      if (!selectedSlot) return;
+      const typeLabel = SLOT_TYPE_LABELS[selectedSlot.slotType] || selectedSlot.slotType;
+      document.getElementById('summary-datetime').textContent =
+        `${fmtDate(selectedSlot.startDateTime)}  ·  ${fmtTime(selectedSlot.startDateTime)} – ${fmtTime(selectedSlot.endDateTime)}`;
+      document.getElementById('summary-type').textContent      = typeLabel;
+      document.getElementById('modal-service').value           = 'plumbing';
+      document.getElementById('modal-notes').value             = '';
+      document.getElementById('modal-confirm-btn').disabled    = false;
+      document.getElementById('modal-confirm-btn').textContent = 'Confirm Booking';
+      document.getElementById('modal-overlay').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.remove('active');
+    }
+
+    async function confirmBooking() {
+      if (!selectedSlot) return;
+      const service = document.getElementById('modal-service').value;
+      const notes   = document.getElementById('modal-notes').value.trim();
+      const btn     = document.getElementById('modal-confirm-btn');
+
+      btn.disabled    = true;
+      btn.textContent = 'Booking…';
+
+      try {
+        // POST /api/bookings
+        const res  = await fetch('/api/bookings', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ slotId: selectedSlot.id, service, notes }),
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+          showToast(data.message || 'Booking failed. Please try again.', 'error');
+          btn.disabled    = false;
+          btn.textContent = 'Confirm Booking';
+          return;
+        }
+
+        // Map the returned booking to the local shape used by the UI
+        const b = data.booking;
+        myBookings.push({
+          id:      b.id,
+          slotId:  b.slot.id,
+          slotObj: b.slot,    // { id, startDateTime, endDateTime, slotType }
+          service: b.service,
+          notes:   b.notes || '',
+        });
+
+        // Keep local slot capacity in sync so dots/badges update immediately
+        const key = selectedSlot.startDateTime.substring(0, 10);
+        if (slotsByDate[key]) {
+          const s = slotsByDate[key].find(x => x.id === selectedSlot.id);
+          if (s) {
+            s.currentBookings += 1;
+            if (s.currentBookings >= s.maxBookings) s.isAvailable = false;
+          }
+        }
+
+        showToast('Appointment booked! ✓', 'success');
+        closeModal();
+        renderCalendar();
+        renderMyAppointments();
+        if (selectedDate) showDayPanel(selectedDate);
+
+      } catch (err) {
+        showToast('Could not connect to server. Please try again.', 'error');
+        btn.disabled    = false;
+        btn.textContent = 'Confirm Booking';
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // MY APPOINTMENTS
+    // ══════════════════════════════════════════════════════════════
+    function renderMyAppointments() {
+      const list = document.getElementById('appt-list');
+      if (myBookings.length === 0) {
+        list.innerHTML = '<div class="no-appts">No appointments yet</div>';
+        return;
+      }
+      const sorted = [...myBookings].sort((a, b) =>
+        a.slotObj.startDateTime.localeCompare(b.slotObj.startDateTime));
+      list.innerHTML = sorted.map(b => `
+        <div class="appt-item">
+          <div class="appt-date">${fmtDate(b.slotObj.startDateTime)} · ${fmtTime(b.slotObj.startDateTime)}</div>
+          <div class="appt-service">${SERVICE_LABELS[b.service] || b.service}</div>
+          <div class="appt-type">${SLOT_TYPE_LABELS[b.slotObj.slotType] || b.slotObj.slotType}</div>
+          ${b.notes ? `<div style="font-size:12px;color:var(--muted);margin-bottom:8px;">${b.notes}</div>` : ''}
+          <div class="appt-actions">
+            <button class="appt-btn cancel" onclick="cancelBooking(${b.id})">🗑 Cancel</button>
+          </div>
+        </div>`).join('');
+    }
+
+    async function cancelBooking(bookingId) {
+      if (!confirm('Cancel this appointment?')) return;
+
+      try {
+        // DELETE /api/bookings/{bookingId}
+        const res  = await fetch(`/api/bookings/${bookingId}`, { method: 'DELETE' });
+        const data = await res.json();
+
+        if (!data.success) {
+          showToast(data.message || 'Could not cancel booking.', 'error');
+          return;
+        }
+
+        // Remove from local list
+        const idx = myBookings.findIndex(b => b.id === bookingId);
+        if (idx !== -1) {
+          const booking = myBookings.splice(idx, 1)[0];
+          // Restore capacity in local slot pool so the UI updates immediately
+          const key = booking.slotObj.startDateTime.substring(0, 10);
+          if (slotsByDate[key]) {
+            const s = slotsByDate[key].find(x => x.id === booking.slotId);
+            if (s) { s.currentBookings = Math.max(0, s.currentBookings - 1); s.isAvailable = true; }
+          }
+        }
+
+        renderMyAppointments();
+        renderCalendar();
+        if (selectedDate) showDayPanel(selectedDate);
+        showToast('Appointment cancelled.', 'info');
+
+      } catch (err) {
+        showToast('Could not connect to server. Please try again.', 'error');
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // UTILS
+    // ══════════════════════════════════════════════════════════════
+    function fmtTime(dt) { return dt.substring(11, 16); }
+    function fmtDate(dt) {
+      const d = new Date(dt);
+      return d.toLocaleDateString('en-US', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+    }
+
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.className = `toast ${type}`;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3200);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // EVENTS
+    // ══════════════════════════════════════════════════════════════
+    document.getElementById('cal-prev').addEventListener('click', async () => {
+      if (--viewMonth < 0) { viewMonth = 11; viewYear--; }
+      await loadAvailableSlots();
+      renderCalendar();
+    });
+    document.getElementById('cal-next').addEventListener('click', async () => {
+      if (++viewMonth > 11) { viewMonth = 0; viewYear++; }
+      await loadAvailableSlots();
+      renderCalendar();
+    });
+    document.getElementById('modal-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+
+    // ── INIT ──
+    bootstrap();
+</script>
+</body>
+</html>
