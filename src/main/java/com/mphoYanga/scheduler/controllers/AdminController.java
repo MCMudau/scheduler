@@ -70,7 +70,7 @@ public class AdminController {
         } catch (Exception e) {
             // Covers: email sending failure or any unexpected error
             res.put("success", false);
-            res.put("message", "Something went wrong. Please try again.");
+            res.put("message", "Something went wrong. Please try again."+e.getMessage());
             return ResponseEntity.internalServerError().body(res);
         }
     }

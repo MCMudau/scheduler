@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mpho Yanga Construction — Admin Registration</title>
+  <title>Mpho Yanga Construction - Admin Registration</title>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/login.css">
   <link rel="stylesheet" href="css/register.css">
@@ -136,6 +136,7 @@ async function submitRegistration() {
   const password        = document.getElementById('password').value;
   const confirmPassword = document.getElementById('confirmPassword').value;
 
+debugger;
   // ── Client-side validation ───────────────────────────────
   if (!name || !surname || !email || !phoneNumber || !password || !confirmPassword) {
     shakeCard(card);
