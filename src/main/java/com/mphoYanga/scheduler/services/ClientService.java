@@ -42,7 +42,14 @@ public class ClientService {
         client.setEmail(email);
         client.setPhoneNumber(phoneNumber);
         client.setAddress(address);
+
+
+
         client.setPassword(passwordEncoder.encode(password));
+
+
+
+
 
         String pin = generatePin();
         client.setVerificationPin(pin);
@@ -50,7 +57,11 @@ public class ClientService {
 
         clientRepository.save(client);
 
-        emailService.sendClientVerificationPin(email, name, pin);
+        new Thread(()->{
+
+            emailService.sendClientVerificationPin(email, name, pin);
+        }).start();
+
 
         return client;
     }
