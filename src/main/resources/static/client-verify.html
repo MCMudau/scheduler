@@ -1,251 +1,369 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mpho Yanga Construction — Verify Your Account</title>
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/login.css">
-  <style>
-    html, body { overflow: auto !important; height: auto !important; min-height: 100vh; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mpho Yanga Construction - Verify Your Account</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .verify-page {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
-    }
+        /* ── Base & Background ── */
+        html, body {
+          min-height: 100vh;
+          overflow-x: hidden;
+          font-family: 'Lato', sans-serif;
+        }
 
-    .verify-card {
-      width: 100%;
-      max-width: 480px;
-      background: rgba(255,255,255,0.07);
-      backdrop-filter: blur(24px);
-      border-radius: 24px;
-      border: 1px solid rgba(255,255,255,0.15);
-      padding: 48px 44px 40px;
-      box-shadow: 0 40px 100px rgba(0,0,0,0.5);
-      animation: cardSurge 0.7s cubic-bezier(0.16,1,0.3,1) both;
-      text-align: center;
-    }
+        body {
+          background: linear-gradient(135deg, #0d1f1a 0%, #0a2a20 40%, #0d1a2e 100%);
+          position: relative;
+        }
 
-    .verify-icon {
-      font-size: 52px;
-      margin-bottom: 16px;
-      display: block;
-      animation: floatIcon 3s ease-in-out infinite;
-    }
+        /* Animated gradient mesh overlay */
+        body::before {
+          content: '';
+          position: fixed;
+          inset: 0;
+          background:
+            radial-gradient(ellipse 80% 60% at 20% 10%, rgba(37,211,102,0.12) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 80% at 80% 80%, rgba(60,181,74,0.10) 0%, transparent 60%),
+            radial-gradient(ellipse 40% 40% at 50% 50%, rgba(0,80,60,0.15) 0%, transparent 70%);
+          pointer-events: none;
+          z-index: 0;
+        }
 
-    @keyframes floatIcon {
-      0%,100% { transform: translateY(0); }
-      50%      { transform: translateY(-8px); }
-    }
+        /* ── Floating shapes ── */
+        .shapes {
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          overflow: hidden;
+          z-index: 0;
+        }
+        .shape {
+          position: absolute;
+          opacity: 0.03;
+          animation: drift linear infinite;
+        }
+        .shape:nth-child(1) { width:60px; top:8%;  left:5%;  animation-duration:22s; animation-delay:0s;   transform: rotate(10deg); }
+        .shape:nth-child(2) { width:40px; top:20%; left:80%; animation-duration:18s; animation-delay:-6s;  transform: rotate(-20deg); }
+        .shape:nth-child(3) { width:70px; top:60%; left:10%; animation-duration:25s; animation-delay:-3s;  transform: rotate(35deg); }
+        .shape:nth-child(4) { width:50px; top:75%; left:70%; animation-duration:20s; animation-delay:-10s; transform: rotate(-5deg); }
+        .shape:nth-child(5) { width:45px; top:40%; left:90%; animation-duration:30s; animation-delay:-14s; transform: rotate(60deg); }
 
-    .verify-title {
-      font-family: 'Oswald', sans-serif;
-      font-size: 26px;
-      font-weight: 600;
-      color: #fff;
-      margin-bottom: 8px;
-    }
+        @keyframes drift {
+          0%   { transform: translateY(0px)   rotate(0deg); }
+          50%  { transform: translateY(-30px) rotate(180deg); }
+          100% { transform: translateY(0px)   rotate(360deg); }
+        }
 
-    .verify-sub {
-      font-size: 14px;
-      color: rgba(255,255,255,0.45);
-      margin-bottom: 8px;
-      line-height: 1.6;
-    }
+        /* ── Page layout ── */
+        .verify-page {
+          position: relative;
+          z-index: 1;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 40px 20px;
+        }
 
-    .verify-email {
-      font-size: 14px;
-      color: #5debb8;
-      font-weight: 700;
-      margin-bottom: 36px;
-      word-break: break-all;
-    }
+        /* ── Logo header ── */
+        .logo-header {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          margin-bottom: 32px;
+        }
+        .logo-icons {
+          display: flex;
+          flex-direction: row;   /* FIX: was stacking vertically without this */
+          gap: 4px;
+          align-items: center;
+        }
+        .logo-icon {
+          width: 34px;
+          height: 34px;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+        }
+        .logo-icon.blue   { background: rgba(37,211,102,0.25); }
+        .logo-icon.orange { background: rgba(255,140,50,0.25); }
+        .logo-icon.green  { background: rgba(60,181,74,0.25); }
 
-    /* PIN input boxes */
-    .pin-row {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 28px;
-    }
+        .logo-text .brand {
+          font-family: 'Oswald', sans-serif;
+          font-size: 20px;
+          font-weight: 700;
+          color: #fff;
+          letter-spacing: 1px;
+        }
+        .logo-text .brand span { color: #25d366; }
+        .logo-text .sub {
+          font-size: 11px;
+          color: rgba(255,255,255,0.4);
+          letter-spacing: 2px;
+          text-transform: uppercase;
+          margin-top: 1px;
+        }
 
-    .pin-box {
-      width: 52px;
-      height: 60px;
-      border: 2px solid rgba(255,255,255,0.2);
-      border-radius: 12px;
-      background: rgba(255,255,255,0.06);
-      color: #fff;
-      font-size: 26px;
-      font-weight: 700;
-      font-family: 'Oswald', monospace;
-      text-align: center;
-      caret-color: #25d366;
-      transition: border-color 0.2s, background 0.2s, transform 0.15s;
-      outline: none;
-    }
+        /* ── Card ── */
+        .verify-card {
+          width: 100%;
+          max-width: 480px;
+          background: rgba(255,255,255,0.07);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          border-radius: 24px;
+          border: 1px solid rgba(255,255,255,0.15);
+          padding: 48px 44px 40px;
+          box-shadow:
+            0 40px 100px rgba(0,0,0,0.5),
+            inset 0 1px 0 rgba(255,255,255,0.1);
+          text-align: center;
+          animation: cardSurge 0.7s cubic-bezier(0.16,1,0.3,1) both;
+        }
 
-    .pin-box:focus {
-      border-color: #25d366;
-      background: rgba(37,211,102,0.08);
-      transform: scale(1.08);
-    }
+        @keyframes cardSurge {
+          from { opacity: 0; transform: translateY(32px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0)    scale(1);    }
+        }
 
-    .pin-box.filled { border-color: rgba(37,211,102,0.5); }
-    .pin-box.error  { border-color: rgba(255,80,80,0.7) !important; background: rgba(255,80,80,0.08) !important; }
+        .verify-icon {
+          font-size: 52px;
+          margin-bottom: 16px;
+          display: block;
+          animation: floatIcon 3s ease-in-out infinite;
+        }
+        @keyframes floatIcon {
+          0%,100% { transform: translateY(0); }
+          50%      { transform: translateY(-8px); }
+        }
 
-    .btn-verify {
-      width: 100%;
-      padding: 15px;
-      border-radius: 12px;
-      border: none;
-      background: linear-gradient(135deg, #3cb54a, #25d366);
-      color: #fff;
-      font-family: 'Oswald', sans-serif;
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 8px 30px rgba(37,211,102,0.3);
-      margin-bottom: 20px;
-    }
-    .btn-verify:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(37,211,102,0.5);
-    }
-    .btn-verify:disabled { opacity: 0.6; cursor: not-allowed; }
+        .verify-title {
+          font-family: 'Oswald', sans-serif;
+          font-size: 26px;
+          font-weight: 600;
+          color: #fff;           /* FIX: was invisible on white bg */
+          margin-bottom: 8px;
+        }
 
-    .form-error {
-      background: rgba(255,80,80,0.15);
-      border: 1px solid rgba(255,80,80,0.4);
-      color: #ff8888;
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-size: 13px;
-      margin-bottom: 16px;
-      animation: fadeIn 0.3s ease;
-      text-align: left;
-    }
-    .form-success {
-      background: rgba(37,211,102,0.15);
-      border: 1px solid rgba(37,211,102,0.4);
-      color: #5debb8;
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-size: 13px;
-      margin-bottom: 16px;
-      animation: fadeIn 0.3s ease;
-      text-align: left;
-    }
+        .verify-sub {
+          font-size: 14px;
+          color: rgba(255,255,255,0.55);   /* FIX: was invisible on white bg */
+          margin-bottom: 8px;
+          line-height: 1.6;
+        }
 
-    .resend-row {
-      font-size: 13px;
-      color: rgba(255,255,255,0.35);
-    }
-    .resend-row a, .resend-row span {
-      color: rgba(255,255,255,0.6);
-      text-decoration: none;
-      cursor: pointer;
-      transition: color 0.2s;
-    }
-    .resend-row a:hover, .resend-row span:hover { color: white; }
-    .resend-row .countdown { color: rgba(255,255,255,0.3); cursor: default; }
+        .verify-email {
+          font-size: 14px;
+          color: #5debb8;
+          font-weight: 700;
+          margin-bottom: 36px;
+          word-break: break-all;
+        }
 
-    .expiry-note {
-      font-size: 12px;
-      color: rgba(255,255,255,0.25);
-      margin-top: 16px;
-    }
+        /* ── PIN boxes ── */
+        .pin-row {
+          display: flex;
+          gap: 10px;
+          justify-content: center;
+          margin-bottom: 28px;
+        }
 
-    @keyframes fadeIn {
-      from { opacity:0; transform: translateY(-6px); }
-      to   { opacity:1; transform: translateY(0); }
-    }
-    @keyframes shake {
-      0%,100% { transform: translateX(0); }
-      20%      { transform: translateX(-8px); }
-      40%      { transform: translateX(8px); }
-      60%      { transform: translateX(-5px); }
-      80%      { transform: translateX(5px); }
-    }
+        .pin-box {
+          width: 52px;
+          height: 60px;
+          border: 2px solid rgba(255,255,255,0.2);
+          border-radius: 12px;
+          background: rgba(255,255,255,0.06);
+          color: #fff;
+          font-size: 26px;
+          font-weight: 700;
+          font-family: 'Oswald', monospace;
+          text-align: center;
+          caret-color: #25d366;
+          transition: border-color 0.2s, background 0.2s, transform 0.15s;
+          outline: none;
+        }
+        .pin-box::placeholder { color: rgba(255,255,255,0.15); }
+        .pin-box:focus {
+          border-color: #25d366;
+          background: rgba(37,211,102,0.08);
+          transform: scale(1.08);
+        }
+        .pin-box.filled { border-color: rgba(37,211,102,0.5); }
+        .pin-box.error  { border-color: rgba(255,80,80,0.7) !important; background: rgba(255,80,80,0.08) !important; }
 
-    @media (max-width: 520px) {
-      .verify-card { padding: 36px 24px; }
-      .pin-box { width: 44px; height: 52px; font-size: 22px; }
-    }
-  </style>
+        /* ── Button ── */
+        .btn-verify {
+          width: 100%;
+          padding: 15px;
+          border-radius: 12px;
+          border: none;
+          background: linear-gradient(135deg, #3cb54a, #25d366);
+          color: #fff;
+          font-family: 'Oswald', sans-serif;
+          font-size: 16px;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+          cursor: pointer;
+          transition: all 0.3s;
+          box-shadow: 0 8px 30px rgba(37,211,102,0.3);
+          margin-bottom: 20px;
+        }
+        .btn-verify:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 40px rgba(37,211,102,0.5);
+        }
+        .btn-verify:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* ── Alerts ── */
+        .form-error {
+          background: rgba(255,80,80,0.15);
+          border: 1px solid rgba(255,80,80,0.4);
+          color: #ff8888;
+          border-radius: 10px;
+          padding: 12px 16px;
+          font-size: 13px;
+          margin-bottom: 16px;
+          animation: fadeIn 0.3s ease;
+          text-align: left;
+        }
+        .form-success {
+          background: rgba(37,211,102,0.15);
+          border: 1px solid rgba(37,211,102,0.4);
+          color: #5debb8;
+          border-radius: 10px;
+          padding: 12px 16px;
+          font-size: 13px;
+          margin-bottom: 16px;
+          animation: fadeIn 0.3s ease;
+          text-align: left;
+        }
+
+        /* ── Resend row ── */
+        .resend-row {
+          font-size: 13px;
+          color: rgba(255,255,255,0.35);
+        }
+        .resend-row a, .resend-row span {
+          color: rgba(255,255,255,0.6);
+          text-decoration: none;
+          cursor: pointer;
+          transition: color 0.2s;
+        }
+        .resend-row a:hover, .resend-row span:hover { color: white; }
+        .resend-row .countdown { color: rgba(255,255,255,0.3); cursor: default; }
+
+        .expiry-note {
+          font-size: 12px;
+          color: rgba(255,255,255,0.25);
+          margin-top: 16px;
+        }
+
+        /* ── BP badge ── */
+        .bp-badge {
+          position: fixed;
+          bottom: 16px;
+          right: 20px;
+          font-size: 11px;
+          color: rgba(255,255,255,0.2);
+          font-family: 'Lato', sans-serif;
+          z-index: 10;
+        }
+
+        /* ── Animations ── */
+        @keyframes fadeIn {
+          from { opacity:0; transform: translateY(-6px); }
+          to   { opacity:1; transform: translateY(0); }
+        }
+        @keyframes shake {
+          0%,100% { transform: translateX(0); }
+          20%      { transform: translateX(-8px); }
+          40%      { transform: translateX(8px); }
+          60%      { transform: translateX(-5px); }
+          80%      { transform: translateX(5px); }
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 520px) {
+          .verify-card { padding: 36px 24px; }
+          .pin-box { width: 44px; height: 52px; font-size: 22px; }
+        }
+    </style>
 </head>
 <body>
 
-  <div class="bg" id="bg"></div>
-
-  <div class="shapes">
+<!-- Floating background shapes -->
+<div class="shapes">
     <svg class="shape" viewBox="0 0 50 50" fill="white"><rect x="5" y="5" width="40" height="10" rx="2"/><rect x="5" y="20" width="40" height="10" rx="2"/><rect x="5" y="35" width="40" height="10" rx="2"/></svg>
     <svg class="shape" viewBox="0 0 50 50" fill="white"><path d="M10 40 L25 10 L40 40 Z"/></svg>
     <svg class="shape" viewBox="0 0 50 50" fill="white"><rect x="5" y="5" width="40" height="40" rx="4"/></svg>
     <svg class="shape" viewBox="0 0 50 50" fill="white"><circle cx="25" cy="25" r="20"/></svg>
     <svg class="shape" viewBox="0 0 50 50" fill="white"><path d="M5 25 L20 10 L45 10 L45 40 L5 40 Z"/></svg>
-  </div>
+</div>
 
-  <div class="page verify-page">
+<div class="verify-page">
 
+    <!-- Logo -->
     <div class="logo-header">
-      <div class="logo-icons">
-        <div class="logo-icon blue">🔨</div>
-        <div class="logo-icon orange">🧱</div>
-        <div class="logo-icon green">🖌️</div>
-      </div>
-      <div class="logo-text">
-        <div class="brand">MPHO <span>YAN</span>GA</div>
-        <div class="sub">Construction</div>
-      </div>
+        <div class="logo-icons">
+            <div class="logo-icon blue">🔨</div>
+            <div class="logo-icon orange">🧱</div>
+            <div class="logo-icon green">🖌️</div>
+        </div>
+        <div class="logo-text">
+            <div class="brand">MPHO <span>YAN</span>GA</div>
+            <div class="sub">Construction</div>
+        </div>
     </div>
 
+    <!-- Card -->
     <div class="verify-card" id="verify-card">
-      <span class="verify-icon">📬</span>
-      <div class="verify-title">Check Your Email</div>
-      <div class="verify-sub">We sent a 5-digit verification PIN to</div>
-      <div class="verify-email" id="display-email">your email address</div>
+        <span class="verify-icon">📬</span>
+        <div class="verify-title">Check Your Email</div>
+        <div class="verify-sub">We sent a 5-digit verification PIN to</div>
+        <div class="verify-email" id="display-email">your email address</div>
 
-      <div class="pin-row" id="pin-row">
-        <input class="pin-box" type="text" inputmode="numeric" maxlength="1" id="p0">
-        <input class="pin-box" type="text" inputmode="numeric" maxlength="1" id="p1">
-        <input class="pin-box" type="text" inputmode="numeric" maxlength="1" id="p2">
-        <input class="pin-box" type="text" inputmode="numeric" maxlength="1" id="p3">
-        <input class="pin-box" type="text" inputmode="numeric" maxlength="1" id="p4">
-      </div>
+        <div class="pin-row" id="pin-row">
+            <input class="pin-box" type="text" inputmode="numeric" maxlength="1" id="p0" placeholder="·">
+            <input class="pin-box" type="text" inputmode="numeric" maxlength="1" id="p1" placeholder="·">
+            <input class="pin-box" type="text" inputmode="numeric" maxlength="1" id="p2" placeholder="·">
+            <input class="pin-box" type="text" inputmode="numeric" maxlength="1" id="p3" placeholder="·">
+            <input class="pin-box" type="text" inputmode="numeric" maxlength="1" id="p4" placeholder="·">
+        </div>
 
-      <div id="ver-error"   class="form-error"   style="display:none;"></div>
-      <div id="ver-success" class="form-success"  style="display:none;"></div>
+        <div id="ver-error"   class="form-error"   style="display:none;"></div>
+        <div id="ver-success" class="form-success"  style="display:none;"></div>
 
-      <button class="btn-verify" id="ver-btn" onclick="submitVerification()">Verify Account →</button>
+        <button class="btn-verify" id="ver-btn" onclick="submitVerification()">Verify Account →</button>
 
-      <div class="resend-row" id="resend-row">
-        Didn't receive it?
-        <span id="resend-link" onclick="resendPin()">Resend PIN</span>
-        <span id="resend-timer" class="countdown" style="display:none;"></span>
-      </div>
+        <div class="resend-row" id="resend-row">
+            Didn't receive it?&nbsp;
+            <span id="resend-link" onclick="resendPin()">Resend PIN</span>
+            <span id="resend-timer" class="countdown" style="display:none;"></span>
+        </div>
 
-      <div class="expiry-note">⏰ PIN expires after 24 hours</div>
+        <div class="expiry-note">⏰ PIN expires after 24 hours</div>
     </div>
 
-  </div>
+</div>
 
-  <div class="bp-badge">BP No.0200269091</div>
+<div class="bp-badge">BP No.0200269091</div>
 
-  <script>
-    // ── Read email from query params ──────────────────────────────────
+<script>
+    // ── Read email from query params ─────────────────────────────────
     const params = new URLSearchParams(window.location.search);
     const email  = params.get('email') || '';
     if (email) document.getElementById('display-email').textContent = email;
 
-    // ── PIN box auto-advance ──────────────────────────────────────────
+    // ── PIN box auto-advance ─────────────────────────────────────────
     const boxes = [0,1,2,3,4].map(i => document.getElementById('p' + i));
 
     boxes.forEach((box, idx) => {
@@ -262,7 +380,7 @@
           boxes[idx - 1].classList.remove('filled');
           boxes[idx - 1].focus();
         }
-        if (e.key === 'ArrowLeft' && idx > 0) boxes[idx - 1].focus();
+        if (e.key === 'ArrowLeft'  && idx > 0) boxes[idx - 1].focus();
         if (e.key === 'ArrowRight' && idx < 4) boxes[idx + 1].focus();
       });
 
@@ -277,10 +395,9 @@
       });
     });
 
-    // Auto-focus first box
     boxes[0].focus();
 
-    // ── Helpers ───────────────────────────────────────────────────────
+    // ── Helpers ──────────────────────────────────────────────────────
     function getPin() { return boxes.map(b => b.value).join(''); }
 
     function showError(msg) {
@@ -302,7 +419,7 @@
       boxes.forEach(b => { b.classList.add('error'); setTimeout(() => b.classList.remove('error'), 600); });
     }
 
-    // ── Submit verification ───────────────────────────────────────────
+    // ── Submit verification ──────────────────────────────────────────
     async function submitVerification() {
       const pin = getPin();
       if (pin.length < 5) { shakeCard(); showError('Please enter all 5 digits.'); return; }
@@ -320,6 +437,7 @@
 
         if (data.success) {
           showSuccess('✅ Account verified! Redirecting to your dashboard…');
+
           setTimeout(() => { window.location.href = '/client/dashboard'; }, 2000);
         } else {
           shakeCard(); showError(data.message || 'Invalid PIN. Please try again.');
@@ -331,13 +449,10 @@
       }
     }
 
-    // ── Resend with cooldown ──────────────────────────────────────────
+    // ── Resend with cooldown ─────────────────────────────────────────
     let cooldown = 0;
     async function resendPin() {
       if (cooldown > 0) return;
-      const link  = document.getElementById('resend-link');
-      const timer = document.getElementById('resend-timer');
-
       try {
         const res  = await fetch('/api/client/resend-pin', {
           method: 'POST',
@@ -372,6 +487,6 @@
       }, 1000);
       timer.textContent = `Resend in ${cooldown}s`;
     }
-  </script>
+</script>
 </body>
 </html>
