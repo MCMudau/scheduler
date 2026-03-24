@@ -149,7 +149,7 @@ public class LoginController {
             // Unverified clients must confirm their e-mail PIN first
             res.put("redirect", Boolean.TRUE.equals(client.getVerified())
                     ? "/client-dashboard.html"
-                    : "/verify-client.html");
+                    : "/client/verify");
 
             return ResponseEntity.ok(res);
 
