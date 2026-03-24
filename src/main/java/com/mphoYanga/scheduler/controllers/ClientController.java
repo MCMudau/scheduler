@@ -22,7 +22,7 @@ public class ClientController {
     // ── POST /api/client/register ─────────────────────────────────────────────
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> body) {
+    public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> body,HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
             String name            = require(body, "name");
@@ -33,7 +33,13 @@ public class ClientController {
             String password        = require(body, "password");
             String confirmPassword = require(body, "confirmPassword");
 
-            clientService.register(name, surname, email, phoneNumber, address, password, confirmPassword);
+            Client client=clientService.register(name, surname, email, phoneNumber, address, password, confirmPassword);
+
+            session.setAttribute("userId",         client.getId());
+            session.setAttribute("userName",       client.getName());
+            session.setAttribute("userEmail",      client.getEmail());
+            session.setAttribute("userRole",       "client");
+            session.setAttribute("clientVerified", client.getVerified());
 
             response.put("success", true);
             response.put("message", "Account created successfully. Check your email for the verification PIN.");

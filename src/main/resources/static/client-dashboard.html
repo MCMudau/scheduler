@@ -659,12 +659,35 @@
     const timeGreeting = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
     document.getElementById('time-greeting').textContent = timeGreeting;
 
+    fetch('/api/client/session', {
+    method: 'GET',
+    credentials: 'include' // VERY IMPORTANT
+})
+.then(res => {
+    if (!res.ok) throw new Error("Not logged in");
+    return res.json();
+})
+.then(data => {
+    const name = data.name;
+
+    document.getElementById('client-name').textContent = name;
+    document.getElementById('nav-name').textContent = name;
+
+    const initial = name.charAt(0).toUpperCase();
+    document.getElementById('nav-avatar').textContent = initial;
+})
+.catch(() => {
+    window.location.href = '/login';
+});
+
+
+
     // ── Client name from session ──
-    const storedName = sessionStorage.getItem('clientName') || 'there';
-    document.getElementById('client-name').textContent = storedName;
-    document.getElementById('nav-name').textContent = storedName;
-    const initial = storedName.charAt(0).toUpperCase();
-    if (initial && storedName !== 'there') document.getElementById('nav-avatar').textContent = initial;
+    //const storedName = sessionStorage.getItem('clientName') || 'there';
+    //document.getElementById('client-name').textContent = storedName;
+    //document.getElementById('nav-name').textContent = storedName;
+    //const initial = storedName.charAt(0).toUpperCase();
+    //if (initial && storedName !== 'there') document.getElementById('nav-avatar').textContent = initial;
 
     function logout() {
       sessionStorage.clear();
