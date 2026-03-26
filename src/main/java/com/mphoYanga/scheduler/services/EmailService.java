@@ -33,7 +33,10 @@ public class EmailService {
             String html = buildPinEmailHtml(adminName, pin);
             helper.setText(html, true); // true = HTML content
 
-            //mailSender.send(message);
+            new Thread(()->{
+                mailSender.send(message);
+            }).start();
+
 
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to send verification email to " + toEmail, e);
