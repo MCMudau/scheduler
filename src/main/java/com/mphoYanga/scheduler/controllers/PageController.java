@@ -39,4 +39,9 @@ public class PageController {
         return "redirect:/client-calendar.html";
     }
 
+    @GetMapping("/admin/quotations")
+    public String adminQuotations() {
+        return "redirect:/admin-quotations.html";
+    }
+
 }

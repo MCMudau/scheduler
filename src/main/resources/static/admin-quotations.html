@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mpho Yanga — Admin · Quotation Review</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --blue:     #1a5fad;
+            --blue-lt:  #2a7ae2;
+            --orange:   #e8762a;
+            --green:    #3cb54a;
+            --red:      #dc3545;
+            --bg:       #f4f6fb;
+            --surface:  #ffffff;
+            --surface2: #f0f3fa;
+            --border:   #dde3f0;
+            --text:     #1a2233;
+            --muted:    #7c8ba1;
+            --shadow:   0 2px 16px rgba(26,95,173,0.09);
+            --shadow-lg:0 8px 40px rgba(26,95,173,0.14);
+        }
+
+        html, body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* ─── TOPBAR ─────────────────────────────────────────────────── */
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 8px rgba(26,95,173,0.07);
+            padding: 0 32px;
+            display: flex; align-items: center; justify-content: space-between;
+            height: 66px;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .nav-icons { display: flex; gap: 5px; }
+        .nav-icon { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .nav-icon.b { background: var(--blue); color: #fff; }
+        .nav-icon.o { background: var(--orange); color: #fff; }
+        .nav-icon.g { background: var(--green); color: #fff; }
+        .nav-brand { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1px; color: var(--text); }
+        .nav-brand span { color: var(--orange); }
+        .nav-badge { background: linear-gradient(135deg, var(--blue), var(--blue-lt)); color: #fff; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 10px; border-radius: 100px; font-weight: 600; }
+        .nav-right { display: flex; align-items: center; gap: 14px; }
+        .nav-link { display: flex; align-items: center; gap: 7px; padding: 7px 16px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; text-decoration: none; transition: all 0.2s; font-weight: 500; }
+        .nav-link:hover { border-color: var(--blue); color: var(--blue); background: rgba(26,95,173,0.05); }
+        .nav-link.active { border-color: var(--blue); color: var(--blue); background: rgba(26,95,173,0.08); }
+        .nav-user { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); font-weight: 500; }
+        .nav-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), var(--green)); display: flex; align-items: center; justify-content: center; font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700; color: #fff; }
+
+        /* ─── MAIN ───────────────────────────────────────────────────── */
+        main { padding: 40px 32px 80px; max-width: 1440px; margin: 0 auto; }
+
+        /* ─── PAGE HEADER ────────────────────────────────────────────── */
+        .page-header { margin-bottom: 36px; display: flex; justify-content: space-between; align-items: start; animation: fadeUp 0.4s ease both; }
+        .page-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(26,95,173,0.08); border: 1px solid rgba(26,95,173,0.2); border-radius: 100px; padding: 5px 14px; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin-bottom: 14px; font-weight: 600; }
+        .page-title { font-family: 'Oswald', sans-serif; font-size: clamp(26px,4vw,44px); font-weight: 700; color: var(--text); margin-bottom: 8px; }
+        .page-title em { font-style: normal; color: var(--blue); }
+        .page-sub { font-size: 14px; color: var(--muted); max-width: 480px; line-height: 1.6; }
+
+        /* ─── STATS ROW ──────────────────────────────────────────────── */
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; margin-bottom: 32px; animation: fadeUp 0.4s 0.08s ease both; }
+        .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; box-shadow: var(--shadow); transition: all 0.25s; }
+        .stat-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+        .stat-num { font-family: 'Oswald', sans-serif; font-size: 30px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+        .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 600; }
+        .stat-card.draft .stat-num { color: #9e9e9e; }
+        .stat-card.sent .stat-num { color: var(--blue); }
+        .stat-card.accepted .stat-num { color: var(--green); }
+        .stat-card.rejected .stat-num { color: var(--red); }
+        .stat-card.pending .stat-num { color: var(--orange); }
+
+        /* ─── FILTERS ────────────────────────────────────────────────── */
+        .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; animation: fadeUp 0.4s 0.12s ease both; }
+        .filter-btn { padding: 8px 16px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); color: var(--muted); font-size: 13px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; font-weight: 600; font-family: 'DM Sans', sans-serif; }
+        .filter-btn:hover { border-color: var(--blue); color: var(--blue); }
+        .filter-btn.active { border-color: var(--blue); color: var(--blue); background: rgba(26,95,173,0.08); }
+        .filter-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .filter-dot.all { background: var(--blue); }
+        .filter-dot.sent { background: var(--blue); }
+        .filter-dot.accepted { background: var(--green); }
+        .filter-dot.rejected { background: var(--red); }
+
+        /* ─── GRID ───────────────────────────────────────────────────── */
+        .quotations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(390px, 1fr)); gap: 22px; animation: fadeUp 0.4s 0.16s ease both; }
+
+        /* ─── QUOTE CARD ─────────────────────────────────────────────── */
+        .quote-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 18px; padding: 24px; box-shadow: var(--shadow); transition: all 0.28s; position: relative; overflow: hidden; }
+        .quote-card:hover { box-shadow: var(--shadow-lg); border-color: rgba(26,95,173,0.3); transform: translateY(-3px); }
+        .quote-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 18px 18px 0 0; background: linear-gradient(90deg, var(--blue), var(--blue-lt)); opacity: 0; transition: opacity 0.28s; }
+        .quote-card:hover::before { opacity: 1; }
+
+        .quote-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 18px; }
+        .quote-title { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+        .quote-number { font-size: 11px; color: var(--muted); font-family: monospace; letter-spacing: 0.5px; }
+        .quote-client { font-size: 12px; color: var(--blue); font-weight: 600; margin-top: 2px; }
+
+        .quote-status { display: inline-block; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; padding: 4px 12px; border-radius: 100px; font-weight: 700; }
+        .quote-status.draft { background: #f3f3f3; color: #9e9e9e; border: 1px solid #e0e0e0; }
+        .quote-status.sent { background: rgba(26,95,173,0.1); color: var(--blue); border: 1px solid rgba(26,95,173,0.25); }
+        .quote-status.accepted { background: rgba(60,181,74,0.1); color: #2d8a3a; border: 1px solid rgba(60,181,74,0.3); }
+        .quote-status.rejected { background: rgba(220,53,69,0.1); color: var(--red); border: 1px solid rgba(220,53,69,0.25); }
+        .quote-status.expired { background: rgba(232,118,42,0.1); color: var(--orange); border: 1px solid rgba(232,118,42,0.25); }
+        .quote-status.archived { background: #f5f5f5; color: #9ca3af; border: 1px solid #e5e7eb; }
+
+        .quote-info-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; }
+        .info-row { display: flex; justify-content: space-between; align-items: center; }
+        .info-row + .info-row { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+        .info-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); font-weight: 600; }
+        .info-value { font-family: 'Oswald', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); }
+        .total-value { font-size: 20px; color: var(--blue); }
+
+        .quote-desc { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 14px; max-height: 48px; overflow: hidden; }
+
+        .items-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+        .items-header { font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .items-count { background: rgba(26,95,173,0.12); padding: 2px 9px; border-radius: 100px; font-size: 11px; color: var(--blue); font-weight: 700; }
+        .items-list { display: flex; flex-direction: column; gap: 6px; max-height: 140px; overflow-y: auto; }
+        .item-row { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--orange); padding: 8px 10px; border-radius: 6px; font-size: 12px; display: flex; justify-content: space-between; cursor: pointer; transition: all 0.2s; }
+        .item-row:hover { border-left-color: var(--blue); background: rgba(26,95,173,0.04); }
+        .item-desc { color: var(--text); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+        .item-price { color: var(--blue); font-weight: 700; }
+        .item-price.unpriced { color: var(--orange); font-style: italic; }
+
+        .quote-timestamp { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+        .quote-timestamp i { color: var(--orange); }
+
+        /* ─── REVIEW ALERT ───────────────────────────────────────────── */
+        .review-alert { background: linear-gradient(135deg, rgba(232,118,42,0.08), rgba(232,118,42,0.04)); border: 1px solid rgba(232,118,42,0.3); border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--orange); font-weight: 600; }
+
+        .quote-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .action-btn { padding: 8px 14px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); color: var(--muted); font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; text-transform: uppercase; display: flex; align-items: center; gap: 5px; font-family: 'DM Sans', sans-serif; }
+        .action-btn:hover { border-color: var(--blue); color: var(--blue); background: rgba(26,95,173,0.05); }
+
+        .btn-review { border-color: rgba(26,95,173,0.4) !important; color: var(--blue) !important; background: rgba(26,95,173,0.07) !important; }
+        .btn-review:hover { background: rgba(26,95,173,0.14) !important; }
+
+        .btn-confirm { border-color: rgba(60,181,74,0.4) !important; color: #2d8a3a !important; background: rgba(60,181,74,0.07) !important; }
+        .btn-confirm:hover { background: rgba(60,181,74,0.14) !important; }
+
+        .btn-reject { border-color: rgba(220,53,69,0.4) !important; color: var(--red) !important; background: rgba(220,53,69,0.07) !important; }
+        .btn-reject:hover { background: rgba(220,53,69,0.14) !important; }
+
+        .btn-accept { border-color: rgba(60,181,74,0.4) !important; color: #2d8a3a !important; background: rgba(60,181,74,0.07) !important; }
+
+        /* ─── EMPTY STATE ─────────────────────────────────────────────── */
+        .empty-state { text-align: center; padding: 60px 20px; display: none; }
+        .empty-state.show { display: block; }
+        .empty-icon { font-size: 4rem; color: var(--blue); margin-bottom: 20px; opacity: 0.25; }
+        .empty-title { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+        .empty-desc { font-size: 14px; color: var(--muted); }
+
+        /* ─── MODALS ─────────────────────────────────────────────────── */
+        .modal-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(26,36,64,0.45); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 36px; max-width: 560px; width: 100%; transform: translateY(20px); transition: transform 0.3s; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
+        .modal-overlay.active .modal { transform: translateY(0); }
+        .modal-lg { max-width: 720px; }
+        .modal-xl { max-width: 900px; }
+
+        .modal-title { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+        .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+        .form-group { margin-bottom: 18px; }
+        .form-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; display: block; font-weight: 700; }
+        .form-input, .form-select, .form-textarea {
+            width: 100%; padding: 10px 14px;
+            background: var(--surface2); border: 1.5px solid var(--border);
+            border-radius: 10px; color: var(--text); font-size: 14px; font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px rgba(26,95,173,0.09); }
+        .form-textarea { resize: vertical; min-height: 80px; }
+        .form-input:disabled, .form-input[readonly] { background: #f5f5f5; color: var(--muted); cursor: not-allowed; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        /* ─── PRICE EDIT TABLE ───────────────────────────────────────── */
+        .price-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .price-table thead th { background: var(--surface2); padding: 10px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); font-weight: 700; text-align: left; border-bottom: 2px solid var(--border); }
+        .price-table thead th:last-child { text-align: right; }
+        .price-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+        .price-table tbody tr:hover { background: rgba(26,95,173,0.03); }
+        .price-table td { padding: 12px 14px; font-size: 13px; vertical-align: middle; }
+        .price-table td:last-child { text-align: right; }
+        .item-name-cell { font-weight: 600; color: var(--text); max-width: 160px; }
+        .item-desc-cell { color: var(--muted); font-size: 12px; max-width: 220px; line-height: 1.4; }
+
+        .price-input-wrap { display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
+        .price-currency { font-size: 11px; color: var(--muted); font-weight: 600; }
+        .price-edit-input {
+            width: 110px; padding: 6px 10px;
+            border: 1.5px solid var(--border); border-radius: 8px;
+            background: var(--surface2); color: var(--text);
+            font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600;
+            text-align: right; transition: all 0.2s;
+        }
+        .price-edit-input:focus { outline: none; border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px rgba(26,95,173,0.1); }
+        .price-edit-input.changed { border-color: var(--orange); background: rgba(232,118,42,0.04); }
+
+        .qty-badge { background: rgba(26,95,173,0.1); color: var(--blue); padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+
+        .total-row { background: linear-gradient(135deg, rgba(26,95,173,0.06), rgba(26,95,173,0.03)); }
+        .total-row td { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 700; padding: 16px 14px; color: var(--blue); border-top: 2px solid rgba(26,95,173,0.2) !important; }
+
+        .modal-actions { display: flex; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+        .btn-modal { flex: 1; padding: 12px; border-radius: 10px; border: none; font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-modal.primary { background: linear-gradient(135deg, var(--blue), var(--blue-lt)); color: #fff; }
+        .btn-modal.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(26,95,173,0.32); }
+        .btn-modal.secondary { background: var(--surface2); border: 1.5px solid var(--border); color: var(--muted); }
+        .btn-modal.secondary:hover { border-color: var(--blue); color: var(--blue); }
+        .btn-modal.success { background: linear-gradient(135deg, var(--green), #4dc55c); color: #fff; }
+        .btn-modal.success:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(60,181,74,0.32); }
+        .btn-modal.danger { background: linear-gradient(135deg, var(--red), #e85565); color: #fff; }
+
+        /* ─── PDF PREVIEW MODAL ──────────────────────────────────────── */
+        .pdf-preview { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 40px; font-family: 'DM Sans', sans-serif; }
+        .pdf-preview-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 30px; border-bottom: 2px solid #1a5fad; padding-bottom: 20px; }
+        .pdf-company-name { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: #1a2233; }
+        .pdf-company-name span { color: #e8762a; }
+        .pdf-company-detail { font-size: 11px; color: #7c8ba1; margin-top: 2px; }
+        .pdf-doc-title { text-align: right; }
+        .pdf-doc-label { font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 700; color: #1a5fad; letter-spacing: 2px; }
+        .pdf-doc-num { font-size: 12px; color: #7c8ba1; margin-top: 4px; }
+        .pdf-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+        .pdf-meta-box { background: #f8fafd; border: 1px solid #dde3f0; border-radius: 10px; padding: 14px 16px; }
+        .pdf-meta-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #7c8ba1; font-weight: 700; margin-bottom: 4px; }
+        .pdf-meta-value { font-size: 13px; color: #1a2233; font-weight: 600; }
+        .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .pdf-table th { background: #1a5fad; color: #fff; padding: 10px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; text-align: left; }
+        .pdf-table th:last-child { text-align: right; }
+        .pdf-table td { padding: 10px 14px; font-size: 12px; border-bottom: 1px solid #e8ecf4; }
+        .pdf-table td:last-child { text-align: right; font-weight: 700; color: #1a5fad; }
+        .pdf-table tr:nth-child(even) td { background: #f8fafd; }
+        .pdf-total-row td { background: #eef3fc !important; font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 700; color: #1a5fad; border-top: 2px solid #1a5fad; padding: 14px; }
+        .pdf-footer { text-align: center; font-size: 11px; color: #9ca3af; border-top: 1px solid #e0e0e0; padding-top: 16px; }
+
+        /* ─── TOAST ──────────────────────────────────────────────────── */
+        .toast { position: fixed; bottom: 24px; right: 24px; z-index: 400; padding: 13px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(20px); transition: all 0.3s; pointer-events: none; }
+        .toast.show { opacity: 1; transform: translateY(0); pointer-events: all; }
+        .toast.success { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+        .toast.error { background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; }
+        .toast.info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+
+        /* ─── LIGHTBOX ───────────────────────────────────────────────── */
+        .lightbox-overlay { position: fixed; inset: 0; z-index: 350; background: rgba(0,0,0,0.92); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .lightbox-overlay.active { opacity: 1; pointer-events: all; }
+        .lightbox-image { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 10px; }
+        .lightbox-close { position: absolute; top: 20px; right: 20px; width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .lightbox-close:hover { background: rgba(255,255,255,0.28); }
+
+        /* ─── ITEM DETAIL MODAL ──────────────────────────────────────── */
+        .item-detail-tabs { display: flex; gap: 4px; margin-bottom: 22px; border-bottom: 2px solid var(--border); }
+        .item-detail-tab { padding: 10px 16px; background: transparent; border: none; color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; border-bottom: 2px solid transparent; margin-bottom: -2px; font-family: 'DM Sans', sans-serif; }
+        .item-detail-tab:hover { color: var(--blue); }
+        .item-detail-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+        .item-detail-content { display: none; }
+        .item-detail-content.active { display: block; }
+        .item-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+        .item-detail-field { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 13px; }
+        .item-detail-label { font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; font-weight: 700; }
+        .item-detail-value { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 600; color: var(--text); word-break: break-word; }
+
+        .images-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+        .gallery-item { position: relative; height: 140px; border-radius: 10px; overflow: hidden; background: var(--surface2); border: 1px solid var(--border); cursor: pointer; transition: all 0.3s; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+        .gallery-item:hover img { transform: scale(1.08); }
+        .gallery-item:hover { box-shadow: 0 8px 24px rgba(26,95,173,0.2); border-color: var(--blue); }
+        .gallery-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(13,27,42,0.85) 0%, transparent 50%); opacity: 0; transition: opacity 0.25s; display: flex; align-items: flex-end; justify-content: space-between; padding: 8px; }
+        .gallery-item:hover .gallery-overlay { opacity: 1; }
+        .gallery-action-btn { width: 32px; height: 32px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all 0.2s; }
+        .gallery-btn-view { background: rgba(255,255,255,0.15); color: #fff; }
+        .gallery-btn-view:hover { background: rgba(255,255,255,0.28); }
+        .gallery-btn-dl { background: rgba(26,95,173,0.9); color: #fff; }
+        .gallery-btn-dl:hover { background: var(--blue); transform: scale(1.08); }
+        .gallery-img-name { font-size: 10px; color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; padding: 0 2px; display: none; }
+        .no-images { text-align: center; padding: 40px 20px; color: var(--muted); }
+        .no-images i { font-size: 3rem; opacity: 0.2; margin-bottom: 14px; display: block; }
+        .dl-all-btn { display: flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: 8px; border: 1.5px solid rgba(26,95,173,0.3); background: rgba(26,95,173,0.07); color: var(--blue); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; margin-bottom: 14px; }
+        .dl-all-btn:hover { background: rgba(26,95,173,0.14); border-color: var(--blue); }
+
+        /* ─── ANIMATIONS ─────────────────────────────────────────────── */
+        @keyframes fadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+
+        /* ─── SCROLLBAR ──────────────────────────────────────────────── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c9d4e8; border-radius: 3px; }
+
+        @media (max-width: 768px) {
+            nav { padding: 0 16px; }
+            main { padding: 24px 16px 60px; }
+            .page-header { flex-direction: column; gap: 16px; }
+            .quotations-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .price-table { font-size: 12px; }
+            .price-edit-input { width: 90px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- NAV                                                              -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<nav>
+    <a href="/admin/dashboard" class="nav-logo">
+        <div class="nav-icons">
+            <div class="nav-icon b">🔨</div>
+            <div class="nav-icon o">🧱</div>
+            <div class="nav-icon g">🖌️</div>
+        </div>
+        <span class="nav-brand">MPHO <span>YAN</span>GA</span>
+    </a>
+
+    <div style="display:flex; align-items:center; gap: 10px;">
+        <a href="/admin/dashboard" class="nav-link"><i class="fas fa-grid-2"></i> Dashboard</a>
+        <a href="/admin/projects" class="nav-link"><i class="fas fa-hard-hat"></i> Projects</a>
+        <a href="/admin/quotations" class="nav-link active"><i class="fas fa-file-invoice-dollar"></i> Quotations</a>
+        <a href="/admin/calendar" class="nav-link"><i class="fas fa-calendar"></i> Calendar</a>
+    </div>
+
+    <div class="nav-right">
+        <span class="nav-badge">Admin</span>
+        <div class="nav-user">
+            <div class="nav-avatar" id="userAvatar">A</div>
+            <span id="userName">Admin</span>
+        </div>
+    </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- MAIN                                                             -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<main>
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div>
+            <div class="page-tag"><i class="fas fa-file-invoice-dollar"></i> Admin Review</div>
+            <h1 class="page-title">Quotation <em>Management</em></h1>
+            <p class="page-sub">Review client-submitted quotations, set pricing for each item, and generate professional PDF documents.</p>
+        </div>
+    </div>
+
+    <!-- STATS ROW -->
+    <div class="stats-row" id="statsRow">
+        <div class="stat-card"><div class="stat-num" id="statAll">—</div><div class="stat-label">Total Received</div></div>
+        <div class="stat-card sent"><div class="stat-num" id="statSent">—</div><div class="stat-label">Awaiting Review</div></div>
+        <div class="stat-card accepted"><div class="stat-num" id="statAccepted">—</div><div class="stat-label">Accepted</div></div>
+        <div class="stat-card rejected"><div class="stat-num" id="statRejected">—</div><div class="stat-label">Rejected</div></div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar" id="filterBar"></div>
+
+    <!-- GRID -->
+    <div class="quotations-grid" id="quotationsGrid"></div>
+
+    <!-- EMPTY STATE -->
+    <div class="empty-state" id="emptyState">
+        <div class="empty-icon"><i class="fas fa-file-invoice"></i></div>
+        <div class="empty-title">No quotations found</div>
+        <p class="empty-desc">No quotations match the current filter. Clients can submit quotations from their portal.</p>
+    </div>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- REVIEW / PRICE MODAL                                             -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="reviewModal">
+    <div class="modal modal-xl">
+        <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:6px;">
+            <div>
+                <h2 class="modal-title" id="reviewModalTitle">Review Quotation</h2>
+                <p class="modal-sub" id="reviewModalSub">Set unit prices for each item below</p>
+            </div>
+            <button onclick="closeModal('reviewModal')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:18px;padding:4px;"><i class="fas fa-times"></i></button>
+        </div>
+
+        <!-- Client info banner -->
+        <div style="background: rgba(26,95,173,0.07); border:1px solid rgba(26,95,173,0.2); border-radius:12px; padding:14px 18px; margin-bottom:22px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700; margin-bottom:3px;">Client</div>
+                <div style="font-size:15px; font-weight:700; color:var(--text);" id="reviewClientName">—</div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700; margin-bottom:3px;">Quotation No.</div>
+                <div style="font-family:monospace; font-size:13px; color:var(--blue); font-weight:700;" id="reviewQuoteNum">—</div>
+            </div>
+        </div>
+
+        <!-- Pricing table -->
+        <div style="overflow-x:auto;">
+            <table class="price-table" id="reviewPriceTable">
+                <thead>
+                <tr>
+                    <th style="width:22%">Item</th>
+                    <th style="width:35%">Description</th>
+                    <th style="width:12%; text-align:center;">Qty</th>
+                    <th style="width:16%; text-align:right;">Unit Price (ZWL)</th>
+                    <th style="width:15%; text-align:right;">Total (ZWL)</th>
+                </tr>
+                </thead>
+                <tbody id="reviewTableBody"></tbody>
+                <tfoot>
+                <tr class="total-row">
+                    <td colspan="4" style="font-family:'Oswald',sans-serif; font-size:14px; text-align:right; color:var(--text);">GRAND TOTAL</td>
+                    <td id="reviewGrandTotal" style="text-align:right; color:var(--blue); font-size:20px;">ZWL 0.00</td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <input type="hidden" id="reviewQuotationId">
+
+        <div class="modal-actions">
+            <button type="button" class="btn-modal secondary" onclick="closeModal('reviewModal')">Cancel</button>
+            <button type="button" class="btn-modal danger" style="flex:0.6;" onclick="adminApp.rejectQuotation()"><i class="fas fa-times"></i> Reject</button>
+            <button type="button" class="btn-modal success" onclick="adminApp.savePricesAndPreview()"><i class="fas fa-file-pdf"></i> Save & Preview PDF</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PDF PREVIEW MODAL                                                -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="pdfPreviewModal">
+    <div class="modal modal-xl">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div>
+                <h2 class="modal-title">PDF Preview</h2>
+                <p class="modal-sub">Review the document before downloading</p>
+            </div>
+            <button onclick="closeModal('pdfPreviewModal')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:18px;padding:4px;"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="pdf-preview" id="pdfPreviewContent"></div>
+
+        <div class="modal-actions" style="margin-top:20px;">
+            <button type="button" class="btn-modal secondary" onclick="closeModal('pdfPreviewModal')">Back</button>
+            <button type="button" class="btn-modal primary" onclick="adminApp.downloadPDF()">
+                <i class="fas fa-download"></i> Download PDF
+            </button>
+            <button type="button" class="btn-modal success" onclick="adminApp.confirmQuotation()">
+                <i class="fas fa-check"></i> Confirm & Send to Client
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- ITEM DETAIL MODAL (VIEW ONLY FOR ADMIN)                          -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="itemDetailModal">
+    <div class="modal modal-lg">
+        <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:4px;">
+            <div>
+                <h2 class="modal-title" id="itemDetailTitle">Item Detail</h2>
+                <p class="modal-sub" id="itemDetailSub">Item details and reference images</p>
+            </div>
+            <button onclick="closeModal('itemDetailModal')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:18px;padding:4px;"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="item-detail-tabs">
+            <button class="item-detail-tab active" data-tab="details">Details</button>
+            <button class="item-detail-tab" data-tab="images">Images <span id="imgBadge" style="background:rgba(26,95,173,0.12);color:var(--blue);padding:1px 8px;border-radius:100px;font-size:10px;margin-left:4px;">0</span></button>
+        </div>
+
+        <div class="item-detail-content active" id="tab-details">
+            <div class="item-detail-grid">
+                <div class="item-detail-field"><div class="item-detail-label">Service Type</div><div class="item-detail-value" id="idServiceType">—</div></div>
+                <div class="item-detail-field"><div class="item-detail-label">Quantity</div><div class="item-detail-value" id="idQuantity">—</div></div>
+                <div class="item-detail-field"><div class="item-detail-label">Unit</div><div class="item-detail-value" id="idUnit">—</div></div>
+                <div class="item-detail-field"><div class="item-detail-label">Unit Price</div><div class="item-detail-value" id="idUnitPrice">—</div></div>
+                <div class="item-detail-field" style="grid-column:span 2;"><div class="item-detail-label">Description</div><div class="item-detail-value" id="idDescription" style="font-size:14px; font-family:'DM Sans',sans-serif; font-weight:400; color:var(--muted); line-height:1.5;">—</div></div>
+            </div>
+            <div class="item-detail-field"><div class="item-detail-label">Notes</div><div class="item-detail-value" id="idNotes" style="font-size:13px; font-family:'DM Sans',sans-serif; font-weight:400; color:var(--muted); line-height:1.5;">—</div></div>
+        </div>
+
+        <div class="item-detail-content" id="tab-images">
+            <div id="dlAllWrap" style="display:none; margin-bottom:14px;">
+                <button class="dl-all-btn" id="dlAllBtn">
+                    <i class="fas fa-download"></i> Download All Images
+                </button>
+            </div>
+            <div id="imagesGallery" class="images-gallery"></div>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn-modal secondary" onclick="closeModal('itemDetailModal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- CONFIRM MODAL                                                     -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal" style="max-width:400px;">
+        <h2 class="modal-title" id="confirmTitle">Confirm</h2>
+        <p class="modal-sub" id="confirmDesc"></p>
+        <div class="modal-actions">
+            <button type="button" class="btn-modal secondary" onclick="closeModal('confirmModal')">Cancel</button>
+            <button type="button" class="btn-modal danger" id="confirmBtn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="lightboxOverlay">
+    <button class="lightbox-close" onclick="closeLightbox()"><i class="fas fa-times"></i></button>
+    <img id="lightboxImage" class="lightbox-image" src="" alt="Preview">
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SCRIPT                                                           -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<script>
+    const API_BASE = window.location.origin + '/api';
+
+    // ════════════════════════════════════════════════════════════════════
+    // ADMIN QUOTATION APP
+    // ════════════════════════════════════════════════════════════════════
+
+    class AdminQuotationApp {
+        constructor() {
+            this.quotations = [];
+            this.currentFilter = 'all';
+            this.currentQuotation = null;
+            this.currentItemPrices = {}; // itemId → { unitPrice, qty }
+            this.confirmAction = null;
+            this.init();
+        }
+
+        init() {
+            this.loadSession();
+            this.setupEventListeners();
+            this.loadQuotations();
+            this.loadStats();
+        }
+
+        loadSession() {
+            // Try sessionStorage first, then server session
+            const name = sessionStorage.getItem('adminName') || sessionStorage.getItem('userName');
+            if (name) {
+                document.getElementById('userName').textContent = name;
+                document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+            }
+        }
+
+        setupEventListeners() {
+            document.querySelectorAll('.item-detail-tab').forEach(tab => {
+                tab.addEventListener('click', e => this.switchTab(e.target.dataset.tab));
+            });
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('active'); });
+            });
+            document.getElementById('confirmBtn').addEventListener('click', () => this.handleConfirmation());
+            document.getElementById('lightboxOverlay').addEventListener('click', () => closeLightbox());
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // DATA LOADING
+        // ════════════════════════════════════════════════════════════════
+
+        async loadQuotations() {
+            try {
+                const res = await fetch(`${API_BASE}/quotations`);
+                const data = await res.json();
+                // Admin only sees quotations the client has submitted (SENT) or already actioned
+                const all = data.data || [];
+                this.quotations = all.filter(q => ['SENT', 'ACCEPTED', 'REJECTED'].includes(q.status));
+                await this.inflateItems();
+                this.renderFilters();
+                this.renderGrid();
+            } catch (err) {
+                console.error('Load quotations error:', err.message);
+                this.showToast('Failed to load quotations', 'error');
+            }
+        }
+
+        async inflateItems() {
+            await Promise.all(this.quotations.map(async q => {
+                try {
+                    const res = await fetch(`${API_BASE}/quotations/${q.quotationId}/items`);
+                    const items = await res.json();
+                    q.quotationItems = Array.isArray(items) ? items : (items.data || []);
+                    q.totalAmount = q.quotationItems.reduce((s, i) => s + (i.totalPrice || 0), 0);
+                } catch {
+                    q.quotationItems = [];
+                    q.totalAmount = 0;
+                }
+            }));
+        }
+
+        async loadStats() {
+            try {
+                const res = await fetch(`${API_BASE}/quotations/stats`);
+                const stats = await res.json();
+                const total = (stats.SENT || 0) + (stats.ACCEPTED || 0) + (stats.REJECTED || 0);
+                document.getElementById('statAll').textContent = total;
+                document.getElementById('statSent').textContent = stats.SENT || 0;
+                document.getElementById('statAccepted').textContent = stats.ACCEPTED || 0;
+                document.getElementById('statRejected').textContent = stats.REJECTED || 0;
+            } catch {}
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // RENDERING
+        // ════════════════════════════════════════════════════════════════
+
+        renderFilters() {
+            const bar = document.getElementById('filterBar');
+            const statuses = ['all', 'SENT', 'ACCEPTED', 'REJECTED'];
+            const labels = { all: 'All', SENT: 'Awaiting Review', ACCEPTED: 'Accepted', REJECTED: 'Rejected' };
+
+            bar.innerHTML = statuses.map(s => {
+                const count = s === 'all' ? this.quotations.length : this.quotations.filter(q => q.status === s).length;
+                return `<button class="filter-btn ${this.currentFilter === s ? 'active' : ''}" data-filter="${s}">
+                    <span class="filter-dot ${s.toLowerCase()}"></span>${labels[s]} (${count})
+                </button>`;
+            }).join('');
+
+            bar.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    bar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    this.currentFilter = e.currentTarget.dataset.filter;
+                    this.renderGrid();
+                });
+            });
+        }
+
+        renderGrid() {
+            const grid = document.getElementById('quotationsGrid');
+            const empty = document.getElementById('emptyState');
+            const filtered = this.currentFilter === 'all' ? this.quotations : this.quotations.filter(q => q.status === this.currentFilter);
+
+            grid.innerHTML = '';
+            if (filtered.length === 0) { empty.classList.add('show'); return; }
+            empty.classList.remove('show');
+            filtered.forEach((q, i) => {
+                const card = this.buildCard(q);
+                card.style.animation = `fadeUp 0.4s ${0.05 * i}s ease both`;
+                grid.appendChild(card);
+            });
+        }
+
+        buildCard(q) {
+            const card = document.createElement('div');
+            card.className = 'quote-card';
+            const statusCls = q.status.toLowerCase();
+            const items = q.quotationItems || [];
+            const total = q.totalAmount || 0;
+            const date = new Date(q.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            const clientName = q.client ? (q.client.firstName + ' ' + q.client.lastName) : 'Unknown Client';
+
+            const needsReview = q.status === 'SENT';
+
+            const itemsHtml = items.length === 0
+                ? `<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px;">No items submitted</div>`
+                : items.map(item => `
+                    <div class="item-row" onclick="adminApp.openItemDetail(${item.id})">
+                        <span class="item-desc">${(item.serviceType || 'Item').substring(0, 20)}</span>
+                        <span class="item-price ${item.unitPrice > 0 ? '' : 'unpriced'}">${item.unitPrice > 0 ? 'ZWL ' + item.totalPrice.toFixed(2) : 'Not priced'}</span>
+                    </div>`).join('');
+
+            let actionsHtml = '';
+            if (q.status === 'SENT') {
+                actionsHtml = `
+                    <button class="action-btn btn-review" onclick="adminApp.openReviewModal(${q.quotationId})">
+                        <i class="fas fa-pen-to-square"></i> Review & Price
+                    </button>
+                    <button class="action-btn btn-reject" onclick="adminApp.confirmReject(${q.quotationId}, '${(q.title || '').replace(/'/g, "\\'")}')">
+                        <i class="fas fa-times"></i> Reject
+                    </button>`;
+            } else if (q.status === 'ACCEPTED') {
+                actionsHtml = `
+                    <button class="action-btn btn-confirm" onclick="adminApp.openReviewModal(${q.quotationId})">
+                        <i class="fas fa-file-pdf"></i> View / PDF
+                    </button>`;
+            } else {
+                actionsHtml = `<button class="action-btn" onclick="adminApp.openReviewModal(${q.quotationId})"><i class="fas fa-eye"></i> View</button>`;
+            }
+
+            card.innerHTML = `
+                ${needsReview ? `<div class="review-alert"><i class="fas fa-clock"></i> Awaiting admin review & pricing</div>` : ''}
+                <div class="quote-header">
+                    <div>
+                        <div class="quote-title">${q.title || 'Untitled'}</div>
+                        <div class="quote-number">${q.quotationNumber}</div>
+                        <div class="quote-client"><i class="fas fa-user" style="font-size:10px;"></i> ${clientName}</div>
+                    </div>
+                    <span class="quote-status ${statusCls}">${q.status.replace('_', ' ')}</span>
+                </div>
+                <div class="quote-info-box">
+                    <div class="info-row">
+                        <span class="info-label">Total Amount</span>
+                        <span class="info-value total-value">ZWL ${total.toFixed(2)}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Items</span>
+                        <span class="info-value">${items.length}</span>
+                    </div>
+                </div>
+                ${q.description ? `<div class="quote-desc">${q.description}</div>` : ''}
+                <div class="items-box">
+                    <div class="items-header"><span>Items</span><span class="items-count">${items.length}</span></div>
+                    <div class="items-list">${itemsHtml}</div>
+                </div>
+                <div class="quote-timestamp"><i class="fas fa-calendar-alt"></i> Submitted ${date}</div>
+                <div class="quote-actions">${actionsHtml}</div>`;
+
+            return card;
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // REVIEW MODAL
+        // ════════════════════════════════════════════════════════════════
+
+        async openReviewModal(quotationId) {
+            const q = this.quotations.find(x => x.quotationId === quotationId);
+            if (!q) return;
+
+            this.currentQuotation = q;
+            this.currentItemPrices = {};
+
+            const clientName = q.client ? (q.client.firstName + ' ' + q.client.lastName) : 'Unknown Client';
+            document.getElementById('reviewModalTitle').textContent = q.title || 'Review Quotation';
+            document.getElementById('reviewModalSub').textContent = `Set unit prices for each item — totals update automatically`;
+            document.getElementById('reviewClientName').textContent = clientName;
+            document.getElementById('reviewQuoteNum').textContent = q.quotationNumber;
+            document.getElementById('reviewQuotationId').value = quotationId;
+
+            await this.buildPriceTable(q);
+            openModal('reviewModal');
+        }
+
+        async buildPriceTable(q) {
+            const tbody = document.getElementById('reviewTableBody');
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted);"><i class="fas fa-spinner fa-spin"></i> Loading items…</td></tr>';
+
+            try {
+                const res = await fetch(`${API_BASE}/quotations/${q.quotationId}/items`);
+                const data = await res.json();
+                const items = Array.isArray(data) ? data : (data.data || []);
+                q.quotationItems = items;
+
+                if (items.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted);">No items found for this quotation</td></tr>';
+                    this.updateGrandTotal();
+                    return;
+                }
+
+                tbody.innerHTML = items.map((item, idx) => {
+                    const qty = item.quantity || 1;
+                    const unitPrice = item.unitPrice || 0;
+                    this.currentItemPrices[item.id] = { unitPrice, qty };
+                    const rowTotal = qty * unitPrice;
+                    return `
+                        <tr>
+                            <td class="item-name-cell">
+                                <div>${item.serviceType || 'Item ' + (idx + 1)}</div>
+                            </td>
+                            <td class="item-desc-cell">${item.description || '—'}</td>
+                            <td style="text-align:center;"><span class="qty-badge">${qty} ${item.unitOfMeasure || ''}</span></td>
+                            <td>
+                                <div class="price-input-wrap">
+                                    <span class="price-currency">ZWL</span>
+                                    <input type="number"
+                                        class="price-edit-input ${unitPrice > 0 ? '' : 'changed'}"
+                                        data-item-id="${item.id}"
+                                        data-qty="${qty}"
+                                        value="${unitPrice > 0 ? unitPrice.toFixed(2) : ''}"
+                                        placeholder="0.00"
+                                        step="0.01" min="0"
+                                        oninput="adminApp.onPriceChange(this)">
+                                </div>
+                            </td>
+                            <td id="rowTotal_${item.id}" style="font-family:'Oswald',sans-serif; font-weight:700; color:var(--blue);">
+                                ZWL ${rowTotal.toFixed(2)}
+                            </td>
+                        </tr>`;
+                }).join('');
+
+                this.updateGrandTotal();
+            } catch (err) {
+                console.error(err.message);
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--red);">Failed to load items</td></tr>';
+            }
+        }
+
+        onPriceChange(input) {
+            const itemId = parseInt(input.dataset.itemId);
+            const qty = parseFloat(input.dataset.qty) || 1;
+            const unitPrice = parseFloat(input.value) || 0;
+
+            input.classList.toggle('changed', input.value.length > 0);
+
+            this.currentItemPrices[itemId] = { unitPrice, qty };
+            const rowTotal = qty * unitPrice;
+            const cell = document.getElementById(`rowTotal_${itemId}`);
+            if (cell) cell.textContent = `ZWL ${rowTotal.toFixed(2)}`;
+
+            this.updateGrandTotal();
+        }
+
+        updateGrandTotal() {
+            const total = Object.values(this.currentItemPrices).reduce((sum, p) => sum + (p.unitPrice * p.qty), 0);
+            document.getElementById('reviewGrandTotal').textContent = `ZWL ${total.toFixed(2)}`;
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // SAVE PRICES + PDF
+        // ════════════════════════════════════════════════════════════════
+
+        async savePricesAndPreview() {
+            const q = this.currentQuotation;
+            if (!q) return;
+
+            const entries = Object.entries(this.currentItemPrices);
+            if (entries.some(([, p]) => p.unitPrice <= 0)) {
+                this.showToast('Please set a price for all items before confirming', 'error');
+                return;
+            }
+
+            // Save prices to backend
+            try {
+                for (const [itemId, { unitPrice, qty }] of entries) {
+                    const item = q.quotationItems.find(i => i.id === parseInt(itemId));
+                    if (!item) continue;
+                    const params = new URLSearchParams({
+                        description: item.description || '',
+                        serviceType: item.serviceType || '',
+                        quantity: qty,
+                        unitOfMeasure: item.unitOfMeasure || '',
+                        unitPrice: unitPrice,
+                        notes: item.notes || ''
+                    });
+                    await fetch(`${API_BASE}/quotations/items/${itemId}?${params}`, { method: 'PUT' });
+                }
+
+                // Reload items with updated prices
+                const res = await fetch(`${API_BASE}/quotations/${q.quotationId}/items`);
+                const data = await res.json();
+                q.quotationItems = Array.isArray(data) ? data : (data.data || []);
+                q.totalAmount = q.quotationItems.reduce((s, i) => s + (i.totalPrice || 0), 0);
+
+                this.showToast('Prices saved ✓', 'success');
+                closeModal('reviewModal');
+                this.showPDFPreview(q);
+            } catch (err) {
+                console.error(err.message);
+                this.showToast('Failed to save prices', 'error');
+            }
+        }
+
+        showPDFPreview(q) {
+            const clientName = q.client ? (q.client.firstName + ' ' + q.client.lastName) : 'Client';
+            const clientEmail = q.client?.email || '';
+            const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+            const validUntil = q.validUntil ? new Date(q.validUntil).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : 'N/A';
+            const items = q.quotationItems || [];
+            const grandTotal = items.reduce((s, i) => s + (i.totalPrice || 0), 0);
+
+            const rowsHtml = items.map((item, idx) => `
+                <tr>
+                    <td style="font-weight:600; color:#1a2233;">${item.serviceType || 'Item ' + (idx + 1)}</td>
+                    <td style="color:#7c8ba1; font-size:11px; line-height:1.5;">${item.description || '—'}</td>
+                    <td style="text-align:right; font-weight:700; color:#1a5fad;">ZWL ${(item.totalPrice || 0).toFixed(2)}</td>
+                </tr>`).join('');
+
+            document.getElementById('pdfPreviewContent').innerHTML = `
+                <div class="pdf-preview-header">
+                    <div>
+                        <div class="pdf-company-name">MPHO <span>YAN</span>GA CONSTRUCTION</div>
+                        <div class="pdf-company-detail">BP No. 0200269091 · Zimbabwe</div>
+                        <div class="pdf-company-detail">admin@mphoyanga.co.zw</div>
+                    </div>
+                    <div class="pdf-doc-title">
+                        <div class="pdf-doc-label">QUOTATION</div>
+                        <div class="pdf-doc-num">${q.quotationNumber}</div>
+                        <div class="pdf-doc-num">Issued: ${today}</div>
+                    </div>
+                </div>
+
+                <div class="pdf-meta-grid">
+                    <div class="pdf-meta-box">
+                        <div class="pdf-meta-label">Client</div>
+                        <div class="pdf-meta-value">${clientName}</div>
+                        ${clientEmail ? `<div style="font-size:12px; color:#7c8ba1; margin-top:2px;">${clientEmail}</div>` : ''}
+                    </div>
+                    <div class="pdf-meta-box">
+                        <div class="pdf-meta-label">Project</div>
+                        <div class="pdf-meta-value">${q.title || 'Construction Project'}</div>
+                        ${q.description ? `<div style="font-size:12px; color:#7c8ba1; margin-top:2px;">${q.description.substring(0, 60)}${q.description.length > 60 ? '…' : ''}</div>` : ''}
+                    </div>
+                    <div class="pdf-meta-box">
+                        <div class="pdf-meta-label">Date Issued</div>
+                        <div class="pdf-meta-value">${today}</div>
+                    </div>
+                    <div class="pdf-meta-box">
+                        <div class="pdf-meta-label">Valid Until</div>
+                        <div class="pdf-meta-value">${validUntil}</div>
+                    </div>
+                </div>
+
+                <table class="pdf-table">
+                    <thead>
+                        <tr>
+                            <th style="width:25%">Item</th>
+                            <th style="width:55%">Description</th>
+                            <th style="width:20%; text-align:right;">Price (ZWL)</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                    <tfoot>
+                        <tr class="pdf-total-row">
+                            <td colspan="2" style="text-align:right;">GRAND TOTAL</td>
+                            <td style="text-align:right;">ZWL ${grandTotal.toFixed(2)}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div style="background:#f0f6ff; border:1px solid #bfdbfe; border-radius:10px; padding:14px 18px; margin-bottom:20px;">
+                    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#1e40af; margin-bottom:4px;">Terms & Conditions</div>
+                    <div style="font-size:12px; color:#374151; line-height:1.6;">Payment terms: 50% deposit required upon acceptance. Balance due upon completion. This quotation is valid for 30 days from the date of issue. All prices are in Zimbabwe Dollars (ZWL) and include applicable taxes.</div>
+                </div>
+
+                <div class="pdf-footer">
+                    <div style="font-size:13px; font-weight:600; color:#1a2233; margin-bottom:4px;">Thank you for choosing Mpho Yanga Construction</div>
+                    <div>© ${new Date().getFullYear()} Mpho Yanga Construction · BP No. 0200269091 · Zimbabwe</div>
+                </div>`;
+
+            openModal('pdfPreviewModal');
+        }
+
+        downloadPDF() {
+            const q = this.currentQuotation;
+            if (!q) return;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+            const pageW = doc.internal.pageSize.getWidth();
+            const pageH = doc.internal.pageSize.getHeight();
+            const margin = 18;
+
+            // Header background
+            doc.setFillColor(13, 27, 42);
+            doc.rect(0, 0, pageW, 36, 'F');
+
+            // Company logo blocks
+            doc.setFillColor(26, 95, 173);
+            doc.roundedRect(margin, 8, 10, 10, 2, 2, 'F');
+            doc.setFillColor(232, 118, 42);
+            doc.roundedRect(margin + 13, 8, 10, 10, 2, 2, 'F');
+            doc.setFillColor(60, 181, 74);
+            doc.roundedRect(margin + 26, 8, 10, 10, 2, 2, 'F');
+
+            // Company name
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.text('MPHO YANGA CONSTRUCTION', margin + 42, 14);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(180, 190, 210);
+            doc.text('BP No. 0200269091 · Zimbabwe', margin + 42, 20);
+
+            // Quotation label on right
+            doc.setTextColor(26, 95, 173);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(22);
+            doc.text('QUOTATION', pageW - margin, 18, { align: 'right' });
+            doc.setTextColor(180, 190, 210);
+            doc.setFontSize(8);
+            doc.text(q.quotationNumber, pageW - margin, 25, { align: 'right' });
+
+            // Meta section
+            let y = 46;
+            const clientName = q.client ? (q.client.firstName + ' ' + q.client.lastName) : 'Client';
+            const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+
+            // Left meta
+            doc.setTextColor(100, 110, 130);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            doc.text('BILLED TO', margin, y);
+            doc.setTextColor(26, 36, 51);
+            doc.setFontSize(11);
+            doc.text(clientName, margin, y + 6);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            if (q.client?.email) {
+                doc.setTextColor(100, 110, 130);
+                doc.text(q.client.email, margin, y + 12);
+            }
+
+            // Right meta
+            doc.setTextColor(100, 110, 130);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            doc.text('DATE ISSUED', pageW - margin - 40, y);
+            doc.setTextColor(26, 36, 51);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.text(today, pageW - margin, y + 6, { align: 'right' });
+            doc.text('PROJECT', pageW - margin - 40, y + 14);
+            doc.setFont('helvetica', 'normal');
+            doc.text((q.title || 'Construction Project').substring(0, 30), pageW - margin, y + 20, { align: 'right' });
+
+            // Table
+            const items = q.quotationItems || [];
+            const grandTotal = items.reduce((s, i) => s + (i.totalPrice || 0), 0);
+            const tableBody = items.map((item, idx) => [
+                item.serviceType || 'Item ' + (idx + 1),
+                (item.description || '—').substring(0, 80),
+                'ZWL ' + (item.totalPrice || 0).toFixed(2)
+            ]);
+
+            doc.autoTable({
+                startY: y + 28,
+                head: [['ITEM', 'DESCRIPTION', 'PRICE (ZWL)']],
+                body: tableBody,
+                foot: [['', 'GRAND TOTAL', 'ZWL ' + grandTotal.toFixed(2)]],
+                margin: { left: margin, right: margin },
+                headStyles: { fillColor: [26, 95, 173], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9, cellPadding: 5 },
+                bodyStyles: { textColor: [26, 36, 51], fontSize: 9, cellPadding: 5 },
+                footStyles: { fillColor: [238, 243, 252], textColor: [26, 95, 173], fontStyle: 'bold', fontSize: 11, cellPadding: 6 },
+                alternateRowStyles: { fillColor: [248, 250, 253] },
+                columnStyles: { 0: { cellWidth: 40 }, 1: { cellWidth: 'auto' }, 2: { cellWidth: 38, halign: 'right' } },
+                tableLineColor: [220, 228, 240],
+                tableLineWidth: 0.3,
+            });
+
+            const finalY = doc.lastAutoTable.finalY + 12;
+
+            // Terms box
+            doc.setFillColor(240, 246, 255);
+            doc.setDrawColor(191, 219, 254);
+            doc.roundedRect(margin, finalY, pageW - margin * 2, 22, 3, 3, 'FD');
+            doc.setTextColor(30, 64, 175);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            doc.text('TERMS & CONDITIONS', margin + 4, finalY + 6);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(55, 65, 81);
+            doc.setFontSize(7.5);
+            const terms = '50% deposit required upon acceptance. Balance due upon completion. Valid for 30 days from issue date. All prices in Zimbabwe Dollars (ZWL).';
+            doc.text(terms, margin + 4, finalY + 12, { maxWidth: pageW - margin * 2 - 8 });
+
+            // Footer
+            doc.setFillColor(248, 249, 250);
+            doc.rect(0, pageH - 16, pageW, 16, 'F');
+            doc.setTextColor(156, 163, 175);
+            doc.setFontSize(7.5);
+            doc.text('© ' + new Date().getFullYear() + ' Mpho Yanga Construction · BP No. 0200269091 · Zimbabwe · admin@mphoyanga.co.zw', pageW / 2, pageH - 6, { align: 'center' });
+
+            doc.save(`Quotation_${q.quotationNumber}.pdf`);
+            this.showToast('PDF downloaded ✓', 'success');
+        }
+
+        async confirmQuotation() {
+            const q = this.currentQuotation;
+            if (!q) return;
+
+            try {
+                const params = new URLSearchParams({ status: 'ACCEPTED', updatedBy: 'admin' });
+                const res = await fetch(`${API_BASE}/quotations/${q.quotationId}/status?${params}`, { method: 'PUT' });
+                if (!res.ok) throw new Error('Status update failed');
+
+                this.showToast('Quotation accepted & sent to client ✓', 'success');
+                closeModal('pdfPreviewModal');
+                await this.loadQuotations();
+                await this.loadStats();
+            } catch (err) {
+                console.error(err.message);
+                this.showToast('Failed to confirm quotation', 'error');
+            }
+        }
+
+        rejectQuotation() {
+            const q = this.currentQuotation;
+            if (!q) return;
+            this.confirmAction = { type: 'reject', quotationId: q.quotationId };
+            document.getElementById('confirmTitle').textContent = 'Reject Quotation?';
+            document.getElementById('confirmDesc').textContent = `The client will be notified that their quotation "${q.title}" has been rejected.`;
+            openModal('confirmModal');
+        }
+
+        confirmReject(quotationId, title) {
+            this.confirmAction = { type: 'reject', quotationId };
+            document.getElementById('confirmTitle').textContent = 'Reject Quotation?';
+            document.getElementById('confirmDesc').textContent = `Are you sure you want to reject "${title}"?`;
+            openModal('confirmModal');
+        }
+
+        async handleConfirmation() {
+            if (!this.confirmAction) return;
+            const { type, quotationId } = this.confirmAction;
+
+            try {
+                if (type === 'reject') {
+                    const params = new URLSearchParams({ status: 'REJECTED', updatedBy: 'admin' });
+                    await fetch(`${API_BASE}/quotations/${quotationId}/status?${params}`, { method: 'PUT' });
+                    this.showToast('Quotation rejected', 'info');
+                    closeModal('reviewModal');
+                    closeModal('pdfPreviewModal');
+                    await this.loadQuotations();
+                    await this.loadStats();
+                }
+            } catch (err) {
+                this.showToast('Action failed', 'error');
+            }
+
+            closeModal('confirmModal');
+            this.confirmAction = null;
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // ITEM DETAIL
+        // ════════════════════════════════════════════════════════════════
+
+        async openItemDetail(itemId) {
+            try {
+                const res = await fetch(`${API_BASE}/quotations/items/${itemId}/details`);
+                if (!res.ok) throw new Error('Not found');
+                const item = await res.json();
+
+                document.getElementById('itemDetailTitle').textContent = item.serviceType || 'Item Detail';
+                document.getElementById('itemDetailSub').textContent = item.quotation?.title || '';
+                document.getElementById('idServiceType').textContent = item.serviceType || '—';
+                document.getElementById('idQuantity').textContent = `${item.quantity} ${item.unitOfMeasure || ''}`.trim();
+                document.getElementById('idUnit').textContent = item.unitOfMeasure || '—';
+                document.getElementById('idUnitPrice').textContent = item.unitPrice > 0 ? `ZWL ${item.unitPrice.toFixed(2)}` : 'Not yet priced';
+                document.getElementById('idDescription').textContent = item.description || '—';
+                document.getElementById('idNotes').textContent = item.notes || 'No notes';
+
+                const imgs = item.images || [];
+                document.getElementById('imgBadge').textContent = imgs.length;
+                const gallery = document.getElementById('imagesGallery');
+
+                if (imgs.length === 0) {
+                    gallery.innerHTML = `<div class="no-images"><i class="fas fa-images"></i>No images attached by client</div>`;
+                    document.getElementById('dlAllWrap').style.display = 'none';
+                } else {
+                    // Show "Download All" button
+                    document.getElementById('dlAllWrap').style.display = 'flex';
+                    document.getElementById('dlAllBtn').onclick = () => this.downloadAllImages(imgs, item.serviceType || 'item');
+
+                    gallery.innerHTML = imgs.map(img => {
+                        const rawPath = img.imagePath || '';
+                        const urlPath = '/uploads/' + rawPath.replace(/\\/g, '/').split('uploads/').pop();
+                        const filename = img.imageFilename || rawPath.split(/[/\\]/).pop() || 'image.jpg';
+                        return `
+                            <div class="gallery-item">
+                                <img src="${urlPath}" alt="Client image"
+                                    onerror="this.parentElement.style.background='var(--surface2)'; this.style.display='none';">
+                                <div class="gallery-overlay">
+                                    <button class="gallery-action-btn gallery-btn-view" title="View full size"
+                                        onclick="openLightbox('${urlPath}')">
+                                        <i class="fas fa-expand"></i>
+                                    </button>
+                                    <button class="gallery-action-btn gallery-btn-dl" title="Download image"
+                                        onclick="adminApp.downloadImage('${urlPath}', '${filename}')">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>`;
+                    }).join('');
+                }
+
+                this.switchTab('details');
+                openModal('itemDetailModal');
+            } catch (err) {
+                console.error(err.message);
+                this.showToast('Failed to load item details', 'error');
+            }
+        }
+
+        async downloadImage(url, filename) {
+            try {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Fetch failed');
+                const blob = await res.blob();
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+                this.showToast('Image downloaded ✓', 'success');
+            } catch (err) {
+                console.error(err.message);
+                this.showToast('Download failed — try right-clicking the image', 'error');
+            }
+        }
+
+        async downloadAllImages(imgs, itemName) {
+            this.showToast(`Downloading ${imgs.length} image${imgs.length > 1 ? 's' : ''}…`, 'info');
+            let count = 0;
+            for (const img of imgs) {
+                const rawPath = img.imagePath || '';
+                const url = '/uploads/' + rawPath.replace(/\\/g, '/').split('uploads/').pop();
+                const filename = img.imageFilename || rawPath.split(/[/\\]/).pop() || `image_${count + 1}.jpg`;
+                try {
+                    const res = await fetch(url);
+                    if (!res.ok) continue;
+                    const blob = await res.blob();
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `${itemName}_${filename}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(a.href);
+                    count++;
+                    await new Promise(r => setTimeout(r, 300)); // small delay between downloads
+                } catch {}
+            }
+            this.showToast(`${count} of ${imgs.length} images downloaded ✓`, 'success');
+        }
+
+        switchTab(tabName) {
+            document.querySelectorAll('.item-detail-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.item-detail-content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`[data-tab="${tabName}"]`)?.classList.add('active');
+            document.getElementById(`tab-${tabName}`)?.classList.add('active');
+        }
+
+        showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3200);
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────────
+    // GLOBALS
+    // ────────────────────────────────────────────────────────────────────
+
+    function openModal(id) { document.getElementById(id)?.classList.add('active'); }
+    function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
+    function openLightbox(src) {
+        document.getElementById('lightboxImage').src = src;
+        document.getElementById('lightboxOverlay').classList.add('active');
+    }
+    function closeLightbox() { document.getElementById('lightboxOverlay').classList.remove('active'); }
+
+    let adminApp;
+    document.addEventListener('DOMContentLoaded', () => { adminApp = new AdminQuotationApp(); });
+</script>
+</body>
+</html>
