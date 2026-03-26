@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
+
 @Service
 public class EmailService {
 
@@ -211,6 +212,135 @@ public class EmailService {
                 // Footer
                 "<div style='background:#f8f8f8;border-top:1px solid #eee;padding:20px 40px;text-align:center;'>" +
                 "<p style='font-size:12px;color:#aaa;margin:0;'>© 2025 Mpho Yanga Construction · BP No. 0200269091 · Zimbabwe</p>" +
+                "</div>" +
+
+                "</div></body></html>";
+    }
+
+    public void sendQuotationConfirmed(String toEmail, String clientName,
+                                       String quotationNumber, String projectTitle,
+                                       String totalAmount,
+                                       byte[] pdfBytes, String pdfFileName) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            // multipart = true enables both HTML body and file attachment
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(toEmail);
+            helper.setSubject("Mpho Yanga Construction — Your Quotation Has Been Confirmed");
+            helper.setFrom("noreply@mphoyanga.co.zw");
+            helper.setText(buildQuotationConfirmedHtml(clientName, quotationNumber,
+                    projectTitle, totalAmount), true);
+
+            // Attach the PDF
+            helper.addAttachment(pdfFileName,
+                    new org.springframework.core.io.ByteArrayResource(pdfBytes),
+                    "application/pdf");
+
+            // Send asynchronously so the HTTP response isn't blocked
+            new Thread(() -> mailSender.send(message)).start();
+
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send quotation confirmation email to " + toEmail, e);
+        }
+    }
+
+    // ── HTML BUILDER FOR QUOTATION CONFIRMED EMAIL ────────────────────────────
+
+    private String buildQuotationConfirmedHtml(String clientName, String quotationNumber,
+                                               String projectTitle, String totalAmount) {
+        return "<!DOCTYPE html>" +
+                "<html><head><meta charset='UTF-8'></head>" +
+                "<body style='margin:0;padding:0;background:#f0f2f5;font-family:Arial,sans-serif;'>" +
+                "<div style='max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;" +
+                "overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.1);'>" +
+
+                // Header band
+                "<div style='background:linear-gradient(135deg,#0d1b2a,#1a2e47);padding:32px 40px;text-align:center;'>" +
+                "<div style='display:inline-flex;gap:8px;margin-bottom:12px;'>" +
+                "<span style='background:#1a5fad;width:32px;height:32px;border-radius:7px;" +
+                "display:inline-block;line-height:32px;font-size:16px;'>🔨</span>" +
+                "<span style='background:#e8762a;width:32px;height:32px;border-radius:7px;" +
+                "display:inline-block;line-height:32px;font-size:16px;'>🧱</span>" +
+                "<span style='background:#3cb54a;width:32px;height:32px;border-radius:7px;" +
+                "display:inline-block;line-height:32px;font-size:16px;'>🖌️</span>" +
+                "</div>" +
+                "<h1 style='color:#ffffff;font-size:22px;margin:0;letter-spacing:1px;'>" +
+                "MPHO YANGA CONSTRUCTION</h1>" +
+                "<p style='color:rgba(255,255,255,0.5);font-size:11px;letter-spacing:3px;" +
+                "margin:4px 0 0;text-transform:uppercase;'>Client Portal</p>" +
+                "</div>" +
+
+                // Green confirmed banner
+                "<div style='background:#ecfdf5;border-bottom:3px solid #3cb54a;padding:20px 40px;" +
+                "display:flex;align-items:center;gap:14px;'>" +
+                "<span style='font-size:28px;'>✅</span>" +
+                "<div>" +
+                "<div style='font-size:16px;font-weight:700;color:#065f46;'>Quotation Confirmed!</div>" +
+                "<div style='font-size:13px;color:#047857;margin-top:2px;'>" +
+                "Your quotation has been reviewed and confirmed by our team.</div>" +
+                "</div>" +
+                "</div>" +
+
+                // Body
+                "<div style='padding:36px 40px;'>" +
+                "<p style='font-size:16px;color:#333;margin-bottom:20px;'>" +
+                "Hi <strong>" + clientName + "</strong>,</p>" +
+                "<p style='font-size:14px;color:#555;line-height:1.7;margin-bottom:24px;'>" +
+                "We're pleased to confirm that your quotation has been reviewed and finalised. " +
+                "Please find your confirmed quotation PDF attached to this email. " +
+                "You can also log into your client portal to view and download it at any time." +
+                "</p>" +
+
+                // Quotation summary box
+                "<div style='background:#f8fafd;border:1px solid #dde3f0;border-radius:12px;" +
+                "padding:20px 24px;margin-bottom:24px;'>" +
+                "<div style='font-size:11px;text-transform:uppercase;letter-spacing:1px;" +
+                "color:#7c8ba1;font-weight:700;margin-bottom:14px;'>Quotation Summary</div>" +
+
+                "<div style='display:flex;justify-content:space-between;margin-bottom:10px;'>" +
+                "<span style='font-size:13px;color:#7c8ba1;'>Quotation Number</span>" +
+                "<span style='font-size:13px;font-weight:700;color:#1a2233;font-family:monospace;'>" +
+                quotationNumber + "</span>" +
+                "</div>" +
+
+                "<div style='display:flex;justify-content:space-between;margin-bottom:10px;" +
+                "padding-top:10px;border-top:1px solid #dde3f0;'>" +
+                "<span style='font-size:13px;color:#7c8ba1;'>Project</span>" +
+                "<span style='font-size:13px;font-weight:700;color:#1a2233;'>" + projectTitle + "</span>" +
+                "</div>" +
+
+                "<div style='display:flex;justify-content:space-between;padding-top:10px;" +
+                "border-top:1px solid #dde3f0;'>" +
+                "<span style='font-size:13px;color:#7c8ba1;'>Total Amount</span>" +
+                "<span style='font-size:18px;font-weight:700;color:#1a5fad;'>" + totalAmount + "</span>" +
+                "</div>" +
+                "</div>" +
+
+                // Next steps
+                "<div style='background:#fffbeb;border:1px solid #fde68a;border-radius:10px;" +
+                "padding:16px 20px;margin-bottom:24px;'>" +
+                "<div style='font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;" +
+                "color:#92400e;margin-bottom:8px;'>Next Steps</div>" +
+                "<ol style='margin:0;padding-left:18px;color:#78350f;font-size:13px;line-height:1.8;'>" +
+                "<li>Review your quotation PDF (attached to this email)</li>" +
+                "<li>A 50% deposit is required to commence work</li>" +
+                "<li>Contact us to confirm your acceptance and arrange payment</li>" +
+                "</ol>" +
+                "</div>" +
+
+                "<p style='font-size:14px;color:#555;line-height:1.7;'>" +
+                "To accept this quotation or if you have any questions, please contact us at " +
+                "<a href='mailto:admin@mphoyanga.co.zw' style='color:#1a5fad;font-weight:600;'>" +
+                "admin@mphoyanga.co.zw</a> or reach us on WhatsApp." +
+                "</p>" +
+                "</div>" +
+
+                // Footer
+                "<div style='background:#f8f8f8;border-top:1px solid #eee;padding:20px 40px;" +
+                "text-align:center;'>" +
+                "<p style='font-size:12px;color:#aaa;margin:0;'>" +
+                "© 2025 Mpho Yanga Construction · BP No. 0200269091 · Zimbabwe</p>" +
                 "</div>" +
 
                 "</div></body></html>";
