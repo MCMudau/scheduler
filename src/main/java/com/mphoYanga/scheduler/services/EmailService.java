@@ -28,6 +28,7 @@ public class EmailService {
      */
     public void sendVerificationPin(String toEmail, String adminName, String pin) {
         try {
+            log.info("=== ATTEMPTING TO SEND EMAIL TO: {}", toEmail);
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
@@ -39,10 +40,13 @@ public class EmailService {
             helper.setText(html, true); // true = HTML content
 
 
+
+// ... rest of code
             try {
                 mailSender.send(message);
+                log.info("=== EMAIL SENT SUCCESSFULLY");
             } catch (MailException e){
-                log.error("Failed to send email: {}", e.getMessage(), e);
+                log.error("=== MAIL FAILED: {}", e.getMessage(), e);
                 throw new RuntimeException("Mail failed: " + e.getMessage());
             }
 
@@ -139,6 +143,7 @@ public class EmailService {
             helper.setText(htmlBody, true);
             mailSender.send(message);
         } catch (MessagingException e) {
+            log.error("email error",e.getMessage());
             throw new RuntimeException("Failed to send email to " + toEmail, e);
         }
     }
