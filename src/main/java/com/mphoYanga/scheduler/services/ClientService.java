@@ -57,10 +57,10 @@ public class ClientService {
 
         clientRepository.save(client);
 
-        new Thread(()->{
 
-            emailService.sendClientVerificationPin(email, name, pin);
-        }).start();
+
+        emailService.sendClientVerificationPin(email, name, pin);
+
 
 
         return client;
