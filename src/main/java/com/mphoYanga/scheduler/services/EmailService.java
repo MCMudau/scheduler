@@ -1,46 +1,64 @@
 package com.mphoYanga.scheduler.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.MailException;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-
-import java.io.UnsupportedEncodingException;
+import org.springframework.web.client.RestTemplate;
 
 
 @Service
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
-
     private static final String FROM_EMAIL = "mudaumuthusi@gmail.com";
     private static final String FROM_NAME  = "Mpho Yanga Construction";
+    private static final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
-    // ── Shared mail sender ────────────────────────────────────────────
+    @Value("${brevo.api.key}")
+    private String brevoApiKey;
 
-    private void sendMail(String toEmail, String subject, String htmlBody) {
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    // ── Shared HTTP API sender ────────────────────────────────────────
+
+    private void sendMail(String toEmail, String toName, String subject, String htmlBody) {
         try {
             log.info("=== ATTEMPTING TO SEND EMAIL TO: {}", toEmail);
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setTo(toEmail);
-            helper.setSubject(subject);
-            helper.setFrom(FROM_EMAIL, FROM_NAME);
-            helper.setText(htmlBody, true);
-            mailSender.send(message);
-            log.info("=== EMAIL SENT SUCCESSFULLY TO: {}", toEmail);
-        } catch (MessagingException | UnsupportedEncodingException e) {
-            log.error("=== MAIL FAILED: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to send email to " + toEmail, e);
-        } catch (MailException e) {
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("api-key", brevoApiKey);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            String body = String.format("""
+                {
+                    "sender": {"name": "%s", "email": "%s"},
+                    "to": [{"email": "%s", "name": "%s"}],
+                    "subject": "%s",
+                    "htmlContent": %s
+                }
+                """,
+                    FROM_NAME,
+                    FROM_EMAIL,
+                    toEmail,
+                    toName,
+                    subject,
+                    objectMapper.writeValueAsString(htmlBody)
+            );
+
+            HttpEntity<String> request = new HttpEntity<>(body, headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    BREVO_API_URL,
+                    request,
+                    String.class
+            );
+
+            log.info("=== EMAIL SENT SUCCESSFULLY TO: {} | Status: {}", toEmail, response.getStatusCode());
+
+        } catch (Exception e) {
             log.error("=== MAIL FAILED: {}", e.getMessage(), e);
             throw new RuntimeException("Mail failed: " + e.getMessage(), e);
         }
@@ -58,6 +76,7 @@ public class EmailService {
     public void sendVerificationPin(String toEmail, String adminName, String pin) {
         sendMail(
                 toEmail,
+                adminName,
                 "Mpho Yanga Construction — Your Verification PIN",
                 buildPinEmailHtml(adminName, pin, "Admin Portal", "#e8762a")
         );
@@ -66,13 +85,14 @@ public class EmailService {
     /**
      * Send a verification PIN email to a newly registered client.
      *
-     * @param toEmail     recipient email address
-     * @param clientName  client's first name (for personalisation)
-     * @param pin         the 5-digit verification PIN
+     * @param toEmail      recipient email address
+     * @param clientName   client's first name (for personalisation)
+     * @param pin          the 5-digit verification PIN
      */
     public void sendClientVerificationPin(String toEmail, String clientName, String pin) {
         sendMail(
                 toEmail,
+                clientName,
                 "Mpho Yanga Construction — Verify Your Account",
                 buildPinEmailHtml(clientName, pin, "Client Portal", "#3cb54a")
         );
@@ -95,22 +115,49 @@ public class EmailService {
                                        byte[] pdfBytes, String pdfFileName) {
         try {
             log.info("=== ATTEMPTING TO SEND QUOTATION EMAIL TO: {}", toEmail);
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setTo(toEmail);
-            helper.setSubject("Mpho Yanga Construction — Your Quotation Has Been Confirmed");
-            helper.setFrom(FROM_EMAIL, FROM_NAME);
-            helper.setText(buildQuotationConfirmedHtml(clientName, quotationNumber,
-                    projectTitle, totalAmount), true);
-            helper.addAttachment(pdfFileName,
-                    new org.springframework.core.io.ByteArrayResource(pdfBytes),
-                    "application/pdf");
-            mailSender.send(message);
-            log.info("=== QUOTATION EMAIL SENT SUCCESSFULLY TO: {}", toEmail);
-        } catch (MessagingException | UnsupportedEncodingException e) {
-            log.error("=== QUOTATION MAIL FAILED: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to send quotation email to " + toEmail, e);
-        } catch (MailException e) {
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("api-key", brevoApiKey);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            // Base64 encode the PDF attachment
+            String base64Pdf = java.util.Base64.getEncoder().encodeToString(pdfBytes);
+            String htmlContent = buildQuotationConfirmedHtml(clientName, quotationNumber,
+                    projectTitle, totalAmount);
+
+            String body = String.format("""
+                {
+                    "sender": {"name": "%s", "email": "%s"},
+                    "to": [{"email": "%s", "name": "%s"}],
+                    "subject": "Mpho Yanga Construction — Your Quotation Has Been Confirmed",
+                    "htmlContent": %s,
+                    "attachment": [
+                        {
+                            "content": "%s",
+                            "name": "%s"
+                        }
+                    ]
+                }
+                """,
+                    FROM_NAME,
+                    FROM_EMAIL,
+                    toEmail,
+                    clientName,
+                    objectMapper.writeValueAsString(htmlContent),
+                    base64Pdf,
+                    pdfFileName
+            );
+
+            HttpEntity<String> request = new HttpEntity<>(body, headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    BREVO_API_URL,
+                    request,
+                    String.class
+            );
+
+            log.info("=== QUOTATION EMAIL SENT SUCCESSFULLY TO: {} | Status: {}", toEmail, response.getStatusCode());
+
+        } catch (Exception e) {
             log.error("=== QUOTATION MAIL FAILED: {}", e.getMessage(), e);
             throw new RuntimeException("Quotation mail failed: " + e.getMessage(), e);
         }
