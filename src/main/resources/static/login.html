@@ -6,6 +6,124 @@
     <title>Mpho Yanga Construction — Login</title>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/login.css">
+    <style>
+        /* ── Forgot-password confirmation modal ──────────────────────────── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: overlayIn 0.25s ease;
+        }
+        .modal-overlay.hiding {
+            animation: overlayOut 0.25s ease both;
+        }
+        @keyframes overlayIn  { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes overlayOut { from { opacity: 1; } to { opacity: 0; } }
+
+        .modal-box {
+            background: #0f1e30;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 36px 32px 28px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+            animation: modalIn 0.35s cubic-bezier(.16,1,.3,1) both;
+        }
+        .modal-overlay.hiding .modal-box {
+            animation: modalOut 0.25s cubic-bezier(.16,1,.3,1) both;
+        }
+        @keyframes modalIn  { from { transform: scale(0.88) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+        @keyframes modalOut { from { transform: scale(1) translateY(0); opacity: 1; } to { transform: scale(0.88) translateY(20px); opacity: 0; } }
+
+        .modal-icon {
+            width: 60px; height: 60px;
+            background: rgba(232,118,42,0.12);
+            border: 2px solid rgba(232,118,42,0.4);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin-bottom: 18px;
+        }
+
+        .modal-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .modal-body {
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.7;
+            margin-bottom: 8px;
+        }
+
+        .modal-email-chip {
+            display: inline-block;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            margin: 6px 0 20px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 13px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        .modal-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+        .modal-btn:active { transform: translateY(0); }
+
+        .modal-btn.cancel {
+            background: rgba(255,255,255,0.07);
+            color: rgba(255,255,255,0.6);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+        .modal-btn.confirm {
+            background: linear-gradient(135deg, #1a5fad, #e8762a);
+            color: #fff;
+        }
+        .modal-btn.confirm.client-mode {
+            background: linear-gradient(135deg, #1a5fad, #3cb54a);
+        }
+
+        .modal-note {
+            margin-top: 16px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.25);
+            line-height: 1.5;
+        }
+    </style>
 </head>
 <body>
 
@@ -74,8 +192,13 @@
                 <input type="password" id="pass-input" placeholder="••••••••" autocomplete="current-password">
             </div>
 
-            <div class="forgot"><a href="#">Forgot password?</a></div>
-            <div class="forgot"><a href="#" id="signup-link">Don't have an account? Sign up.</a></div>
+            <div class="forgot">
+                <!-- Forgot password: opens confirmation modal, NOT a direct link -->
+                <a href="#" id="forgot-link" onclick="openForgotModal(event)">Forgot password?</a>
+            </div>
+            <div class="forgot">
+                <a href="#" id="signup-link">Don't have an account? Sign up.</a>
+            </div>
 
             <!-- Error message shown on failed login -->
             <div id="login-error" style="display:none;
@@ -98,6 +221,25 @@
 </div>
 
 <div class="bp-badge">BP No.0200269091</div>
+
+<!-- ── Forgot Password Confirmation Modal ─────────────────────────────────── -->
+<div class="modal-overlay" id="forgot-modal" style="display:none;" onclick="handleOverlayClick(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-icon">🔑</div>
+        <div class="modal-title">Reset Your Password?</div>
+        <div class="modal-body">
+            We'll send a 5-digit PIN to your email address. Use it to verify your identity and set a new password.
+        </div>
+        <div class="modal-email-chip" id="modal-email-chip">—</div>
+        <div class="modal-actions">
+            <button class="modal-btn cancel" onclick="closeForgotModal()">Cancel</button>
+            <button class="modal-btn confirm" id="modal-confirm-btn" onclick="confirmForgotPassword()">
+                Send Reset PIN →
+            </button>
+        </div>
+        <div class="modal-note" id="modal-note"></div>
+    </div>
+</div>
 
 <script>
     let currentRole = null;
@@ -183,9 +325,100 @@
     function shakeCard() {
       const card = document.getElementById('login-card');
       card.style.animation = 'none';
-      void card.offsetWidth; // force reflow
+      void card.offsetWidth;
       card.style.animation = 'shake 0.4s ease';
       setTimeout(() => card.style.animation = '', 400);
+    }
+
+    // ── FORGOT PASSWORD MODAL ─────────────────────────────────────────────────
+
+    function openForgotModal(e) {
+        e.preventDefault();
+
+        const email = document.getElementById('email-input').value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        // Require a valid email before opening the modal
+        if (!email || !emailRegex.test(email)) {
+            shakeCard();
+            showError('Please enter your email address first, then click "Forgot password?"');
+            document.getElementById('email-input').focus();
+            return;
+        }
+
+        // Populate modal
+        const chip    = document.getElementById('modal-email-chip');
+        const confirm = document.getElementById('modal-confirm-btn');
+        const note    = document.getElementById('modal-note');
+
+        chip.textContent    = email;
+        confirm.className   = `modal-btn confirm${currentRole === 'client' ? ' client-mode' : ''}`;
+        note.textContent    = 'The PIN expires in 15 minutes. Check your spam folder if you don\'t see it.';
+
+        document.getElementById('forgot-modal').style.display = 'flex';
+    }
+
+    function closeForgotModal() {
+        const overlay = document.getElementById('forgot-modal');
+        overlay.classList.add('hiding');
+        setTimeout(() => {
+            overlay.style.display = 'none';
+            overlay.classList.remove('hiding');
+            // Reset confirm button
+            const btn = document.getElementById('modal-confirm-btn');
+            btn.textContent = 'Send Reset PIN →';
+            btn.disabled    = false;
+            btn.style.opacity = '1';
+            document.getElementById('modal-note').textContent =
+                "The PIN expires in 15 minutes. Check your spam folder if you don't see it.";
+        }, 250);
+    }
+
+    function handleOverlayClick(e) {
+        // Close modal when clicking the dark backdrop
+        if (e.target === document.getElementById('forgot-modal')) {
+            closeForgotModal();
+        }
+    }
+
+    async function confirmForgotPassword() {
+        const email = document.getElementById('email-input').value.trim();
+        const btn   = document.getElementById('modal-confirm-btn');
+        const note  = document.getElementById('modal-note');
+
+        btn.textContent   = 'Sending...';
+        btn.disabled      = true;
+        btn.style.opacity = '0.7';
+        note.textContent  = '';
+
+        try {
+            const res  = await fetch(`${window.location.origin}/api/password-reset/request`, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ role: currentRole, email })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                // Navigate to the forgot-password page, passing role + email as params
+                closeForgotModal();
+                const params = new URLSearchParams({ role: currentRole, email });
+                window.location.href =
+                    `${window.location.origin}/forgot-password?${params.toString()}`;
+            } else {
+                note.style.color = '#ff9898';
+                note.textContent = data.message || 'Failed to send reset PIN. Please try again.';
+                btn.textContent   = 'Send Reset PIN →';
+                btn.disabled      = false;
+                btn.style.opacity = '1';
+            }
+        } catch {
+            note.style.color = '#ff9898';
+            note.textContent = 'Could not connect to server. Please try again.';
+            btn.textContent   = 'Send Reset PIN →';
+            btn.disabled      = false;
+            btn.style.opacity = '1';
+        }
     }
 
     // ── LOGIN SUBMIT ──────────────────────────────────────────────────────────
@@ -195,7 +428,6 @@
       const pass  = document.getElementById('pass-input').value.trim();
       const btn   = document.getElementById('login-btn');
 
-      // ── Client-side validation ────────────────────────────────────────────
       if (!email || !pass) {
         shakeCard();
         showError('Please enter your email and password.');
@@ -209,21 +441,17 @@
         return;
       }
 
-      // ── Loading state ─────────────────────────────────────────────────────
       btn.textContent   = 'Signing in...';
       btn.disabled      = true;
       btn.style.opacity = '0.75';
       hideError();
 
-      // ── POST to unified login endpoint ────────────────────────────────────
-      // LoginController reads the "role" field and routes to AdminService
-      // or ClientService accordingly. No need for separate endpoints here.
       try {
         const response = await fetch('/api/login', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({
-            role:     currentRole,   // "admin" | "client"
+            role:     currentRole,
             email:    email,
             password: pass
           })
@@ -232,14 +460,8 @@
         const data = await response.json();
 
         if (data.success) {
-          // Server tells us exactly where to go:
-          //   Admin verified   → /admin-dashboard.html
-          //   Admin unverified → /verify.html
-          //   Client verified  → /client-dashboard.html
-          //   Client unverified→ /verify-client.html
           btn.textContent = '✓ Redirecting...';
           window.location.href = data.redirect;
-
         } else {
           shakeCard();
           showError(data.message || 'Incorrect email or password. Please try again.');
@@ -249,7 +471,6 @@
         }
 
       } catch (err) {
-        // Network / server unreachable
         shakeCard();
         showError('Could not connect to the server. Please try again.');
         btn.textContent   = 'Sign In →';
@@ -258,7 +479,6 @@
       }
     }
 
-    // Allow pressing Enter in either field to submit
     document.getElementById('email-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') submitLogin();
     });

@@ -44,4 +44,14 @@ public class PageController {
         return "redirect:/admin-quotations.html";
     }
 
+    @GetMapping("/forgot-password")
+    public String forgotPasswordPage() {
+        // If using Thymeleaf: place forgot-password.html in src/main/resources/templates/
+        // If serving as a static file: place it in src/main/resources/static/ and
+        //   use forward: so Spring serves it directly.
+        return "forward:/forgot-password.html";
+        // OR for Thymeleaf:
+        // return "forgot-password";
+    }
+
 }
