@@ -165,6 +165,76 @@ public class PreviousProjectController {
         }
     }
 
+    // ─────────────────────────────────────────────────────────────────────────────
+// ADD THESE TWO METHODS to PreviousProjectController.java
+// They sit alongside the existing comment endpoints.
+// ─────────────────────────────────────────────────────────────────────────────
+
+    /**
+     * POST /api/previous-projects/{id}/comments/client
+     * A logged-in client posts a new comment on a published project.
+     *
+     * Body: { "clientId": 42, "content": "Great work!", "rating": 5 }
+     *
+     * Comment starts as pending (approved=false).
+     * Admin must approve it before it appears on the public page.
+     */
+    @PostMapping("/{id}/comments/client")
+    public ResponseEntity<Map<String, Object>> postClientComment(
+            @PathVariable Long id,
+            @RequestBody  Map<String, Object> body) {
+        try {
+            Object rawClientId = body.get("clientId");
+            if (rawClientId == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "clientId is required."));
+            }
+            Long   clientId = ((Number) rawClientId).longValue();
+            String content  = (String) body.get("content");
+            Integer rating  = body.get("rating") != null ? ((Number) body.get("rating")).intValue() : null;
+
+            PreviousProjectComment saved = service.postClientComment(id, clientId, content, rating);
+            return ResponseEntity.status(201).body(Map.of(
+                    "success", true,
+                    "message", "Comment submitted and awaiting approval.",
+                    "data",    saved
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        } catch (Exception e) {
+            return error("Failed to post comment: " + e.getMessage());
+        }
+    }
+
+    /**
+     * DELETE /api/previous-projects/{id}/comments/{commentId}/client
+     * A client deletes their own comment. Ownership is enforced in the service.
+     *
+     * Body: { "clientId": 42 }
+     */
+    @DeleteMapping("/{id}/comments/{commentId}/client")
+    public ResponseEntity<Map<String, Object>> deleteClientComment(
+            @PathVariable Long id,
+            @PathVariable Long commentId,
+            @RequestBody  Map<String, Object> body) {
+        try {
+            Object rawClientId = body.get("clientId");
+            if (rawClientId == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "clientId is required."));
+            }
+            Long clientId = ((Number) rawClientId).longValue();
+            service.deleteClientComment(id, commentId, clientId);
+            return ResponseEntity.ok(Map.of("success", true, "message", "Comment deleted."));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(403).body(Map.of("success", false, "message", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(Map.of("success", false, "message", e.getMessage()));
+        } catch (Exception e) {
+            return error("Failed to delete comment: " + e.getMessage());
+        }
+    }
+
     /** Delete a single image from a project. */
     @DeleteMapping("/{id}/images/{imageId}")
     public ResponseEntity<Map<String, Object>> deleteImage(

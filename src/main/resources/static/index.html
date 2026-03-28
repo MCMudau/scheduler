@@ -1,769 +1,1265 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mpho Yanga Construction — Built to Last</title>
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/index.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mpho Yanga Construction — Built to Last</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/index.css">
+    <style>
+        /* ── PROJECT DETAIL MODAL ── */
+        .proj-modal-overlay {
+          display: none;
+          position: fixed; inset: 0;
+          background: rgba(0,0,0,0.75);
+          backdrop-filter: blur(6px);
+          z-index: 2000;
+          align-items: center;
+          justify-content: center;
+          padding: 16px;
+        }
+        .proj-modal-overlay.open { display: flex; animation: pmOverlayIn 0.25s ease; }
+        @keyframes pmOverlayIn { from { opacity:0; } to { opacity:1; } }
+
+        .proj-modal {
+          background: #0f1e2f;
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 20px;
+          width: 100%;
+          max-width: 820px;
+          max-height: 90vh;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+          animation: pmIn 0.35s cubic-bezier(.16,1,.3,1) both;
+        }
+        @keyframes pmIn {
+          from { transform: scale(0.93) translateY(20px); opacity:0; }
+          to   { transform: scale(1) translateY(0); opacity:1; }
+        }
+
+        /* Modal header */
+        .pm-header {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          padding: 20px 24px 16px;
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+          flex-shrink: 0;
+          gap: 12px;
+        }
+        .pm-header-left { flex: 1; min-width: 0; }
+        .pm-title {
+          font-family: 'Oswald', sans-serif;
+          font-size: 22px;
+          font-weight: 600;
+          color: #fff;
+          margin-bottom: 6px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .pm-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .pm-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 11px;
+          padding: 3px 10px;
+          border-radius: 20px;
+          background: rgba(255,255,255,0.07);
+          border: 1px solid rgba(255,255,255,0.1);
+          color: rgba(255,255,255,0.55);
+        }
+        .pm-chip.cat { background: rgba(232,118,42,0.15); border-color: rgba(232,118,42,0.3); color: #f5b87a; }
+
+        .pm-close {
+          width: 32px; height: 32px;
+          border: none;
+          background: rgba(255,255,255,0.07);
+          border-radius: 8px;
+          color: rgba(255,255,255,0.5);
+          font-size: 18px;
+          cursor: pointer;
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+          transition: background 0.2s;
+        }
+        .pm-close:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+        /* Scrollable body */
+        .pm-body {
+          overflow-y: auto;
+          flex: 1;
+          padding: 0;
+        }
+        .pm-body::-webkit-scrollbar { width: 4px; }
+        .pm-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+        /* Description */
+        .pm-desc {
+          padding: 16px 24px;
+          font-size: 14px;
+          color: rgba(255,255,255,0.5);
+          line-height: 1.75;
+          border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+
+        /* Image strip */
+        .pm-img-label {
+          padding: 16px 24px 8px;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.3);
+        }
+        .pm-img-strip {
+          display: flex;
+          gap: 10px;
+          overflow-x: auto;
+          padding: 0 24px 16px;
+          scroll-snap-type: x mandatory;
+          border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .pm-img-strip::-webkit-scrollbar { height: 3px; }
+        .pm-img-strip::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+        .pm-img-item {
+          flex-shrink: 0;
+          width: 220px; height: 150px;
+          border-radius: 10px;
+          overflow: hidden;
+          cursor: pointer;
+          scroll-snap-align: start;
+          border: 2px solid transparent;
+          transition: border-color 0.2s, transform 0.2s;
+        }
+        .pm-img-item:hover { border-color: var(--orange); transform: scale(1.02); }
+        .pm-img-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .pm-img-empty { font-size: 13px; color: rgba(255,255,255,0.2); padding: 20px 0; }
+
+        /* Comments section */
+        .pm-comments-section { padding: 16px 24px 20px; }
+        .pm-comments-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 14px;
+        }
+        .pm-comments-title {
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.3);
+        }
+        .pm-comments-count {
+          font-size: 11px;
+          color: rgba(255,255,255,0.25);
+          background: rgba(255,255,255,0.06);
+          border-radius: 20px;
+          padding: 2px 8px;
+        }
+
+        /* Comment list */
+        .pm-comment-list {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          margin-bottom: 20px;
+        }
+        .pm-comment {
+          display: flex;
+          gap: 10px;
+          align-items: flex-start;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 10px;
+          padding: 12px 14px;
+        }
+        .pm-comment.own-comment { border-color: rgba(232,118,42,0.3); background: rgba(232,118,42,0.05); }
+        .pm-c-avatar {
+          width: 32px; height: 32px;
+          border-radius: 50%;
+          background: var(--blue);
+          color: #fff;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 11px; font-weight: 700;
+          flex-shrink: 0;
+        }
+        .pm-c-body { flex: 1; min-width: 0; }
+        .pm-c-author {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin-bottom: 4px;
+        }
+        .pm-c-name { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.8); }
+        .pm-c-date { font-size: 11px; color: rgba(255,255,255,0.25); }
+        .pm-c-own-badge {
+          font-size: 10px;
+          padding: 1px 6px;
+          border-radius: 4px;
+          background: rgba(232,118,42,0.2);
+          color: #f5b87a;
+          font-weight: 600;
+        }
+        .pm-c-text { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.6; font-style: italic; }
+        .pm-c-rating { display: flex; gap: 1px; margin-top: 4px; }
+        .pm-c-rating .s { font-size: 12px; }
+        .pm-c-rating .s.on  { color: #f6c90e; }
+        .pm-c-rating .s.off { color: rgba(255,255,255,0.15); }
+        .pm-c-actions { flex-shrink: 0; }
+        .pm-c-del {
+          background: none; border: none;
+          color: rgba(255,255,255,0.2);
+          cursor: pointer; font-size: 14px;
+          padding: 4px; border-radius: 6px;
+          transition: color 0.2s, background 0.2s;
+        }
+        .pm-c-del:hover { color: #ff6b6b; background: rgba(255,80,80,0.1); }
+
+        .pm-no-comments {
+          text-align: center;
+          padding: 24px 0;
+          font-size: 13px;
+          color: rgba(255,255,255,0.2);
+        }
+
+        /* Star rating input */
+        .star-input { display: flex; gap: 4px; margin-bottom: 10px; }
+        .star-input .si-star {
+          font-size: 22px;
+          cursor: pointer;
+          color: rgba(255,255,255,0.15);
+          transition: color 0.15s, transform 0.15s;
+          user-select: none;
+        }
+        .star-input .si-star.active,
+        .star-input .si-star.hover  { color: #f6c90e; transform: scale(1.15); }
+        .star-input-label { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 2px; }
+
+        /* Add comment form */
+        .pm-add-comment {
+          border-top: 1px solid rgba(255,255,255,0.07);
+          padding-top: 16px;
+        }
+        .pm-add-label {
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.3);
+          margin-bottom: 10px;
+        }
+        .pm-comment-input {
+          width: 100%;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 10px;
+          padding: 12px 14px;
+          color: #fff;
+          font-family: 'Barlow', sans-serif;
+          font-size: 14px;
+          resize: vertical;
+          min-height: 80px;
+          outline: none;
+          transition: border-color 0.2s;
+          margin-bottom: 10px;
+        }
+        .pm-comment-input::placeholder { color: rgba(255,255,255,0.2); }
+        .pm-comment-input:focus { border-color: var(--orange); }
+
+        .pm-comment-actions {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+
+        .pm-submit-btn {
+          padding: 10px 22px;
+          border: none;
+          border-radius: 10px;
+          background: var(--orange);
+          color: #fff;
+          font-family: 'Oswald', sans-serif;
+          font-size: 14px;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+          cursor: pointer;
+          transition: opacity 0.2s, transform 0.15s;
+        }
+        .pm-submit-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        .pm-submit-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+        /* Login prompt for non-logged-in visitors */
+        .pm-login-prompt {
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 10px;
+          padding: 16px 18px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+        .pm-login-prompt p { font-size: 13px; color: rgba(255,255,255,0.4); }
+        .pm-login-link {
+          padding: 8px 18px;
+          border: 1.5px solid var(--orange);
+          border-radius: 8px;
+          color: var(--orange);
+          text-decoration: none;
+          font-family: 'Oswald', sans-serif;
+          font-size: 13px;
+          font-weight: 600;
+          transition: background 0.2s, color 0.2s;
+          white-space: nowrap;
+        }
+        .pm-login-link:hover { background: var(--orange); color: #fff; }
+
+        /* Banner feedback */
+        .pm-banner {
+          border-radius: 8px;
+          padding: 9px 14px;
+          font-size: 13px;
+          margin-bottom: 10px;
+          display: none;
+        }
+        .pm-banner.error   { background: rgba(255,80,80,0.12); border: 1px solid rgba(255,80,80,0.3); color: #ff9898; }
+        .pm-banner.success { background: rgba(60,181,74,0.12);  border: 1px solid rgba(60,181,74,0.3);  color: #7fe88a; }
+
+        /* Loading skeleton for grid */
+        .pc-skeleton {
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 16px;
+          overflow: hidden;
+        }
+        .skel-img  { height: 220px; background: rgba(255,255,255,0.06); }
+        .skel-body { padding: 24px; }
+        .skel-line {
+          height: 12px; border-radius: 6px;
+          background: rgba(255,255,255,0.06);
+          margin-bottom: 10px;
+          animation: shimmer 1.4s ease-in-out infinite;
+        }
+        .skel-line.w60 { width: 60%; }
+        .skel-line.w40 { width: 40%; }
+        .skel-line.w80 { width: 80%; }
+        @keyframes shimmer { 0%,100% { opacity:0.4; } 50% { opacity:0.8; } }
+
+        /* Clickable project cards get a pointer + subtle cue */
+        .project-card.clickable { cursor: pointer; }
+        .project-card.clickable .pc-body::after {
+          content: 'View & Comment →';
+          display: block;
+          margin-top: 12px;
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          color: var(--orange);
+          opacity: 0;
+          transform: translateY(4px);
+          transition: opacity 0.25s, transform 0.25s;
+        }
+        .project-card.clickable:hover .pc-body::after { opacity: 1; transform: translateY(0); }
+
+        /* Lightbox */
+        #pm-lightbox {
+          display: none; position: fixed; inset: 0;
+          background: rgba(0,0,0,0.93);
+          z-index: 3000;
+          align-items: center; justify-content: center;
+          padding: 20px;
+        }
+        #pm-lightbox.open { display: flex; }
+        .pm-lb-img { max-width: 90vw; max-height: 88vh; border-radius: 8px; object-fit: contain; }
+        .pm-lb-close {
+          position: absolute; top: 16px; right: 20px;
+          background: rgba(255,255,255,0.1); border: none;
+          color: #fff; font-size: 22px; width: 40px; height: 40px;
+          border-radius: 50%; cursor: pointer;
+          display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Spinner */
+        .pm-spinner {
+          display: inline-block; width: 14px; height: 14px;
+          border: 2px solid rgba(255,255,255,0.3);
+          border-top-color: #fff; border-radius: 50%;
+          animation: spin 0.7s linear infinite;
+          vertical-align: middle; margin-right: 6px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
 </head>
 <body>
 
-  <!-- ── NAV ── -->
-  <nav id="navbar">
+<!-- ── NAV ── -->
+<nav id="navbar">
     <div class="nav-inner">
-      <div class="nav-logo">
-        <div class="nav-logo-icons">
-          <span class="nl-icon blue">🔨</span>
-          <span class="nl-icon orange">🧱</span>
-          <span class="nl-icon green">🖌️</span>
+        <div class="nav-logo">
+            <div class="nav-logo-icons">
+                <span class="nl-icon blue">🔨</span>
+                <span class="nl-icon orange">🧱</span>
+                <span class="nl-icon green">🖌️</span>
+            </div>
+            <div class="nav-logo-text">
+                <span class="nl-brand">MPHO <em>YAN</em>GA</span>
+                <span class="nl-sub">Construction</span>
+            </div>
         </div>
-        <div class="nav-logo-text">
-          <span class="nl-brand">MPHO <em>YAN</em>GA</span>
-          <span class="nl-sub">Construction</span>
-        </div>
-      </div>
-      <ul class="nav-links">
-        <li><a href="#services">Services</a></li>
-        <li><a href="#projects">Projects</a></li>
-        <li><a href="#testimonials">Reviews</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="/login" class="nav-cta">Log In</a></li>
-      </ul>
-      <button class="hamburger" id="hamburger" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
+        <ul class="nav-links">
+            <li><a href="#services">Services</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#testimonials">Reviews</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="/login" class="nav-cta" id="nav-auth-link">Log In</a></li>
+        </ul>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
     </div>
     <div class="mobile-menu" id="mobile-menu">
-      <a href="#services">Services</a>
-      <a href="#projects">Projects</a>
-      <a href="#testimonials">Reviews</a>
-      <a href="#about">About</a>
-      <a href="/login">Log In</a>
+        <a href="#services">Services</a>
+        <a href="#projects">Projects</a>
+        <a href="#testimonials">Reviews</a>
+        <a href="#about">About</a>
+        <a href="/login" id="mobile-auth-link">Log In</a>
     </div>
-  </nav>
+</nav>
 
-  <!-- ── HERO ── -->
-  <section id="hero">
+<!-- ── HERO ── -->
+<section id="hero">
     <div class="hero-bg">
-      <div class="hero-grid"></div>
-      <div class="hero-orb orb1"></div>
-      <div class="hero-orb orb2"></div>
-      <div class="hero-orb orb3"></div>
+        <div class="hero-grid"></div>
+        <div class="hero-orb orb1"></div>
+        <div class="hero-orb orb2"></div>
+        <div class="hero-orb orb3"></div>
     </div>
     <div class="hero-content">
-      <div class="hero-badge reveal">
-        <span class="badge-dot"></span>
-        Trusted Construction Specialists — Zimbabwe
-      </div>
-      <h1 class="hero-title reveal">
-        <span class="ht-line">We Build</span>
-        <span class="ht-line accent">With Pride.</span>
-        <span class="ht-line">We Deliver</span>
-        <span class="ht-line accent">With Quality.</span>
-      </h1>
-      <p class="hero-sub reveal">
-        Plumbing · Tiling · Painting · Ceiling Installations<br>
-        Professional workmanship, every single time.
-      </p>
-      <div class="hero-actions reveal">
-        <a href="https://wa.me/263XXXXXXXX" class="btn-whatsapp" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-          WhatsApp Us Now
-        </a>
-        <a href="#projects" class="btn-outline">View Our Work</a>
-      </div>
-      <div class="hero-stats reveal">
-        <div class="stat">
-          <span class="stat-num" data-target="12">0</span>
-          <span class="stat-label">Years in Business</span>
+        <div class="hero-badge reveal">
+            <span class="badge-dot"></span>
+            Trusted Construction Specialists — Zimbabwe
         </div>
-        <div class="stat-div"></div>
-        <div class="stat">
-          <span class="stat-num" data-target="340">0</span>
-          <span class="stat-label">Projects Completed</span>
+        <h1 class="hero-title reveal">
+            <span class="ht-line">We Build</span>
+            <span class="ht-line accent">With Pride.</span>
+            <span class="ht-line">We Deliver</span>
+            <span class="ht-line accent">With Quality.</span>
+        </h1>
+        <p class="hero-sub reveal">
+            Plumbing · Tiling · Painting · Ceiling Installations<br>
+            Professional workmanship, every single time.
+        </p>
+        <div class="hero-actions reveal">
+            <a href="https://wa.me/263XXXXXXXX" class="btn-whatsapp" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                WhatsApp Us Now
+            </a>
+            <a href="#projects" class="btn-outline">View Our Work</a>
         </div>
-        <div class="stat-div"></div>
-        <div class="stat">
-          <span class="stat-num" data-target="98">0</span>
-          <span class="stat-label">% Client Satisfaction</span>
+        <div class="hero-stats reveal">
+            <div class="stat">
+                <span class="stat-num" data-target="12">0</span>
+                <span class="stat-label">Years in Business</span>
+            </div>
+            <div class="stat-div"></div>
+            <div class="stat">
+                <span class="stat-num" data-target="340">0</span>
+                <span class="stat-label">Projects Completed</span>
+            </div>
+            <div class="stat-div"></div>
+            <div class="stat">
+                <span class="stat-num" data-target="98">0</span>
+                <span class="stat-label">% Client Satisfaction</span>
+            </div>
         </div>
-      </div>
     </div>
     <div class="hero-scroll">
-      <span>Scroll</span>
-      <div class="scroll-line"></div>
+        <span>Scroll</span>
+        <div class="scroll-line"></div>
     </div>
-  </section>
+</section>
 
-  <!-- ── TRUST BAR ── -->
-  <div class="trust-bar">
+<!-- ── TRUST BAR ── -->
+<div class="trust-bar">
     <div class="trust-inner">
-      <div class="trust-item">
-        <span class="trust-icon">🏛️</span>
-        <span>BP No. <strong>0200269091</strong></span>
-      </div>
-      <div class="trust-sep"></div>
-      <div class="trust-item">
-        <span class="trust-icon">📅</span>
-        <span>Est. <strong>2013</strong></span>
-      </div>
-      <div class="trust-sep"></div>
-      <div class="trust-item">
-        <span class="trust-icon">✅</span>
-        <span>Licensed &amp; Insured</span>
-      </div>
-      <div class="trust-sep"></div>
-      <div class="trust-item">
-        <span class="trust-icon">📍</span>
-        <span>Based in <strong>Zimbabwe</strong></span>
-      </div>
+        <div class="trust-item"><span class="trust-icon">🏛️</span><span>BP No. <strong>0200269091</strong></span></div>
+        <div class="trust-sep"></div>
+        <div class="trust-item"><span class="trust-icon">📅</span><span>Est. <strong>2013</strong></span></div>
+        <div class="trust-sep"></div>
+        <div class="trust-item"><span class="trust-icon">✅</span><span>Licensed &amp; Insured</span></div>
+        <div class="trust-sep"></div>
+        <div class="trust-item"><span class="trust-icon">📍</span><span>Based in <strong>Zimbabwe</strong></span></div>
     </div>
-  </div>
+</div>
 
-  <!-- ── SERVICES ── -->
-  <section id="services">
+<!-- ── SERVICES ── -->
+<section id="services">
     <div class="section-inner">
-      <div class="section-header reveal">
-        <span class="section-tag">What We Do</span>
-        <h2 class="section-title">Our <em>Services</em></h2>
-        <p class="section-sub">Every job handled with precision, care and years of expertise behind it.</p>
-      </div>
-      <div class="services-grid">
-        <div class="service-card reveal" style="--delay:0s">
-          <div class="sc-icon-wrap blue">
-            <svg viewBox="0 0 64 64" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 44 C20 44 16 36 16 28 C16 20 22 14 30 14 L34 14"/>
-              <path d="M34 14 L44 4 L52 12 L42 22 L34 14Z"/>
-              <path d="M42 22 L22 42 L18 46 L22 50 L26 46 L46 26"/>
-              <circle cx="20" cy="48" r="4"/>
-            </svg>
-          </div>
-          <h3>Plumbing</h3>
-          <p>Full installations, repairs, burst pipes, geyser replacements and drainage solutions for residential and commercial properties.</p>
-          <div class="sc-tag">Installation · Repairs · Drainage</div>
+        <div class="section-header reveal">
+            <span class="section-tag">What We Do</span>
+            <h2 class="section-title">Our <em>Services</em></h2>
+            <p class="section-sub">Every job handled with precision, care and years of expertise behind it.</p>
         </div>
-        <div class="service-card reveal" style="--delay:0.1s">
-          <div class="sc-icon-wrap orange">
-            <svg viewBox="0 0 64 64" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="10" y="10" width="18" height="18" rx="2"/>
-              <rect x="36" y="10" width="18" height="18" rx="2"/>
-              <rect x="10" y="36" width="18" height="18" rx="2"/>
-              <rect x="36" y="36" width="18" height="18" rx="2"/>
-            </svg>
-          </div>
-          <h3>Tiling</h3>
-          <p>Floor and wall tiling for kitchens, bathrooms, patios and commercial spaces. Clean finishes with precise grouting and alignment.</p>
-          <div class="sc-tag">Floors · Walls · Patios</div>
+        <div class="services-grid">
+            <div class="service-card reveal" style="--delay:0s">
+                <div class="sc-icon-wrap blue">
+                    <svg viewBox="0 0 64 64" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 44 C20 44 16 36 16 28 C16 20 22 14 30 14 L34 14"/>
+                        <path d="M34 14 L44 4 L52 12 L42 22 L34 14Z"/>
+                        <path d="M42 22 L22 42 L18 46 L22 50 L26 46 L46 26"/>
+                        <circle cx="20" cy="48" r="4"/>
+                    </svg>
+                </div>
+                <h3>Plumbing</h3>
+                <p>Full installations, repairs, burst pipes, geyser replacements and drainage solutions for residential and commercial properties.</p>
+                <div class="sc-tag">Installation · Repairs · Drainage</div>
+            </div>
+            <div class="service-card reveal" style="--delay:0.1s">
+                <div class="sc-icon-wrap orange">
+                    <svg viewBox="0 0 64 64" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="10" y="10" width="18" height="18" rx="2"/>
+                        <rect x="36" y="10" width="18" height="18" rx="2"/>
+                        <rect x="10" y="36" width="18" height="18" rx="2"/>
+                        <rect x="36" y="36" width="18" height="18" rx="2"/>
+                    </svg>
+                </div>
+                <h3>Tiling</h3>
+                <p>Floor and wall tiling for kitchens, bathrooms, patios and commercial spaces. Clean finishes with precise grouting and alignment.</p>
+                <div class="sc-tag">Floors · Walls · Patios</div>
+            </div>
+            <div class="service-card reveal" style="--delay:0.2s">
+                <div class="sc-icon-wrap green">
+                    <svg viewBox="0 0 64 64" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 50 Q14 38 26 36 Q38 34 40 22"/>
+                        <path d="M40 22 L46 16 L50 20 L44 26 Q42 28 40 22Z"/>
+                        <path d="M20 56 L14 50 L8 52 L10 58 Z"/>
+                    </svg>
+                </div>
+                <h3>Painting</h3>
+                <p>Interior and exterior painting, colour consultations, surface preparation, priming and premium finish coatings that last for years.</p>
+                <div class="sc-tag">Interior · Exterior · Protective</div>
+            </div>
+            <div class="service-card reveal" style="--delay:0.3s">
+                <div class="sc-icon-wrap blue" style="background: linear-gradient(135deg, #1a5fad, #3cb54a)">
+                    <svg viewBox="0 0 64 64" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M8 20 L32 12 L56 20"/>
+                        <path d="M8 20 L8 24 L32 32 L56 24 L56 20"/>
+                        <path d="M16 28 L16 52 L48 52 L48 28"/>
+                        <path d="M24 52 L24 38 L40 38 L40 52"/>
+                    </svg>
+                </div>
+                <h3>Ceiling Installations</h3>
+                <p>PVC, gypsum and nutec ceiling installations. We handle framework, boarding, coving, cornices and seamless finishing.</p>
+                <div class="sc-tag">PVC · Gypsum · Cornices</div>
+            </div>
         </div>
-        <div class="service-card reveal" style="--delay:0.2s">
-          <div class="sc-icon-wrap green">
-            <svg viewBox="0 0 64 64" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 50 Q14 38 26 36 Q38 34 40 22"/>
-              <path d="M40 22 L46 16 L50 20 L44 26 Q42 28 40 22Z"/>
-              <path d="M20 56 L14 50 L8 52 L10 58 Z"/>
-            </svg>
-          </div>
-          <h3>Painting</h3>
-          <p>Interior and exterior painting, colour consultations, surface preparation, priming and premium finish coatings that last for years.</p>
-          <div class="sc-tag">Interior · Exterior · Protective</div>
-        </div>
-        <div class="service-card reveal" style="--delay:0.3s">
-          <div class="sc-icon-wrap blue" style="background: linear-gradient(135deg, #1a5fad, #3cb54a)">
-            <svg viewBox="0 0 64 64" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M8 20 L32 12 L56 20"/>
-              <path d="M8 20 L8 24 L32 32 L56 24 L56 20"/>
-              <path d="M16 28 L16 52 L48 52 L48 28"/>
-              <path d="M24 52 L24 38 L40 38 L40 52"/>
-            </svg>
-          </div>
-          <h3>Ceiling Installations</h3>
-          <p>PVC, gypsum and nutec ceiling installations. We handle framework, boarding, coving, cornices and seamless finishing.</p>
-          <div class="sc-tag">PVC · Gypsum · Cornices</div>
-        </div>
-      </div>
     </div>
-  </section>
+</section>
 
-  <!-- ── PROJECTS ── -->
-  <section id="projects">
+<!-- ── PROJECTS ── -->
+<section id="projects">
     <div class="section-inner">
-      <div class="section-header reveal">
-        <span class="section-tag">Our Work</span>
-        <h2 class="section-title">Past <em>Projects</em></h2>
-        <p class="section-sub">A selection of completed work across Zimbabwe. Real projects, real results.</p>
-      </div>
-
-      <!-- Filter tabs -->
-      <div class="filter-tabs reveal">
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="plumbing">Plumbing</button>
-        <button class="filter-btn" data-filter="tiling">Tiling</button>
-        <button class="filter-btn" data-filter="painting">Painting</button>
-        <button class="filter-btn" data-filter="ceiling">Ceilings</button>
-      </div>
-
-      <div class="projects-grid" id="projects-grid">
-
-        <!-- Project 1 -->
-        <div class="project-card reveal" data-category="tiling">
-          <div class="pc-image">
-            <img src="https://images.unsplash.com/photo-1604709177225-055f99402ea3?w=600&q=80" alt="Bathroom tiling project" loading="lazy">
-            <div class="pc-overlay">
-              <span class="pc-cat">Tiling</span>
-            </div>
-          </div>
-          <div class="pc-body">
-            <div class="pc-meta">
-              <h3>Luxury Bathroom Renovation</h3>
-              <span class="pc-loc">📍 Harare, 2024</span>
-            </div>
-            <p class="pc-desc">Full floor and wall tiling with large format porcelain tiles. Included waterproofing, feature wall and underfloor heating grid installation.</p>
-            <div class="pc-comments">
-              <div class="comment-header">
-                <span>💬 Client Comments</span>
-                <span class="comment-count">2 comments</span>
-              </div>
-              <div class="comment">
-                <div class="comment-avatar blue">TM</div>
-                <div class="comment-content">
-                  <strong>Tendai M.</strong>
-                  <p>"The finish is absolutely immaculate. They cleaned up after themselves every single day. Highly recommend!"</p>
-                </div>
-              </div>
-              <div class="comment">
-                <div class="comment-avatar orange">RN</div>
-                <div class="comment-content">
-                  <strong>Rudo N.</strong>
-                  <p>"Perfect grouting, no hollow tiles. You can tell they take their time and do it right."</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="section-header reveal">
+            <span class="section-tag">Our Work</span>
+            <h2 class="section-title">Past <em>Projects</em></h2>
+            <p class="section-sub">A selection of completed work across Zimbabwe. Real projects, real results.</p>
         </div>
 
-        <!-- Project 2 -->
-        <div class="project-card reveal" data-category="painting">
-          <div class="pc-image">
-            <img src="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600&q=80" alt="Exterior painting project" loading="lazy">
-            <div class="pc-overlay">
-              <span class="pc-cat">Painting</span>
-            </div>
-          </div>
-          <div class="pc-body">
-            <div class="pc-meta">
-              <h3>Commercial Building Repaint</h3>
-              <span class="pc-loc">📍 Bulawayo, 2024</span>
-            </div>
-            <p class="pc-desc">Complete exterior repaint of a 3-storey commercial building. Surface preparation, crack filling, primer coat and two finish coats using weatherproof paint.</p>
-            <div class="pc-comments">
-              <div class="comment-header">
-                <span>💬 Client Comments</span>
-                <span class="comment-count">1 comment</span>
-              </div>
-              <div class="comment">
-                <div class="comment-avatar green">SM</div>
-                <div class="comment-content">
-                  <strong>Simba M.</strong>
-                  <p>"Done on time, within budget. The building looks brand new. My tenants have been complimenting it."</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="filter-tabs reveal">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="PLUMBING">Plumbing</button>
+            <button class="filter-btn" data-filter="TILING">Tiling</button>
+            <button class="filter-btn" data-filter="PAINTING">Painting</button>
+            <button class="filter-btn" data-filter="CEILING">Ceilings</button>
+            <button class="filter-btn" data-filter="RENOVATION">Renovation</button>
         </div>
 
-        <!-- Project 3 -->
-        <div class="project-card reveal" data-category="ceiling">
-          <div class="pc-image">
-            <img src="https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=600&q=80" alt="Ceiling installation" loading="lazy">
-            <div class="pc-overlay">
-              <span class="pc-cat">Ceilings</span>
-            </div>
-          </div>
-          <div class="pc-body">
-            <div class="pc-meta">
-              <h3>Gypsum Ceiling — 5 Bedroom Home</h3>
-              <span class="pc-loc">📍 Harare, 2023</span>
-            </div>
-            <p class="pc-desc">Full gypsum ceiling installation throughout a new build. Included recessed lighting cutouts, coving, cornices and a smooth skim finish ready for painting.</p>
-            <div class="pc-comments">
-              <div class="comment-header">
-                <span>💬 Client Comments</span>
-                <span class="comment-count">2 comments</span>
-              </div>
-              <div class="comment">
-                <div class="comment-avatar blue">PN</div>
-                <div class="comment-content">
-                  <strong>Patricia N.</strong>
-                  <p>"Perfectly level throughout. No cracks, no sagging. They even helped me pick the right cornice style."</p>
-                </div>
-              </div>
-              <div class="comment">
-                <div class="comment-avatar orange">JM</div>
-                <div class="comment-content">
-                  <strong>Joseph M.</strong>
-                  <p>"Finished in 4 days, which was ahead of schedule. Very neat team."</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <!-- Dynamic grid — filled by JS -->
+        <div class="projects-grid" id="projects-grid">
+            <!-- Skeleton loaders shown while fetching -->
+            <div class="pc-skeleton"><div class="skel-img"></div><div class="skel-body"><div class="skel-line w80"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
+            <div class="pc-skeleton"><div class="skel-img"></div><div class="skel-body"><div class="skel-line w80"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
+            <div class="pc-skeleton"><div class="skel-img"></div><div class="skel-body"><div class="skel-line w80"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
         </div>
-
-        <!-- Project 4 -->
-        <div class="project-card reveal" data-category="plumbing">
-          <div class="pc-image">
-            <img src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600&q=80" alt="Plumbing installation" loading="lazy">
-            <div class="pc-overlay">
-              <span class="pc-cat">Plumbing</span>
-            </div>
-          </div>
-          <div class="pc-body">
-            <div class="pc-meta">
-              <h3>Full Plumbing — New Build</h3>
-              <span class="pc-loc">📍 Chitungwiza, 2023</span>
-            </div>
-            <p class="pc-desc">Complete plumbing installation for a new residential property — 3 bathrooms, kitchen, laundry room. All pipework, fixtures and hot water system.</p>
-            <div class="pc-comments">
-              <div class="comment-header">
-                <span>💬 Client Comments</span>
-                <span class="comment-count">1 comment</span>
-              </div>
-              <div class="comment">
-                <div class="comment-avatar green">FM</div>
-                <div class="comment-content">
-                  <strong>Farai M.</strong>
-                  <p>"No leaks, no issues, everything works perfectly. They explained everything they were doing. Very professional."</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Project 5 -->
-        <div class="project-card reveal" data-category="tiling">
-          <div class="pc-image">
-            <img src="https://images.unsplash.com/photo-1600585152220-90363fe7e115?w=600&q=80" alt="Kitchen tiling" loading="lazy">
-            <div class="pc-overlay">
-              <span class="pc-cat">Tiling</span>
-            </div>
-          </div>
-          <div class="pc-body">
-            <div class="pc-meta">
-              <h3>Kitchen & Patio Tiling</h3>
-              <span class="pc-loc">📍 Harare, 2024</span>
-            </div>
-            <p class="pc-desc">Kitchen floor and splashback tiling plus outdoor patio with anti-slip porcelain tiles. Clean diagonal pattern with matching grout finish.</p>
-            <div class="pc-comments">
-              <div class="comment-header">
-                <span>💬 Client Comments</span>
-                <span class="comment-count">1 comment</span>
-              </div>
-              <div class="comment">
-                <div class="comment-avatar blue">AN</div>
-                <div class="comment-content">
-                  <strong>Anesu N.</strong>
-                  <p>"My kitchen looks like something from a magazine. Couldn't be happier with the result."</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Project 6 -->
-        <div class="project-card reveal" data-category="painting">
-          <div class="pc-image">
-            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80" alt="Interior painting" loading="lazy">
-            <div class="pc-overlay">
-              <span class="pc-cat">Painting</span>
-            </div>
-          </div>
-          <div class="pc-body">
-            <div class="pc-meta">
-              <h3>Full Interior — Family Home</h3>
-              <span class="pc-loc">📍 Gweru, 2024</span>
-            </div>
-            <p class="pc-desc">Interior repaint of a 4-bedroom family home. Colour consultation included, walls and ceilings, feature walls in living and master bedroom.</p>
-            <div class="pc-comments">
-              <div class="comment-header">
-                <span>💬 Client Comments</span>
-                <span class="comment-count">2 comments</span>
-              </div>
-              <div class="comment">
-                <div class="comment-avatar orange">CM</div>
-                <div class="comment-content">
-                  <strong>Chipo M.</strong>
-                  <p>"Transformed our home completely. The colour advice they gave us was spot on. Very happy!"</p>
-                </div>
-              </div>
-              <div class="comment">
-                <div class="comment-avatar green">DZ</div>
-                <div class="comment-content">
-                  <strong>David Z.</strong>
-                  <p>"Clean edges, no mess on the floors. Real professionals."</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
     </div>
-  </section>
+</section>
 
-  <!-- ── TESTIMONIALS ── -->
-  <section id="testimonials">
+<!-- ── TESTIMONIALS ── -->
+<section id="testimonials">
     <div class="section-inner">
-      <div class="section-header reveal">
-        <span class="section-tag">What Clients Say</span>
-        <h2 class="section-title">Real <em>Testimonials</em></h2>
-        <p class="section-sub">Don't take our word for it — hear it from the people we've worked for.</p>
-      </div>
-      <div class="testimonials-track" id="testi-track">
-        <div class="testi-cards" id="testi-cards">
-
-          <div class="testi-card">
-            <div class="testi-stars">★★★★★</div>
-            <blockquote>"Mpho Yanga did our entire home — tiling, painting and ceilings. The quality was exceptional and they finished on time. I refer them to everyone I know."</blockquote>
-            <div class="testi-author">
-              <div class="testi-avatar blue">NM</div>
-              <div>
-                <strong>Nyasha Moyo</strong>
-                <span>Homeowner · Harare</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="testi-card">
-            <div class="testi-stars">★★★★★</div>
-            <blockquote>"We had a burst pipe emergency and they were on site within 2 hours. Fixed it properly and gave us a written report. Saved us from serious damage."</blockquote>
-            <div class="testi-author">
-              <div class="testi-avatar orange">BK</div>
-              <div>
-                <strong>Blessing Kambarami</strong>
-                <span>Property Manager · Bulawayo</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="testi-card">
-            <div class="testi-stars">★★★★★</div>
-            <blockquote>"The ceiling installation was flawless. I was nervous because of previous contractors who left a mess — Mpho Yanga were clean, punctual and professional throughout."</blockquote>
-            <div class="testi-author">
-              <div class="testi-avatar green">TR</div>
-              <div>
-                <strong>Tarisai Rusike</strong>
-                <span>Homeowner · Chitungwiza</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="testi-card">
-            <div class="testi-stars">★★★★★</div>
-            <blockquote>"Used them for painting our office block and warehouse. Very competitive pricing and the finish quality matched what I saw on their portfolio. Will use again."</blockquote>
-            <div class="testi-author">
-              <div class="testi-avatar blue">KD</div>
-              <div>
-                <strong>Kudakwashe Dube</strong>
-                <span>Business Owner · Gweru</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="testi-card">
-            <div class="testi-stars">★★★★★</div>
-            <blockquote>"They tiled our new kitchen and bathrooms and the work is beautiful. Neat, precise and they gave us tips on maintenance. Genuinely good people to work with."</blockquote>
-            <div class="testi-author">
-              <div class="testi-avatar orange">SM</div>
-              <div>
-                <strong>Sithembile Mpofu</strong>
-                <span>Homeowner · Masvingo</span>
-              </div>
-            </div>
-          </div>
-
+        <div class="section-header reveal">
+            <span class="section-tag">What Clients Say</span>
+            <h2 class="section-title">Client <em>Reviews</em></h2>
+            <p class="section-sub">Honest feedback from the people we've worked with across Zimbabwe.</p>
         </div>
-      </div>
-      <div class="testi-controls reveal">
-        <button class="testi-btn" id="testi-prev">←</button>
-        <div class="testi-dots" id="testi-dots"></div>
-        <button class="testi-btn" id="testi-next">→</button>
-      </div>
+        <div class="testimonials-track">
+            <div class="testi-cards" id="testi-cards">
+                <div class="testi-card">
+                    <div class="testi-stars">★★★★★</div>
+                    <blockquote>"Mpho Yanga completely transformed my kitchen with their tiling work. Absolutely professional from start to finish — on time, clean and the results are stunning."</blockquote>
+                    <div class="testi-author">
+                        <div class="testi-avatar blue">TM</div>
+                        <div><strong>Tendai Mutasa</strong><span>Homeowner · Harare</span></div>
+                    </div>
+                </div>
+                <div class="testi-card">
+                    <div class="testi-stars">★★★★★</div>
+                    <blockquote>"We had a burst pipe emergency and they were on site within 2 hours. Fixed it properly and gave us a written report. Saved us from serious damage."</blockquote>
+                    <div class="testi-author">
+                        <div class="testi-avatar orange">BK</div>
+                        <div><strong>Blessing Kambarami</strong><span>Property Manager · Bulawayo</span></div>
+                    </div>
+                </div>
+                <div class="testi-card">
+                    <div class="testi-stars">★★★★★</div>
+                    <blockquote>"The ceiling installation was flawless. I was nervous because of previous contractors who left a mess — Mpho Yanga were clean, punctual and professional throughout."</blockquote>
+                    <div class="testi-author">
+                        <div class="testi-avatar green">TR</div>
+                        <div><strong>Tarisai Rusike</strong><span>Homeowner · Chitungwiza</span></div>
+                    </div>
+                </div>
+                <div class="testi-card">
+                    <div class="testi-stars">★★★★★</div>
+                    <blockquote>"Used them for painting our office block and warehouse. Very competitive pricing and the finish quality matched what I saw on their portfolio. Will use again."</blockquote>
+                    <div class="testi-author">
+                        <div class="testi-avatar blue">KD</div>
+                        <div><strong>Kudakwashe Dube</strong><span>Business Owner · Gweru</span></div>
+                    </div>
+                </div>
+                <div class="testi-card">
+                    <div class="testi-stars">★★★★★</div>
+                    <blockquote>"They tiled our new kitchen and bathrooms and the work is beautiful. Neat, precise and they gave us tips on maintenance. Genuinely good people to work with."</blockquote>
+                    <div class="testi-author">
+                        <div class="testi-avatar orange">SM</div>
+                        <div><strong>Sithembile Mpofu</strong><span>Homeowner · Masvingo</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="testi-controls reveal">
+            <button class="testi-btn" id="testi-prev">←</button>
+            <div class="testi-dots" id="testi-dots"></div>
+            <button class="testi-btn" id="testi-next">→</button>
+        </div>
     </div>
-  </section>
+</section>
 
-  <!-- ── ABOUT / TRUST ── -->
-  <section id="about">
+<!-- ── ABOUT ── -->
+<section id="about">
     <div class="section-inner about-inner">
-      <div class="about-visual reveal">
-        <div class="about-img-stack">
-          <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&q=80" alt="Construction team at work" class="about-img main-img">
-          <img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=300&q=80" alt="Plumbing work" class="about-img secondary-img">
-        </div>
-        <div class="about-badge-float">
-          <span class="abf-num">12+</span>
-          <span class="abf-label">Years of<br>Excellence</span>
-        </div>
-      </div>
-      <div class="about-content reveal">
-        <span class="section-tag">Who We Are</span>
-        <h2 class="section-title">Built on <em>Trust</em>,<br>Driven by <em>Quality</em></h2>
-        <p>Mpho Yanga Construction has been serving Zimbabwean homeowners and businesses since 2013. What started as a small team has grown into one of the region's most trusted construction service providers.</p>
-        <p>We specialise in plumbing, tiling, painting and ceiling installations — and we bring the same level of care and precision to every job, whether it's a single bathroom repair or a full commercial fit-out.</p>
-        <div class="about-credentials">
-          <div class="cred">
-            <span class="cred-icon">🏛️</span>
-            <div>
-              <strong>Registered Business</strong>
-              <span>BP No. 0200269091</span>
+        <div class="about-visual reveal">
+            <div class="about-img-stack">
+                <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&q=80" alt="Construction team at work" class="about-img main-img">
+                <img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=300&q=80" alt="Plumbing work" class="about-img secondary-img">
             </div>
-          </div>
-          <div class="cred">
-            <span class="cred-icon">📅</span>
-            <div>
-              <strong>Established</strong>
-              <span>2013 — Over 12 years experience</span>
+            <div class="about-badge-float">
+                <span class="abf-num">12+</span>
+                <span class="abf-label">Years of<br>Excellence</span>
             </div>
-          </div>
-          <div class="cred">
-            <span class="cred-icon">🤝</span>
-            <div>
-              <strong>Referral-Driven</strong>
-              <span>Most clients come through word of mouth</span>
-            </div>
-          </div>
         </div>
-        <a href="https://wa.me/263XXXXXXXX" class="btn-whatsapp" target="_blank" rel="noopener" style="display:inline-flex; margin-top: 8px;">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-          Start a Conversation
-        </a>
-      </div>
+        <div class="about-content reveal">
+            <span class="section-tag">Who We Are</span>
+            <h2 class="section-title">Built on <em>Trust</em>,<br>Driven by <em>Quality</em></h2>
+            <p>Mpho Yanga Construction has been serving Zimbabwean homeowners and businesses since 2013. What started as a small team has grown into one of the region's most trusted construction service providers.</p>
+            <p>We specialise in plumbing, tiling, painting and ceiling installations — and we bring the same level of care and precision to every job, whether it's a single bathroom repair or a full commercial fit-out.</p>
+            <div class="about-credentials">
+                <div class="cred"><span class="cred-icon">🏛️</span><div><strong>Registered Business</strong><span>BP No. 0200269091</span></div></div>
+                <div class="cred"><span class="cred-icon">📅</span><div><strong>Established</strong><span>2013 — Over 12 years experience</span></div></div>
+                <div class="cred"><span class="cred-icon">🤝</span><div><strong>Referral-Driven</strong><span>Most clients come through word of mouth</span></div></div>
+            </div>
+            <a href="https://wa.me/263XXXXXXXX" class="btn-whatsapp" target="_blank" rel="noopener" style="display:inline-flex;margin-top:8px;">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                Start a Conversation
+            </a>
+        </div>
     </div>
-  </section>
+</section>
 
-  <!-- ── CONTACT / CTA ── -->
-  <section id="contact">
+<!-- ── CONTACT ── -->
+<section id="contact">
     <div class="section-inner">
-      <div class="contact-card reveal">
-        <div class="contact-left">
-          <span class="section-tag light">Get In Touch</span>
-          <h2>Ready to Start<br><em>Your Project?</em></h2>
-          <p>Call us or send a WhatsApp message and we'll get back to you promptly with a quote or to arrange a site visit.</p>
-          <div class="contact-methods">
-            <a href="tel:+263XXXXXXXX" class="contact-method">
-              <span class="cm-icon">📞</span>
-              <div>
-                <strong>Call Us</strong>
-                <span>+263 XX XXX XXXX</span>
-              </div>
-            </a>
-            <a href="https://wa.me/263XXXXXXXX" class="contact-method" target="_blank" rel="noopener">
-              <span class="cm-icon">💬</span>
-              <div>
-                <strong>WhatsApp</strong>
-                <span>+263 XX XXX XXXX</span>
-              </div>
-            </a>
-          </div>
+        <div class="contact-card reveal">
+            <div class="contact-left">
+                <span class="section-tag light">Get In Touch</span>
+                <h2>Ready to Start<br><em>Your Project?</em></h2>
+                <p>Call us or send a WhatsApp message and we'll get back to you promptly with a quote or to arrange a site visit.</p>
+                <div class="contact-methods">
+                    <a href="tel:+263XXXXXXXX" class="contact-method"><span class="cm-icon">📞</span><div><strong>Call Us</strong><span>+263 XX XXX XXXX</span></div></a>
+                    <a href="https://wa.me/263XXXXXXXX" class="contact-method" target="_blank" rel="noopener"><span class="cm-icon">💬</span><div><strong>WhatsApp</strong><span>+263 XX XXX XXXX</span></div></a>
+                </div>
+            </div>
+            <div class="contact-right">
+                <a href="https://wa.me/263XXXXXXXX?text=Hi%20Mpho%20Yanga%20Construction%2C%20I%20would%20like%20to%20get%20a%20quote%20for%20a%20project." class="btn-whatsapp-lg" target="_blank" rel="noopener">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                    <span><strong>WhatsApp Us Now</strong><small>Tap to open a chat — we respond fast</small></span>
+                </a>
+                <p class="contact-note">We typically respond within a few hours during business hours.</p>
+            </div>
         </div>
-        <div class="contact-right">
-          <a href="https://wa.me/263XXXXXXXX?text=Hi%20Mpho%20Yanga%20Construction%2C%20I%20would%20like%20to%20get%20a%20quote%20for%20a%20project." class="btn-whatsapp-lg" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-            <span>
-              <strong>WhatsApp Us Now</strong>
-              <small>Tap to open a chat — we respond fast</small>
-            </span>
-          </a>
-          <p class="contact-note">We typically respond within a few hours during business hours.</p>
-        </div>
-      </div>
     </div>
-  </section>
+</section>
 
-  <!-- ── FOOTER ── -->
-  <footer>
+<!-- ── FOOTER ── -->
+<footer>
     <div class="footer-inner">
-      <div class="footer-logo">
-        <div class="nav-logo-icons">
-          <span class="nl-icon blue">🔨</span>
-          <span class="nl-icon orange">🧱</span>
-          <span class="nl-icon green">🖌️</span>
+        <div class="footer-logo">
+            <div class="nav-logo-icons">
+                <span class="nl-icon blue">🔨</span>
+                <span class="nl-icon orange">🧱</span>
+                <span class="nl-icon green">🖌️</span>
+            </div>
+            <div class="nav-logo-text">
+                <span class="nl-brand">MPHO <em>YAN</em>GA</span>
+                <span class="nl-sub">Construction</span>
+            </div>
         </div>
-        <div class="nav-logo-text">
-          <span class="nl-brand">MPHO <em>YAN</em>GA</span>
-          <span class="nl-sub">Construction</span>
+        <div class="footer-info">
+            <p>BP No. 0200269091 &nbsp;·&nbsp; Est. 2013 &nbsp;·&nbsp; Zimbabwe</p>
+            <p>Plumbing · Tiling · Painting · Ceiling Installations</p>
         </div>
-      </div>
-      <div class="footer-info">
-        <p>BP No. 0200269091 &nbsp;·&nbsp; Est. 2013 &nbsp;·&nbsp; Zimbabwe</p>
-        <p>Plumbing · Tiling · Painting · Ceiling Installations</p>
-      </div>
-      <div class="footer-bottom">
-        <span>© 2025 Mpho Yanga Construction. All rights reserved.</span>
-        <a href="login.html" class="footer-portal-link">Client Portal →</a>
-      </div>
+        <div class="footer-bottom">
+            <span>© 2025 Mpho Yanga Construction. All rights reserved.</span>
+            <a href="/login" class="footer-portal-link">Client Portal →</a>
+        </div>
     </div>
-  </footer>
+</footer>
 
-  <!-- ── FLOATING WHATSAPP ── -->
-  <a href="https://wa.me/263XXXXXXXX?text=Hi%20Mpho%20Yanga%20Construction%2C%20I%27d%20like%20to%20enquire%20about%20your%20services." class="float-whatsapp" target="_blank" rel="noopener" aria-label="WhatsApp us">
+<!-- ── FLOATING WHATSAPP ── -->
+<a href="https://wa.me/263XXXXXXXX?text=Hi%20Mpho%20Yanga%20Construction%2C%20I%27d%20like%20to%20enquire%20about%20your%20services." class="float-whatsapp" target="_blank" rel="noopener" aria-label="WhatsApp us">
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
     <span class="float-wa-label">WhatsApp Us</span>
-  </a>
+</a>
 
-  <script >
-      /* ── NAVBAR SCROLL ── */
-const navbar = document.getElementById('navbar');
-window.addEventListener('scroll', () => {
-  navbar.classList.toggle('scrolled', window.scrollY > 40);
-});
+<!-- ══ PROJECT DETAIL MODAL ════════════════════════════════════ -->
+<div class="proj-modal-overlay" id="proj-modal-overlay">
+    <div class="proj-modal" id="proj-modal">
+        <div class="pm-header">
+            <div class="pm-header-left">
+                <div class="pm-title" id="pm-title">Project</div>
+                <div class="pm-chips" id="pm-chips"></div>
+            </div>
+            <button class="pm-close" id="pm-close">&times;</button>
+        </div>
 
-/* ── MOBILE MENU ── */
-const hamburger = document.getElementById('hamburger');
-const mobileMenu = document.getElementById('mobile-menu');
-hamburger.addEventListener('click', () => {
-  mobileMenu.classList.toggle('open');
-});
-mobileMenu.querySelectorAll('a').forEach(a => {
-  a.addEventListener('click', () => mobileMenu.classList.remove('open'));
-});
+        <div class="pm-body">
+            <p class="pm-desc" id="pm-desc"></p>
 
-/* ── SCROLL REVEAL ── */
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-      revealObserver.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.12 });
+            <div class="pm-img-label">📷 Photos</div>
+            <div class="pm-img-strip" id="pm-img-strip"></div>
 
-document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+            <div class="pm-comments-section">
+                <div class="pm-comments-header">
+                    <span class="pm-comments-title">💬 Client Comments</span>
+                    <span class="pm-comments-count" id="pm-count">0</span>
+                </div>
 
-/* ── COUNTER ANIMATION ── */
-function animateCounter(el) {
-  const target = parseInt(el.dataset.target);
-  const duration = 1800;
-  const start = performance.now();
-  const update = (now) => {
-    const elapsed = now - start;
-    const progress = Math.min(elapsed / duration, 1);
-    // ease out cubic
-    const eased = 1 - Math.pow(1 - progress, 3);
-    el.textContent = Math.floor(eased * target);
-    if (progress < 1) requestAnimationFrame(update);
-    else el.textContent = target;
-  };
-  requestAnimationFrame(update);
-}
+                <div class="pm-banner error"   id="pm-error"></div>
+                <div class="pm-banner success" id="pm-success"></div>
 
-const counterObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      animateCounter(entry.target);
-      counterObserver.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.5 });
+                <div class="pm-comment-list" id="pm-comment-list">
+                    <div class="pm-no-comments">No comments yet. Be the first!</div>
+                </div>
 
-document.querySelectorAll('.stat-num[data-target]').forEach(el => counterObserver.observe(el));
+                <!-- Add comment (shown only to logged-in clients) -->
+                <div class="pm-add-comment" id="pm-add-comment" style="display:none;">
+                    <div class="pm-add-label">Leave a Comment</div>
+                    <div class="star-input" id="star-input">
+                        <span class="si-star" data-val="1">★</span>
+                        <span class="si-star" data-val="2">★</span>
+                        <span class="si-star" data-val="3">★</span>
+                        <span class="si-star" data-val="4">★</span>
+                        <span class="si-star" data-val="5">★</span>
+                    </div>
+                    <div class="star-input-label" id="star-label">Optional rating</div>
+                    <textarea class="pm-comment-input" id="pm-comment-text" placeholder="Share your experience with this project..."></textarea>
+                    <div class="pm-comment-actions">
+                        <span style="font-size:12px;color:rgba(255,255,255,0.25);" id="pm-posting-as"></span>
+                        <button class="pm-submit-btn" id="pm-submit-btn">Post Comment</button>
+                    </div>
+                </div>
 
-/* ── PROJECT FILTER ── */
-const filterBtns = document.querySelectorAll('.filter-btn');
-const projectCards = document.querySelectorAll('.project-card');
+                <!-- Login prompt (shown to non-logged-in visitors) -->
+                <div class="pm-login-prompt" id="pm-login-prompt" style="display:none;">
+                    <p>Log in to leave a comment on this project.</p>
+                    <a href="/login" class="pm-login-link">Log In →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-filterBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const filter = btn.dataset.filter;
+<!-- ══ LIGHTBOX ════════════════════════════════════════════════ -->
+<div id="pm-lightbox">
+    <button class="pm-lb-close" id="pm-lb-close">&times;</button>
+    <img class="pm-lb-img" id="pm-lb-img" src="" alt="">
+</div>
 
-    // Update active button
-    filterBtns.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+<script>
+    const API = `${window.location.origin}/api/previous-projects`;
+    const CLIENT_API = `${window.location.origin}/api`;
 
-    // Filter cards
-    projectCards.forEach(card => {
-      const cat = card.dataset.category;
-      if (filter === 'all' || cat === filter) {
-        card.classList.remove('hidden');
-        card.style.animation = 'fadeInUp 0.5s ease both';
-      } else {
-        card.classList.add('hidden');
-      }
+    /* ── STATE ── */
+    let allProjects    = [];
+    let currentProject = null;
+    let currentClient  = null;  // null = not logged in
+    let selectedRating = 0;
+
+    /* ══ INIT ════════════════════════════════════════════════════ */
+    document.addEventListener('DOMContentLoaded', async () => {
+      await checkClientSession();
+      await loadProjects();
+      setupNavAuth();
+      setupStaticListeners();
     });
-  });
-});
 
-// Inject fadeInUp for filter
-const filterStyle = document.createElement('style');
-filterStyle.textContent = `
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-`;
-document.head.appendChild(filterStyle);
-
-/* ── TESTIMONIAL CAROUSEL ── */
-const testitCards = document.getElementById('testi-cards');
-const testiDotsContainer = document.getElementById('testi-dots');
-const testiPrev = document.getElementById('testi-prev');
-const testiNext = document.getElementById('testi-next');
-
-const cards = testitCards.querySelectorAll('.testi-card');
-const total = cards.length;
-let currentIndex = 0;
-
-// Create dots
-cards.forEach((_, i) => {
-  const dot = document.createElement('button');
-  dot.className = 'testi-dot' + (i === 0 ? ' active' : '');
-  dot.setAttribute('aria-label', `Testimonial ${i + 1}`);
-  dot.addEventListener('click', () => goTo(i));
-  testiDotsContainer.appendChild(dot);
-});
-
-function getVisible() {
-  return window.innerWidth < 520 ? 1 : window.innerWidth < 900 ? 2 : 3;
-}
-
-function goTo(index) {
-  const visibleCount = getVisible();
-  const maxIndex = Math.max(0, total - visibleCount);
-  currentIndex = Math.min(Math.max(index, 0), maxIndex);
-
-  const cardWidth = cards[0].offsetWidth + 24; // card width + gap
-  testitCards.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
-
-  // Update dots
-  testiDotsContainer.querySelectorAll('.testi-dot').forEach((dot, i) => {
-    dot.classList.toggle('active', i === currentIndex);
-  });
-}
-
-testiNext.addEventListener('click', () => goTo(currentIndex + 1));
-testiPrev.addEventListener('click', () => goTo(currentIndex - 1));
-
-// Auto-advance
-let autoAdvance = setInterval(() => goTo(currentIndex + 1 > total - getVisible() ? 0 : currentIndex + 1), 5000);
-testitCards.addEventListener('mouseenter', () => clearInterval(autoAdvance));
-testitCards.addEventListener('mouseleave', () => {
-  autoAdvance = setInterval(() => goTo(currentIndex + 1 > total - getVisible() ? 0 : currentIndex + 1), 5000);
-});
-
-window.addEventListener('resize', () => goTo(currentIndex));
-
-/* ── SMOOTH SCROLL NAV LINKS ── */
-document.querySelectorAll('a[href^="#"]').forEach(a => {
-  a.addEventListener('click', e => {
-    const id = a.getAttribute('href').slice(1);
-    const target = document.getElementById(id);
-    if (target) {
-      e.preventDefault();
-      const offset = 72;
-      const top = target.getBoundingClientRect().top + window.scrollY - offset;
-      window.scrollTo({ top, behavior: 'smooth' });
+    /* ── SESSION CHECK ── */
+    async function checkClientSession() {
+      try {
+        const res = await fetch(`${CLIENT_API}/client/current`, { credentials: 'include' });
+        if (res.ok) {
+          const d = await res.json();
+          // Accept either wrapped {success,data} or flat object
+          currentClient = d.data || (d.id ? d : null);
+        }
+      } catch {}
     }
-  });
-});
-  </script>
+
+    /* ── NAV AUTH LINK ── */
+    function setupNavAuth() {
+      if (currentClient) {
+        const name = currentClient.name || 'Portal';
+        document.getElementById('nav-auth-link').textContent   = `${name}'s Portal`;
+        document.getElementById('nav-auth-link').href          = `${window.location.origin}/client-dashboard.html`;
+        document.getElementById('mobile-auth-link').textContent = `${name}'s Portal`;
+        document.getElementById('mobile-auth-link').href        = `${window.location.origin}/client-dashboard.html`;
+      }
+    }
+
+    /* ══ LOAD PROJECTS ══════════════════════════════════════════ */
+    async function loadProjects() {
+      try {
+        const res  = await fetch(`${API}/published`);
+        const data = await res.json();
+        allProjects = data.data || data || [];
+        renderGrid(allProjects);
+        setupFilterBtns();
+      } catch {
+        document.getElementById('projects-grid').innerHTML =
+          `<p style="color:rgba(255,255,255,.4);text-align:center;grid-column:1/-1;padding:40px 0;">
+            Could not load projects. Please try again later.
+          </p>`;
+      }
+    }
+
+    /* ── CATEGORY DISPLAY LABEL ── */
+    const CAT_LABEL = {
+      PLUMBING: 'Plumbing', TILING: 'Tiling',
+      PAINTING: 'Painting', CEILING: 'Ceilings',
+      RENOVATION: 'Renovation', OTHER: 'Other'
+    };
+    /* Maps backend category → filter-btn data-filter value */
+    const CAT_FILTER = {
+      PLUMBING:'PLUMBING', TILING:'TILING', PAINTING:'PAINTING',
+      CEILING:'CEILING', RENOVATION:'RENOVATION', OTHER:'OTHER'
+    };
+
+    function renderGrid(list) {
+      const grid = document.getElementById('projects-grid');
+      if (!list.length) {
+        grid.innerHTML = `<p style="color:rgba(255,255,255,.35);text-align:center;grid-column:1/-1;padding:60px 0;font-size:15px;">No projects to show yet.</p>`;
+        return;
+      }
+      grid.innerHTML = list.map(p => {
+        const cover = p.coverImageUrl || (p.images && p.images[0]?.imageUrl) || null;
+        const catLabel  = CAT_LABEL[p.category] || p.category;
+        const catFilter = CAT_FILTER[p.category] || p.category;
+        const approvedCount = p.approvedCommentCount ?? 0;
+        const commentSnippets = (p.recentComments || []).slice(0, 2);
+        const avatarColors = ['blue','orange','green'];
+
+        return `
+        <div class="project-card clickable reveal"
+             data-category="${catFilter}"
+             data-id="${p.id}"
+             onclick="openProjectModal(${p.id})">
+          <div class="pc-image">
+            ${cover
+              ? `<img src="${cover}" alt="${esc(p.name)}" loading="lazy">`
+              : `<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a2e47,#0d1b2a);display:flex;align-items:center;justify-content:center;font-size:40px;color:rgba(255,255,255,.1);">🏗️</div>`}
+            <div class="pc-overlay"><span class="pc-cat">${catLabel}</span></div>
+          </div>
+          <div class="pc-body">
+            <div class="pc-meta">
+              <h3>${esc(p.name)}</h3>
+              <span class="pc-loc">📍 ${esc(p.location)}${p.completionYear ? `, ${p.completionYear}` : ''}</span>
+            </div>
+            <p class="pc-desc">${esc((p.description||'').substring(0,120))}${(p.description||'').length>120?'…':''}</p>
+            <div class="pc-comments">
+              <div class="comment-header">
+                <span>💬 Client Comments</span>
+                <span class="comment-count">${approvedCount} comment${approvedCount!==1?'s':''}</span>
+              </div>
+              ${commentSnippets.length
+                ? commentSnippets.map((c,i) => {
+                    const initials = (c.authorDisplayName||'C').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+                    const col = avatarColors[i % avatarColors.length];
+                    return `<div class="comment">
+                      <div class="comment-avatar ${col}">${initials}</div>
+                      <div class="comment-content">
+                        <strong>${esc(c.authorDisplayName)}</strong>
+                        <p>"${esc((c.content||'').substring(0,80))}${(c.content||'').length>80?'…':''}"</p>
+                      </div>
+                    </div>`;
+                  }).join('')
+                : `<p style="font-size:12px;color:rgba(255,255,255,.2);font-style:italic;">No comments yet — be the first!</p>`}
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+
+      // Re-register reveal observer for new cards
+      document.querySelectorAll('.project-card.reveal').forEach(el => revealObserver.observe(el));
+    }
+
+    /* ══ FILTER ════════════════════════════════════════════════ */
+    function setupFilterBtns() {
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const f = btn.dataset.filter;
+          document.querySelectorAll('.project-card').forEach(card => {
+            const match = f === 'all' || card.dataset.category === f;
+            card.classList.toggle('hidden', !match);
+            if (match) card.style.animation = 'fadeInUp 0.4s ease both';
+          });
+        });
+      });
+    }
+
+    /* ══ PROJECT MODAL ══════════════════════════════════════════ */
+    async function openProjectModal(id) {
+      currentProject = allProjects.find(p => p.id === id) || null;
+      if (!currentProject) return;
+
+      // Reset form state
+      selectedRating = 0;
+      renderStars(0);
+      document.getElementById('pm-comment-text').value = '';
+      hideBanners();
+
+      // Populate header
+      document.getElementById('pm-title').textContent = currentProject.name;
+      document.getElementById('pm-chips').innerHTML = `
+        <span class="pm-chip cat">${CAT_LABEL[currentProject.category]||currentProject.category}</span>
+        <span class="pm-chip">📍 ${esc(currentProject.location)}</span>
+        ${currentProject.completionYear ? `<span class="pm-chip">📅 ${currentProject.completionYear}</span>` : ''}`;
+      document.getElementById('pm-desc').textContent = currentProject.description || '';
+
+      // Image strip
+      const strip = document.getElementById('pm-img-strip');
+      if (currentProject.images && currentProject.images.length) {
+        strip.innerHTML = currentProject.images.map(img =>
+          `<div class="pm-img-item" onclick="openLightbox('${img.imageUrl}')">
+            <img src="${img.imageUrl}" alt="${esc(img.caption||currentProject.name)}" loading="lazy">
+          </div>`).join('');
+      } else {
+        strip.innerHTML = '<span class="pm-img-empty">No photos uploaded for this project.</span>';
+      }
+
+      // Show overlay immediately while comments load
+      document.getElementById('proj-modal-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+
+      // Auth-dependent UI
+      if (currentClient) {
+        document.getElementById('pm-add-comment').style.display  = 'block';
+        document.getElementById('pm-login-prompt').style.display = 'none';
+        document.getElementById('pm-posting-as').textContent = `Posting as ${currentClient.name} ${currentClient.surname||''}`.trim();
+      } else {
+        document.getElementById('pm-add-comment').style.display  = 'none';
+        document.getElementById('pm-login-prompt').style.display = 'flex';
+      }
+
+      // Load approved comments
+      await loadComments(id);
+    }
+
+    async function loadComments(projectId) {
+      const list  = document.getElementById('pm-comment-list');
+      const badge = document.getElementById('pm-count');
+      list.innerHTML = `<div style="text-align:center;padding:20px 0;color:rgba(255,255,255,.2);font-size:13px;"><span class="pm-spinner"></span> Loading comments...</div>`;
+
+      try {
+        const res  = await fetch(`${API}/${projectId}/comments`);
+        const data = await res.json();
+        const comments = data.data || data || [];
+        badge.textContent = comments.length;
+        renderComments(comments, projectId);
+      } catch {
+        list.innerHTML = `<div class="pm-no-comments">Could not load comments.</div>`;
+      }
+    }
+
+    function renderComments(comments, projectId) {
+      const list = document.getElementById('pm-comment-list');
+      if (!comments.length) {
+        list.innerHTML = '<div class="pm-no-comments">No comments yet — be the first to share your experience!</div>';
+        return;
+      }
+      list.innerHTML = comments.map(c => {
+        const initials  = (c.authorDisplayName||'C').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+        const isOwnComment = currentClient && c.client && c.client.id === currentClient.id;
+        const stars = c.rating
+          ? `<div class="pm-c-rating">${[1,2,3,4,5].map(n=>`<span class="s ${n<=c.rating?'on':'off'}">★</span>`).join('')}</div>`
+          : '';
+        return `
+        <div class="pm-comment ${isOwnComment?'own-comment':''}" id="pmc-${c.id}">
+          <div class="pm-c-avatar" style="background:${avatarBg(initials)}">${initials}</div>
+          <div class="pm-c-body">
+            <div class="pm-c-author">
+              <span class="pm-c-name">${esc(c.authorDisplayName)}</span>
+              <span class="pm-c-date">${fmtDate(c.createdAt)}</span>
+              ${isOwnComment ? '<span class="pm-c-own-badge">You</span>' : ''}
+            </div>
+            ${stars}
+            <p class="pm-c-text">"${esc(c.content)}"</p>
+          </div>
+          ${isOwnComment
+            ? `<div class="pm-c-actions">
+                <button class="pm-c-del" title="Delete your comment"
+                        onclick="deleteOwnComment(${c.id},${projectId})">🗑</button>
+              </div>`
+            : ''}
+        </div>`;
+      }).join('');
+    }
+
+    /* ── POST COMMENT ── */
+    document.getElementById('pm-submit-btn').addEventListener('click', async () => {
+      if (!currentClient || !currentProject) return;
+      const content = document.getElementById('pm-comment-text').value.trim();
+      if (!content) { showBanner('error', 'Please write something before posting.'); return; }
+
+      const btn = document.getElementById('pm-submit-btn');
+      btn.innerHTML = '<span class="pm-spinner"></span>Posting...'; btn.disabled = true;
+      hideBanners();
+
+      try {
+        const res  = await fetch(`${API}/${currentProject.id}/comments/client`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            content:  content,
+            rating:   selectedRating || null,
+            clientId: currentClient.id
+          })
+        });
+        const data = await res.json();
+        if (data.success !== false) {
+          document.getElementById('pm-comment-text').value = '';
+          selectedRating = 0; renderStars(0);
+          showBanner('success', 'Comment posted! It will appear once approved by our team.');
+          // Reload comments to reflect the new one (pending, will show after approval)
+          await loadComments(currentProject.id);
+        } else {
+          showBanner('error', data.message || 'Failed to post comment.');
+        }
+      } catch { showBanner('error', 'Server error. Please try again.'); }
+      finally  { btn.textContent = 'Post Comment'; btn.disabled = false; }
+    });
+
+    /* ── DELETE OWN COMMENT ── */
+    async function deleteOwnComment(commentId, projectId) {
+      if (!confirm('Delete your comment?')) return;
+      const el = document.getElementById(`pmc-${commentId}`);
+      el?.style.setProperty('opacity','0.3');
+      try {
+        const res  = await fetch(`${API}/${projectId}/comments/${commentId}/client`, {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clientId: currentClient.id })
+        });
+        const data = await res.json();
+        if (data.success !== false) {
+          el?.remove();
+          const badge = document.getElementById('pm-count');
+          badge.textContent = Math.max(0, parseInt(badge.textContent) - 1);
+          showBanner('success', 'Comment deleted.');
+        } else {
+          el?.style.setProperty('opacity','1');
+          showBanner('error', data.message || 'Failed to delete comment.');
+        }
+      } catch {
+        el?.style.setProperty('opacity','1');
+        showBanner('error', 'Server error.');
+      }
+    }
+
+    /* ── CLOSE MODAL ── */
+    function closeModal() {
+      document.getElementById('proj-modal-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+      currentProject = null;
+    }
+
+    /* ── LIGHTBOX ── */
+    function openLightbox(url) {
+      document.getElementById('pm-lb-img').src = url;
+      document.getElementById('pm-lightbox').classList.add('open');
+    }
+    function closeLightbox() { document.getElementById('pm-lightbox').classList.remove('open'); }
+
+    /* ── STAR RATING ── */
+    function renderStars(val) {
+      document.querySelectorAll('.si-star').forEach(s => {
+        s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+      });
+      document.getElementById('star-label').textContent =
+        val ? `${val} star${val>1?'s':''} selected` : 'Optional rating';
+    }
+    document.querySelectorAll('.si-star').forEach(s => {
+      s.addEventListener('mouseenter', () => {
+        document.querySelectorAll('.si-star').forEach(x =>
+          x.classList.toggle('hover', parseInt(x.dataset.val) <= parseInt(s.dataset.val)));
+      });
+      s.addEventListener('mouseleave', () => {
+        document.querySelectorAll('.si-star').forEach(x => x.classList.remove('hover'));
+      });
+      s.addEventListener('click', () => {
+        selectedRating = selectedRating === parseInt(s.dataset.val) ? 0 : parseInt(s.dataset.val);
+        renderStars(selectedRating);
+      });
+    });
+
+    /* ── BANNERS ── */
+    function showBanner(type, msg) {
+      hideBanners();
+      const el = document.getElementById(`pm-${type}`);
+      el.textContent   = msg;
+      el.style.display = 'block';
+    }
+    function hideBanners() {
+      ['pm-error','pm-success'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+    }
+
+    /* ── HELPERS ── */
+    function esc(str) {
+      return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function fmtDate(iso) {
+      if (!iso) return '';
+      return new Date(iso).toLocaleDateString('en-ZW', { day:'numeric', month:'short', year:'numeric' });
+    }
+    const AV_COLORS = ['#1a5fad','#e8762a','#3cb54a','#633cad','#c45e18'];
+    function avatarBg(initials) {
+      return AV_COLORS[(initials.charCodeAt(0)||0) % AV_COLORS.length];
+    }
+
+    /* ══ STATIC LISTENERS ══════════════════════════════════════ */
+    function setupStaticListeners() {
+      document.getElementById('pm-close').addEventListener('click', closeModal);
+      document.getElementById('proj-modal-overlay').addEventListener('click', e => {
+        if (e.target === document.getElementById('proj-modal-overlay')) closeModal();
+      });
+      document.getElementById('pm-lb-close').addEventListener('click', closeLightbox);
+      document.getElementById('pm-lightbox').addEventListener('click', e => {
+        if (e.target === document.getElementById('pm-lightbox')) closeLightbox();
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { closeLightbox(); closeModal(); }
+      });
+    }
+
+    /* ══ ORIGINAL PAGE SCRIPTS ══════════════════════════════════ */
+
+    /* ── NAVBAR SCROLL ── */
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => { navbar.classList.toggle('scrolled', window.scrollY > 40); });
+
+    /* ── MOBILE MENU ── */
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    hamburger.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.remove('open')));
+
+    /* ── SCROLL REVEAL ── */
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) { entry.target.classList.add('visible'); revealObserver.unobserve(entry.target); }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    /* ── COUNTER ANIMATION ── */
+    function animateCounter(el) {
+      const target = parseInt(el.dataset.target);
+      const start  = performance.now();
+      const update = (now) => {
+        const p = Math.min((now - start) / 1800, 1);
+        el.textContent = Math.floor((1 - Math.pow(1-p, 3)) * target);
+        if (p < 1) requestAnimationFrame(update); else el.textContent = target;
+      };
+      requestAnimationFrame(update);
+    }
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { animateCounter(e.target); counterObserver.unobserve(e.target); } });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.stat-num[data-target]').forEach(el => counterObserver.observe(el));
+
+    /* ── TESTIMONIAL CAROUSEL ── */
+    const testitCards = document.getElementById('testi-cards');
+    const testiDotsContainer = document.getElementById('testi-dots');
+    const testiPrev = document.getElementById('testi-prev');
+    const testiNext = document.getElementById('testi-next');
+    const cards = testitCards.querySelectorAll('.testi-card');
+    const total = cards.length;
+    let currentIndex = 0;
+    cards.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'testi-dot' + (i===0?' active':'');
+      dot.setAttribute('aria-label', `Testimonial ${i+1}`);
+      dot.addEventListener('click', () => goTo(i));
+      testiDotsContainer.appendChild(dot);
+    });
+    function getVisible() { return window.innerWidth < 520 ? 1 : window.innerWidth < 900 ? 2 : 3; }
+    function goTo(index) {
+      const max = Math.max(0, total - getVisible());
+      currentIndex = Math.min(Math.max(index, 0), max);
+      testitCards.style.transform = `translateX(-${currentIndex * (cards[0].offsetWidth + 24)}px)`;
+      testiDotsContainer.querySelectorAll('.testi-dot').forEach((d,i) => d.classList.toggle('active', i===currentIndex));
+    }
+    testiNext.addEventListener('click', () => goTo(currentIndex+1));
+    testiPrev.addEventListener('click', () => goTo(currentIndex-1));
+    let autoAdv = setInterval(() => goTo(currentIndex+1 > total-getVisible() ? 0 : currentIndex+1), 5000);
+    testitCards.addEventListener('mouseenter', () => clearInterval(autoAdv));
+    testitCards.addEventListener('mouseleave', () => { autoAdv = setInterval(() => goTo(currentIndex+1 > total-getVisible() ? 0 : currentIndex+1), 5000); });
+    window.addEventListener('resize', () => goTo(currentIndex));
+
+    /* ── SMOOTH SCROLL ── */
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const t = document.getElementById(a.getAttribute('href').slice(1));
+        if (t) { e.preventDefault(); window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - 72, behavior:'smooth' }); }
+      });
+    });
+
+    /* ── fadeInUp for filter ── */
+    const s = document.createElement('style');
+    s.textContent = `@keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }`;
+    document.head.appendChild(s);
+</script>
 </body>
 </html>

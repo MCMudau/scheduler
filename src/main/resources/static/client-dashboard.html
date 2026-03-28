@@ -46,7 +46,6 @@
           display: flex; align-items: center; justify-content: space-between;
           height: 68px;
         }
-
         .nav-logo { display: flex; align-items: center; gap: 12px; }
         .nav-icons { display: flex; gap: 5px; }
         .nav-icon { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
@@ -74,7 +73,7 @@
         /* ── Main ── */
         main { position: relative; z-index: 1; padding: 0 32px 80px; max-width: 1200px; margin: 0 auto; }
 
-        /* ── Hero welcome ── */
+        /* ── Hero ── */
         .hero {
           padding: 72px 0 48px;
           border-bottom: 1px solid rgba(255,255,255,0.07);
@@ -115,7 +114,6 @@
           box-shadow: 0 8px 30px rgba(37,211,102,0.3); transition: all 0.3s;
         }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(37,211,102,0.45); }
-
         .btn-calendar {
           padding: 14px 32px; border-radius: 12px;
           border: 1px solid rgba(26,95,173,0.5);
@@ -125,7 +123,6 @@
           transition: all 0.3s;
         }
         .btn-calendar:hover { background: rgba(26,95,173,0.3); border-color: rgba(26,95,173,0.8); transform: translateY(-2px); }
-
         .btn-secondary {
           padding: 14px 32px; border-radius: 12px;
           border: 1px solid rgba(255,255,255,0.18);
@@ -163,12 +160,8 @@
           transform: translateY(-3px);
           box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-        .card.calendar-card {
-          border-color: rgba(26,95,173,0.3);
-          background: rgba(26,95,173,0.08);
-        }
+        .card.calendar-card { border-color: rgba(26,95,173,0.3); background: rgba(26,95,173,0.08); }
         .card.calendar-card:hover { border-color: rgba(26,95,173,0.6); background: rgba(26,95,173,0.15); }
-
         .card-icon {
           width: 52px; height: 52px; border-radius: 14px;
           display: flex; align-items: center; justify-content: center;
@@ -177,7 +170,6 @@
         .card-icon.blue   { background: rgba(26,95,173,0.2); }
         .card-icon.orange { background: rgba(232,118,42,0.2); }
         .card-icon.green  { background: rgba(60,181,74,0.2); }
-
         .card-title { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 8px; }
         .card-desc  { font-size: 14px; color: var(--muted); line-height: 1.6; }
         .card-arrow { margin-top: 20px; font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; transition: gap 0.2s; }
@@ -197,7 +189,6 @@
 
         /* ── Projects Section ── */
         .projects-section { margin-bottom: 72px; }
-
         .section-header-block { margin-bottom: 32px; }
         .section-tag-badge {
           display: inline-block;
@@ -230,11 +221,13 @@
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.08);
           border-radius: 18px; overflow: hidden;
-          transition: all 0.3s;
+          transition: all 0.3s; cursor: pointer;
         }
         .project-card:hover { transform: translateY(-4px); box-shadow: 0 24px 60px rgba(0,0,0,0.35); border-color: rgba(255,255,255,0.15); }
+        .project-card:hover .pc-hint { opacity: 1; transform: translateY(0); }
         .pc-image { position: relative; height: 200px; overflow: hidden; }
         .pc-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+        .pc-image-placeholder { width: 100%; height: 100%; background: linear-gradient(135deg,#1a2e47,#0d1b2a); display: flex; align-items: center; justify-content: center; font-size: 36px; color: rgba(255,255,255,0.1); }
         .project-card:hover .pc-image img { transform: scale(1.05); }
         .pc-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(7,15,24,0.8) 0%, transparent 60%); display: flex; align-items: flex-end; padding: 16px; }
         .pc-cat { background: var(--orange); color: #fff; font-family: 'Oswald', sans-serif; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; }
@@ -255,8 +248,25 @@
         .comment-content strong { font-size: 12px; color: #fff; display: block; margin-bottom: 4px; }
         .comment-content p { font-size: 12px; color: var(--muted); line-height: 1.5; }
 
-        /* Hidden project cards */
-        .project-card[style*="display: none"] { display: none !important; }
+        /* Hover hint on cards */
+        .pc-hint {
+          font-size: 11px; font-weight: 700; letter-spacing: 1px;
+          text-transform: uppercase; color: var(--orange);
+          margin-top: 12px; opacity: 0;
+          transform: translateY(4px); transition: all 0.25s;
+        }
+
+        /* Skeleton loader */
+        .pc-skeleton {
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 18px; overflow: hidden;
+        }
+        .skel-img  { height: 200px; background: rgba(255,255,255,0.05); animation: shimmer 1.4s ease-in-out infinite; }
+        .skel-body { padding: 24px; }
+        .skel-line { height: 11px; border-radius: 6px; background: rgba(255,255,255,0.05); margin-bottom: 10px; animation: shimmer 1.4s ease-in-out infinite; }
+        .skel-line.w80 { width: 80%; } .skel-line.w60 { width: 60%; } .skel-line.w40 { width: 40%; }
+        @keyframes shimmer { 0%,100% { opacity:0.4; } 50% { opacity:0.8; } }
 
         /* ── Testimonials ── */
         .testimonials-section { margin-bottom: 72px; }
@@ -295,9 +305,7 @@
           border: 1px solid rgba(37,211,102,0.25);
           border-radius: 20px; padding: 40px;
           display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
-          gap: 24px;
-          animation: fadeUp 0.6s 0.6s ease both;
-          margin-bottom: 56px;
+          gap: 24px; animation: fadeUp 0.6s 0.6s ease both; margin-bottom: 56px;
         }
         .whatsapp-left h3 { font-family: 'Oswald', sans-serif; font-size: 24px; font-weight: 600; color: #fff; margin-bottom: 8px; }
         .whatsapp-left p  { font-size: 14px; color: var(--muted); }
@@ -321,6 +329,202 @@
 
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* ══════════════════════════════════════════════════════════
+           PROJECT DETAIL MODAL
+        ══════════════════════════════════════════════════════════ */
+        .proj-modal-overlay {
+          display: none; position: fixed; inset: 0;
+          background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+          z-index: 2000; align-items: center; justify-content: center; padding: 16px;
+        }
+        .proj-modal-overlay.open { display: flex; animation: pmOvIn 0.22s ease; }
+        @keyframes pmOvIn { from { opacity:0; } to { opacity:1; } }
+
+        .proj-modal {
+          background: #0f1e2f;
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 20px; width: 100%; max-width: 800px; max-height: 90vh;
+          display: flex; flex-direction: column; overflow: hidden;
+          box-shadow: 0 32px 80px rgba(0,0,0,0.7);
+          animation: pmIn 0.32s cubic-bezier(.16,1,.3,1) both;
+        }
+        @keyframes pmIn {
+          from { transform: scale(0.93) translateY(20px); opacity:0; }
+          to   { transform: scale(1) translateY(0); opacity:1; }
+        }
+
+        /* Modal header */
+        .pm-header {
+          display: flex; align-items: flex-start; justify-content: space-between;
+          padding: 20px 24px 16px; border-bottom: 1px solid rgba(255,255,255,0.08);
+          flex-shrink: 0; gap: 12px;
+        }
+        .pm-header-left { flex: 1; min-width: 0; }
+        .pm-title {
+          font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 600; color: #fff;
+          margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .pm-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .pm-chip {
+          font-size: 11px; padding: 3px 10px; border-radius: 20px;
+          background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+          color: rgba(255,255,255,0.5);
+        }
+        .pm-chip.cat { background: rgba(232,118,42,0.15); border-color: rgba(232,118,42,0.3); color: #f5b87a; }
+        .pm-close {
+          width: 32px; height: 32px; border: none; border-radius: 8px;
+          background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5);
+          font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0; transition: background 0.2s;
+        }
+        .pm-close:hover { background: rgba(255,255,255,0.13); color: #fff; }
+
+        /* Body */
+        .pm-body { overflow-y: auto; flex: 1; }
+        .pm-body::-webkit-scrollbar { width: 4px; }
+        .pm-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+        /* Description */
+        .pm-desc {
+          padding: 16px 24px; font-size: 14px; color: rgba(255,255,255,0.5);
+          line-height: 1.75; border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+
+        /* Image strip */
+        .pm-img-label {
+          padding: 16px 24px 8px; font-size: 10px; font-weight: 700;
+          letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.3);
+        }
+        .pm-img-strip {
+          display: flex; gap: 10px; overflow-x: auto;
+          padding: 0 24px 16px; scroll-snap-type: x mandatory;
+          border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .pm-img-strip::-webkit-scrollbar { height: 3px; }
+        .pm-img-strip::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+        .pm-img-item {
+          flex-shrink: 0; width: 220px; height: 148px; border-radius: 10px;
+          overflow: hidden; cursor: pointer; scroll-snap-align: start;
+          border: 2px solid transparent; transition: border-color 0.2s, transform 0.2s;
+        }
+        .pm-img-item:hover { border-color: var(--orange); transform: scale(1.02); }
+        .pm-img-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .pm-img-empty { font-size: 13px; color: rgba(255,255,255,0.2); padding: 20px 0; }
+
+        /* Comments */
+        .pm-comments-section { padding: 16px 24px 24px; }
+        .pm-comments-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .pm-comments-title { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.3); }
+        .pm-count {
+          font-size: 11px; color: rgba(255,255,255,0.25);
+          background: rgba(255,255,255,0.05); border-radius: 20px; padding: 2px 8px;
+        }
+
+        .pm-comment-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+
+        .pm-comment {
+          display: flex; gap: 10px; align-items: flex-start;
+          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 12px; padding: 12px 14px;
+        }
+        .pm-comment.own { border-color: rgba(232,118,42,0.3); background: rgba(232,118,42,0.05); }
+        .pm-c-avatar {
+          width: 32px; height: 32px; border-radius: 50%; background: var(--blue);
+          color: #fff; display: flex; align-items: center; justify-content: center;
+          font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 700; flex-shrink: 0;
+        }
+        .pm-c-body { flex: 1; min-width: 0; }
+        .pm-c-author { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+        .pm-c-name { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.8); }
+        .pm-c-date { font-size: 11px; color: rgba(255,255,255,0.25); }
+        .pm-c-you  { font-size: 10px; padding: 1px 6px; border-radius: 4px; background: rgba(232,118,42,0.2); color: #f5b87a; font-weight: 700; }
+        .pm-c-text { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.6; font-style: italic; }
+        .pm-c-stars { display: flex; gap: 1px; margin-top: 4px; }
+        .pm-c-stars .s { font-size: 11px; }
+        .pm-c-stars .s.on  { color: #f6c90e; }
+        .pm-c-stars .s.off { color: rgba(255,255,255,0.12); }
+        .pm-c-pending { font-size: 10px; padding: 1px 6px; border-radius: 4px; background: rgba(255,200,0,0.1); color: rgba(255,200,0,0.7); font-weight: 600; }
+
+        .pm-c-actions { flex-shrink: 0; }
+        .pm-c-del {
+          background: none; border: none; color: rgba(255,255,255,0.2);
+          cursor: pointer; font-size: 14px; padding: 4px; border-radius: 6px;
+          transition: color 0.2s, background 0.2s;
+        }
+        .pm-c-del:hover { color: #ff6b6b; background: rgba(255,80,80,0.1); }
+
+        .pm-no-comments { text-align: center; padding: 24px 0; font-size: 13px; color: rgba(255,255,255,0.2); }
+
+        /* Add comment form */
+        .pm-add-section {
+          border-top: 1px solid rgba(255,255,255,0.07);
+          padding-top: 18px;
+        }
+        .pm-add-label {
+          font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+          color: rgba(255,255,255,0.3); margin-bottom: 12px;
+        }
+
+        /* Star rating */
+        .star-input { display: flex; gap: 4px; margin-bottom: 4px; }
+        .si-star {
+          font-size: 22px; cursor: pointer; color: rgba(255,255,255,0.12);
+          transition: color 0.15s, transform 0.15s; user-select: none;
+        }
+        .si-star.on, .si-star.hover { color: #f6c90e; transform: scale(1.15); }
+        .star-hint { font-size: 11px; color: rgba(255,255,255,0.25); margin-bottom: 12px; }
+
+        .pm-textarea {
+          width: 100%; background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+          padding: 12px 14px; color: #fff; font-family: 'Lato', sans-serif;
+          font-size: 14px; resize: vertical; min-height: 80px; outline: none;
+          transition: border-color 0.2s; margin-bottom: 12px;
+        }
+        .pm-textarea::placeholder { color: rgba(255,255,255,0.2); }
+        .pm-textarea:focus { border-color: var(--orange); }
+
+        .pm-form-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+        .pm-posting-as { font-size: 12px; color: rgba(255,255,255,0.25); }
+
+        .pm-submit {
+          padding: 10px 24px; border: none; border-radius: 10px;
+          background: var(--orange); color: #fff;
+          font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600;
+          cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+        }
+        .pm-submit:hover { opacity: 0.88; transform: translateY(-1px); }
+        .pm-submit:disabled { opacity: 0.45; cursor: default; transform: none; }
+
+        /* Banners */
+        .pm-banner { border-radius: 8px; padding: 9px 14px; font-size: 13px; margin-bottom: 12px; display: none; }
+        .pm-banner.err { background: rgba(255,80,80,0.1); border: 1px solid rgba(255,80,80,0.28); color: #ff9898; }
+        .pm-banner.ok  { background: rgba(60,181,74,0.1);  border: 1px solid rgba(60,181,74,0.28);  color: #7fe88a; }
+
+        /* ── Lightbox ── */
+        #pm-lightbox {
+          display: none; position: fixed; inset: 0;
+          background: rgba(0,0,0,0.94); z-index: 3000;
+          align-items: center; justify-content: center; padding: 20px;
+        }
+        #pm-lightbox.open { display: flex; }
+        .pm-lb-img { max-width: 90vw; max-height: 88vh; border-radius: 8px; object-fit: contain; }
+        .pm-lb-close {
+          position: absolute; top: 16px; right: 20px;
+          background: rgba(255,255,255,0.1); border: none; color: #fff;
+          font-size: 22px; width: 40px; height: 40px; border-radius: 50%;
+          cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* ── Spinner ── */
+        .pm-spin {
+          display: inline-block; width: 14px; height: 14px;
+          border: 2px solid rgba(255,255,255,0.25); border-top-color: #fff;
+          border-radius: 50%; animation: spin 0.7s linear infinite;
+          vertical-align: middle; margin-right: 6px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
         @media (max-width: 640px) {
           nav, main { padding-left: 20px; padding-right: 20px; }
           .hero { padding: 48px 0 32px; }
@@ -328,6 +532,7 @@
           footer { flex-direction: column; text-align: center; }
           .hero-actions { flex-direction: column; }
           .projects-grid { grid-template-columns: 1fr; }
+          .pm-img-item { width: 180px; height: 120px; }
         }
     </style>
 </head>
@@ -354,7 +559,6 @@
     </div>
 </nav>
 
-<!-- MAIN -->
 <main>
 
     <!-- HERO -->
@@ -367,21 +571,15 @@
             Welcome to your Mpho Yanga Construction client portal. Book appointments, explore our past work, and reach out anytime — we're here for you.
         </p>
         <div class="hero-actions">
-            <a href="client-calendar.html" class="btn-calendar">
-                📅 View Calendar &amp; Book Appointment
-            </a>
-            <a href="https://wa.me/263770000000" class="btn-primary" target="_blank">
-                📲 Chat on WhatsApp
-            </a>
-            <a href="tel:+263770000000" class="btn-secondary">
-                📞 Call Us
-            </a>
+            <a href="client-calendar.html" class="btn-calendar">📅 View Calendar &amp; Book Appointment</a>
+            <a href="https://wa.me/263770000000" class="btn-primary" target="_blank">📲 Chat on WhatsApp</a>
+            <a href="tel:+263770000000" class="btn-secondary">📞 Call Us</a>
         </div>
     </section>
 
     <!-- QUICK ACTIONS -->
     <p class="section-label">Quick Actions</p>
-    <a class="cards-grid">
+    <div class="cards-grid">
         <a href="client-calendar.html" class="card calendar-card" style="animation-delay:0.1s;">
             <div class="card-icon blue">📅</div>
             <div class="card-title">Book an Appointment</div>
@@ -394,14 +592,12 @@
             <div class="card-desc">Tell us about your project and we'll get back to you with a detailed quote within 24 hours.</div>
             <div class="card-arrow">Get started <span>→</span></div>
         </a>
-
-            <a href="client-projects.html" class="card calendar-card" style="animation-delay:0.1s;">
+        <a href="client-projects.html" class="card calendar-card" style="animation-delay:0.1s;">
             <div class="card-icon green">🧾</div>
             <div class="card-title">My Projects</div>
-            <div class="card-desc">View and Track your Projects,in one Place.</div>
+            <div class="card-desc">View and track your projects in one place.</div>
             <div class="card-arrow">Manage Projects <span>→</span></div>
-            </a>
-
+        </a>
     </div>
 
     <!-- SERVICES -->
@@ -415,162 +611,28 @@
         <div class="service-pill">🔨 Renovations</div>
     </div>
 
-    <!-- PROJECTS -->
+    <!-- PAST PROJECTS -->
     <section class="projects-section">
         <div class="section-header-block">
             <span class="section-tag-badge">Our Work</span>
             <h2 class="section-big-title">Past <em>Projects</em></h2>
-            <p class="section-big-sub">A selection of completed work across Zimbabwe. Real projects, real results.</p>
+            <p class="section-big-sub">A selection of completed work across Zimbabwe. Click any project to view photos and leave a comment.</p>
         </div>
 
         <div class="filter-tabs">
             <button class="filter-btn active" data-filter="all">All</button>
-            <button class="filter-btn" data-filter="plumbing">Plumbing</button>
-            <button class="filter-btn" data-filter="tiling">Tiling</button>
-            <button class="filter-btn" data-filter="painting">Painting</button>
-            <button class="filter-btn" data-filter="ceiling">Ceilings</button>
+            <button class="filter-btn" data-filter="PLUMBING">Plumbing</button>
+            <button class="filter-btn" data-filter="TILING">Tiling</button>
+            <button class="filter-btn" data-filter="PAINTING">Painting</button>
+            <button class="filter-btn" data-filter="CEILING">Ceilings</button>
+            <button class="filter-btn" data-filter="RENOVATION">Renovation</button>
         </div>
 
+        <!-- Dynamic grid filled by JS -->
         <div class="projects-grid" id="projects-grid">
-
-            <div class="project-card" data-category="tiling">
-                <div class="pc-image">
-                    <img src="https://images.unsplash.com/photo-1604709177225-055f99402ea3?w=600&q=80" alt="Bathroom tiling project" loading="lazy">
-                    <div class="pc-overlay"><span class="pc-cat">Tiling</span></div>
-                </div>
-                <div class="pc-body">
-                    <div class="pc-meta">
-                        <h3>Luxury Bathroom Renovation</h3>
-                        <span class="pc-loc">📍 Harare, 2024</span>
-                    </div>
-                    <p class="pc-desc">Full floor and wall tiling with large format porcelain tiles. Included waterproofing, feature wall and underfloor heating grid installation.</p>
-                    <div class="pc-comments">
-                        <div class="comment-header"><span>💬 Client Comments</span><span class="comment-count">2 comments</span></div>
-                        <div class="comment">
-                            <div class="comment-avatar blue">TM</div>
-                            <div class="comment-content"><strong>Tendai M.</strong><p>"The finish is absolutely immaculate. They cleaned up after themselves every single day. Highly recommend!"</p></div>
-                        </div>
-                        <div class="comment">
-                            <div class="comment-avatar orange">RN</div>
-                            <div class="comment-content"><strong>Rudo N.</strong><p>"Perfect grouting, no hollow tiles. You can tell they take their time and do it right."</p></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="project-card" data-category="painting">
-                <div class="pc-image">
-                    <img src="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=600&q=80" alt="Exterior painting project" loading="lazy">
-                    <div class="pc-overlay"><span class="pc-cat">Painting</span></div>
-                </div>
-                <div class="pc-body">
-                    <div class="pc-meta">
-                        <h3>Commercial Building Repaint</h3>
-                        <span class="pc-loc">📍 Bulawayo, 2024</span>
-                    </div>
-                    <p class="pc-desc">Complete exterior repaint of a 3-storey commercial building. Surface preparation, crack filling, primer coat and two finish coats using weatherproof paint.</p>
-                    <div class="pc-comments">
-                        <div class="comment-header"><span>💬 Client Comments</span><span class="comment-count">1 comment</span></div>
-                        <div class="comment">
-                            <div class="comment-avatar green">SM</div>
-                            <div class="comment-content"><strong>Simba M.</strong><p>"Done on time, within budget. The building looks brand new. My tenants have been complimenting it."</p></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="project-card" data-category="ceiling">
-                <div class="pc-image">
-                    <img src="https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=600&q=80" alt="Ceiling installation" loading="lazy">
-                    <div class="pc-overlay"><span class="pc-cat">Ceilings</span></div>
-                </div>
-                <div class="pc-body">
-                    <div class="pc-meta">
-                        <h3>Gypsum Ceiling — 5 Bedroom Home</h3>
-                        <span class="pc-loc">📍 Harare, 2023</span>
-                    </div>
-                    <p class="pc-desc">Full gypsum ceiling installation throughout a new build. Included recessed lighting cutouts, coving, cornices and a smooth skim finish ready for painting.</p>
-                    <div class="pc-comments">
-                        <div class="comment-header"><span>💬 Client Comments</span><span class="comment-count">2 comments</span></div>
-                        <div class="comment">
-                            <div class="comment-avatar blue">PN</div>
-                            <div class="comment-content"><strong>Patricia N.</strong><p>"Perfectly level throughout. No cracks, no sagging. They even helped me pick the right cornice style."</p></div>
-                        </div>
-                        <div class="comment">
-                            <div class="comment-avatar orange">JM</div>
-                            <div class="comment-content"><strong>Joseph M.</strong><p>"Finished in 4 days, which was ahead of schedule. Very neat team."</p></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="project-card" data-category="plumbing">
-                <div class="pc-image">
-                    <img src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600&q=80" alt="Plumbing installation" loading="lazy">
-                    <div class="pc-overlay"><span class="pc-cat">Plumbing</span></div>
-                </div>
-                <div class="pc-body">
-                    <div class="pc-meta">
-                        <h3>Full Plumbing — New Build</h3>
-                        <span class="pc-loc">📍 Chitungwiza, 2023</span>
-                    </div>
-                    <p class="pc-desc">Complete plumbing installation for a new residential property — 3 bathrooms, kitchen, laundry room. All pipework, fixtures and hot water system.</p>
-                    <div class="pc-comments">
-                        <div class="comment-header"><span>💬 Client Comments</span><span class="comment-count">1 comment</span></div>
-                        <div class="comment">
-                            <div class="comment-avatar green">FM</div>
-                            <div class="comment-content"><strong>Farai M.</strong><p>"No leaks, no issues, everything works perfectly. They explained everything they were doing. Very professional."</p></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="project-card" data-category="tiling">
-                <div class="pc-image">
-                    <img src="https://images.unsplash.com/photo-1600585152220-90363fe7e115?w=600&q=80" alt="Kitchen tiling" loading="lazy">
-                    <div class="pc-overlay"><span class="pc-cat">Tiling</span></div>
-                </div>
-                <div class="pc-body">
-                    <div class="pc-meta">
-                        <h3>Kitchen &amp; Patio Tiling</h3>
-                        <span class="pc-loc">📍 Harare, 2024</span>
-                    </div>
-                    <p class="pc-desc">Kitchen floor and splashback tiling plus outdoor patio with anti-slip porcelain tiles. Clean diagonal pattern with matching grout finish.</p>
-                    <div class="pc-comments">
-                        <div class="comment-header"><span>💬 Client Comments</span><span class="comment-count">1 comment</span></div>
-                        <div class="comment">
-                            <div class="comment-avatar blue">AN</div>
-                            <div class="comment-content"><strong>Anesu N.</strong><p>"My kitchen looks like something from a magazine. Couldn't be happier with the result."</p></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="project-card" data-category="painting">
-                <div class="pc-image">
-                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80" alt="Interior painting" loading="lazy">
-                    <div class="pc-overlay"><span class="pc-cat">Painting</span></div>
-                </div>
-                <div class="pc-body">
-                    <div class="pc-meta">
-                        <h3>Full Interior — Family Home</h3>
-                        <span class="pc-loc">📍 Gweru, 2024</span>
-                    </div>
-                    <p class="pc-desc">Interior repaint of a 4-bedroom family home. Colour consultation included, walls and ceilings, feature walls in living and master bedroom.</p>
-                    <div class="pc-comments">
-                        <div class="comment-header"><span>💬 Client Comments</span><span class="comment-count">2 comments</span></div>
-                        <div class="comment">
-                            <div class="comment-avatar orange">CM</div>
-                            <div class="comment-content"><strong>Chipo M.</strong><p>"Transformed our home completely. The colour advice they gave us was spot on. Very happy!"</p></div>
-                        </div>
-                        <div class="comment">
-                            <div class="comment-avatar green">DZ</div>
-                            <div class="comment-content"><strong>David Z.</strong><p>"Clean edges, no mess on the floors. Real professionals."</p></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            <div class="pc-skeleton"><div class="skel-img"></div><div class="skel-body"><div class="skel-line w80"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
+            <div class="pc-skeleton"><div class="skel-img"></div><div class="skel-body"><div class="skel-line w80"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
+            <div class="pc-skeleton"><div class="skel-img"></div><div class="skel-body"><div class="skel-line w80"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
         </div>
     </section>
 
@@ -581,49 +643,13 @@
             <h2 class="section-big-title">Real <em style="color:var(--green);">Testimonials</em></h2>
             <p class="section-big-sub">Don't take our word for it — hear it from the people we've worked for.</p>
         </div>
-
         <div class="testimonials-track">
             <div class="testi-cards" id="testi-cards">
-                <div class="testi-card">
-                    <div class="testi-stars">★★★★★</div>
-                    <blockquote>"Mpho Yanga did our entire home — tiling, painting and ceilings. The quality was exceptional and they finished on time. I refer them to everyone I know."</blockquote>
-                    <div class="testi-author">
-                        <div class="testi-avatar blue">NM</div>
-                        <div><strong>Nyasha Moyo</strong><span>Homeowner · Harare</span></div>
-                    </div>
-                </div>
-                <div class="testi-card">
-                    <div class="testi-stars">★★★★★</div>
-                    <blockquote>"We had a burst pipe emergency and they were on site within 2 hours. Fixed it properly and gave us a written report. Saved us from serious damage."</blockquote>
-                    <div class="testi-author">
-                        <div class="testi-avatar orange">BK</div>
-                        <div><strong>Blessing Kambarami</strong><span>Property Manager · Bulawayo</span></div>
-                    </div>
-                </div>
-                <div class="testi-card">
-                    <div class="testi-stars">★★★★★</div>
-                    <blockquote>"The ceiling installation was flawless. I was nervous because of previous contractors who left a mess — Mpho Yanga were clean, punctual and professional throughout."</blockquote>
-                    <div class="testi-author">
-                        <div class="testi-avatar green">TR</div>
-                        <div><strong>Tarisai Rusike</strong><span>Homeowner · Chitungwiza</span></div>
-                    </div>
-                </div>
-                <div class="testi-card">
-                    <div class="testi-stars">★★★★★</div>
-                    <blockquote>"Used them for painting our office block and warehouse. Very competitive pricing and the finish quality matched what I saw on their portfolio. Will use again."</blockquote>
-                    <div class="testi-author">
-                        <div class="testi-avatar blue">KD</div>
-                        <div><strong>Kudakwashe Dube</strong><span>Business Owner · Gweru</span></div>
-                    </div>
-                </div>
-                <div class="testi-card">
-                    <div class="testi-stars">★★★★★</div>
-                    <blockquote>"They tiled our new kitchen and bathrooms and the work is beautiful. Neat, precise and they gave us tips on maintenance. Genuinely good people to work with."</blockquote>
-                    <div class="testi-author">
-                        <div class="testi-avatar orange">SM</div>
-                        <div><strong>Sithembile Mpofu</strong><span>Homeowner · Masvingo</span></div>
-                    </div>
-                </div>
+                <div class="testi-card"><div class="testi-stars">★★★★★</div><blockquote>"Mpho Yanga did our entire home — tiling, painting and ceilings. The quality was exceptional and they finished on time. I refer them to everyone I know."</blockquote><div class="testi-author"><div class="testi-avatar blue">NM</div><div><strong>Nyasha Moyo</strong><span>Homeowner · Harare</span></div></div></div>
+                <div class="testi-card"><div class="testi-stars">★★★★★</div><blockquote>"We had a burst pipe emergency and they were on site within 2 hours. Fixed it properly and gave us a written report. Saved us from serious damage."</blockquote><div class="testi-author"><div class="testi-avatar orange">BK</div><div><strong>Blessing Kambarami</strong><span>Property Manager · Bulawayo</span></div></div></div>
+                <div class="testi-card"><div class="testi-stars">★★★★★</div><blockquote>"The ceiling installation was flawless. Mpho Yanga were clean, punctual and professional throughout."</blockquote><div class="testi-author"><div class="testi-avatar green">TR</div><div><strong>Tarisai Rusike</strong><span>Homeowner · Chitungwiza</span></div></div></div>
+                <div class="testi-card"><div class="testi-stars">★★★★★</div><blockquote>"Used them for painting our office block and warehouse. Very competitive pricing and the finish quality matched what I saw on their portfolio. Will use again."</blockquote><div class="testi-author"><div class="testi-avatar blue">KD</div><div><strong>Kudakwashe Dube</strong><span>Business Owner · Gweru</span></div></div></div>
+                <div class="testi-card"><div class="testi-stars">★★★★★</div><blockquote>"They tiled our new kitchen and bathrooms and the work is beautiful. Neat, precise and they gave us tips on maintenance."</blockquote><div class="testi-author"><div class="testi-avatar orange">SM</div><div><strong>Sithembile Mpofu</strong><span>Homeowner · Masvingo</span></div></div></div>
             </div>
         </div>
         <div class="testi-controls">
@@ -647,92 +673,418 @@
 
 </main>
 
-<!-- FOOTER -->
 <footer>
     <span>© 2025 Mpho Yanga Construction · BP No. 0200269091 · Zimbabwe</span>
     <span>Built with trust, delivered with pride.</span>
 </footer>
 
+<!-- ══ PROJECT DETAIL MODAL ════════════════════════════════════════ -->
+<div class="proj-modal-overlay" id="proj-modal-overlay">
+    <div class="proj-modal">
+        <div class="pm-header">
+            <div class="pm-header-left">
+                <div class="pm-title" id="pm-title">Project</div>
+                <div class="pm-chips" id="pm-chips"></div>
+            </div>
+            <button class="pm-close" id="pm-close">&times;</button>
+        </div>
+
+        <div class="pm-body">
+            <p class="pm-desc" id="pm-desc"></p>
+
+            <div class="pm-img-label">📷 Project Photos</div>
+            <div class="pm-img-strip" id="pm-img-strip"></div>
+
+            <div class="pm-comments-section">
+                <div class="pm-comments-header">
+                    <span class="pm-comments-title">💬 Client Comments</span>
+                    <span class="pm-count" id="pm-count">0</span>
+                </div>
+
+                <div class="pm-banner err" id="pm-err"></div>
+                <div class="pm-banner ok"  id="pm-ok"></div>
+
+                <div class="pm-comment-list" id="pm-comment-list">
+                    <div class="pm-no-comments">Loading comments…</div>
+                </div>
+
+                <!-- Add comment — always visible since client is logged in -->
+                <div class="pm-add-section" id="pm-add-section">
+                    <div class="pm-add-label">Leave Your Comment</div>
+                    <div class="star-input" id="star-input">
+                        <span class="si-star" data-v="1">★</span>
+                        <span class="si-star" data-v="2">★</span>
+                        <span class="si-star" data-v="3">★</span>
+                        <span class="si-star" data-v="4">★</span>
+                        <span class="si-star" data-v="5">★</span>
+                    </div>
+                    <div class="star-hint" id="star-hint">Optional star rating — click to set</div>
+                    <textarea class="pm-textarea" id="pm-text" placeholder="Share your experience with this project…"></textarea>
+                    <div class="pm-form-row">
+                        <span class="pm-posting-as" id="pm-posting-as"></span>
+                        <button class="pm-submit" id="pm-submit">Post Comment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ LIGHTBOX ════════════════════════════════════════════════════ -->
+<div id="pm-lightbox">
+    <button class="pm-lb-close" id="pm-lb-close">&times;</button>
+    <img class="pm-lb-img" id="pm-lb-img" src="" alt="">
+</div>
+
 <script>
-    // ── Greeting ──
-    const hour = new Date().getHours();
-    const timeGreeting = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
-    document.getElementById('time-greeting').textContent = timeGreeting;
+    const API      = `${window.location.origin}/api/previous-projects`;
+    const SESS_API = `${window.location.origin}/api/client/session`;
 
-    fetch('/api/client/session', {
-    method: 'GET',
-    credentials: 'include' // VERY IMPORTANT
-})
-.then(res => {
-    if (!res.ok) throw new Error("Not logged in");
-    return res.json();
-})
-.then(data => {
-    const name = data.name;
+    let allProjects    = [];
+    let currentProject = null;
+    let currentClient  = null;
+    let selectedRating = 0;
 
-    document.getElementById('client-name').textContent = name;
-    document.getElementById('nav-name').textContent = name;
+    const CAT_LABEL = { PLUMBING:'Plumbing', TILING:'Tiling', PAINTING:'Painting', CEILING:'Ceilings', RENOVATION:'Renovation', OTHER:'Other' };
 
-    const initial = name.charAt(0).toUpperCase();
-    document.getElementById('nav-avatar').textContent = initial;
-})
-.catch(() => {
-    window.location.href = '/login';
-});
+    /* ══ INIT ════════════════════════════════════════════════════ */
+    document.addEventListener('DOMContentLoaded', async () => {
+        setupGreeting();
+        await loadSession();
+        await loadProjects();
+        setupListeners();
+        setupTestimonials();
+    });
 
-
-
-    // ── Client name from session ──
-    //const storedName = sessionStorage.getItem('clientName') || 'there';
-    //document.getElementById('client-name').textContent = storedName;
-    //document.getElementById('nav-name').textContent = storedName;
-    //const initial = storedName.charAt(0).toUpperCase();
-    //if (initial && storedName !== 'there') document.getElementById('nav-avatar').textContent = initial;
-
-    function logout() {
-      sessionStorage.clear();
-      window.location.href = '/login';
+    function setupGreeting() {
+        const h = new Date().getHours();
+        document.getElementById('time-greeting').textContent = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
     }
 
-    // ── Project filter ──
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const filter = btn.dataset.filter;
-        document.querySelectorAll('.project-card').forEach(card => {
-          const show = filter === 'all' || card.dataset.category === filter;
-          card.style.display = show ? '' : 'none';
+    async function loadSession() {
+        try {
+            const res = await fetch(SESS_API, { credentials: 'include' });
+            if (!res.ok) { window.location.href = '/login'; return; }
+            const data = await res.json();
+            currentClient = data.data || (data.id ? data : null) || data;
+
+            const name = currentClient?.name || data.name || 'Friend';
+            const surname = currentClient?.surname || data.surname || '';
+            const initial = name.charAt(0).toUpperCase();
+
+            document.getElementById('client-name').textContent = name;
+            document.getElementById('nav-name').textContent    = name;
+            document.getElementById('nav-avatar').textContent  = initial;
+
+            // Ensure currentClient has id and name for comment posting
+            if (!currentClient?.id && data.id) currentClient = data;
+
+        } catch {
+            window.location.href = '/login';
+        }
+    }
+
+    /* ══ LOAD & RENDER PROJECTS ══════════════════════════════════ */
+    async function loadProjects() {
+        try {
+            const res  = await fetch(`${API}/published`);
+            const data = await res.json();
+            allProjects = data.data || data || [];
+            renderGrid(allProjects);
+            setupFilters();
+        } catch {
+            document.getElementById('projects-grid').innerHTML =
+                `<p style="color:var(--muted);grid-column:1/-1;padding:40px 0;text-align:center;">Could not load projects. Please try again later.</p>`;
+        }
+    }
+
+    function renderGrid(list) {
+        const grid = document.getElementById('projects-grid');
+        if (!list.length) {
+            grid.innerHTML = `<p style="color:var(--muted);grid-column:1/-1;padding:60px 0;text-align:center;font-size:15px;">No published projects yet.</p>`;
+            return;
+        }
+        const AVCOLORS = ['blue','orange','green'];
+        grid.innerHTML = list.map(p => {
+            const cover   = p.coverImageUrl || p.images?.[0]?.imageUrl || null;
+            const catLabel = CAT_LABEL[p.category] || p.category;
+            const count   = p.approvedCommentCount ?? 0;
+            const preview = (p.recentComments || []).slice(0, 2);
+
+            return `
+            <div class="project-card" data-category="${p.category}" data-id="${p.id}" onclick="openModal(${p.id})">
+                <div class="pc-image">
+                    ${cover
+                        ? `<img src="${cover}" alt="${esc(p.name)}" loading="lazy">`
+                        : `<div class="pc-image-placeholder">🏗️</div>`}
+                    <div class="pc-overlay"><span class="pc-cat">${catLabel}</span></div>
+                </div>
+                <div class="pc-body">
+                    <div class="pc-meta">
+                        <h3>${esc(p.name)}</h3>
+                        <span class="pc-loc">📍 ${esc(p.location)}${p.completionYear ? `, ${p.completionYear}` : ''}</span>
+                    </div>
+                    <p class="pc-desc">${esc((p.description||'').slice(0,110))}${(p.description||'').length>110?'…':''}</p>
+                    <div class="pc-comments">
+                        <div class="comment-header">
+                            <span>💬 Client Comments</span>
+                            <span class="comment-count">${count} comment${count!==1?'s':''}</span>
+                        </div>
+                        ${preview.length
+                            ? preview.map((c,i) => {
+                                const ini = initials(c.authorDisplayName);
+                                return `<div class="comment">
+                                    <div class="comment-avatar ${AVCOLORS[i%3]}">${ini}</div>
+                                    <div class="comment-content">
+                                        <strong>${esc(c.authorDisplayName)}</strong>
+                                        <p>"${esc((c.content||'').slice(0,80))}${(c.content||'').length>80?'…':''}"</p>
+                                    </div>
+                                </div>`;}).join('')
+                            : `<p style="font-size:12px;color:var(--muted);font-style:italic;">No comments yet — be the first!</p>`}
+                    </div>
+                    <div class="pc-hint">Tap to view photos &amp; comment →</div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function setupFilters() {
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const f = btn.dataset.filter;
+                document.querySelectorAll('.project-card').forEach(card => {
+                    card.style.display = (f==='all' || card.dataset.category===f) ? '' : 'none';
+                });
+            });
         });
-      });
-    });
-
-    // ── Testimonials carousel ──
-    const track = document.getElementById('testi-cards');
-    const dotsContainer = document.getElementById('testi-dots');
-    const cards = track.querySelectorAll('.testi-card');
-    let current = 0;
-    let autoTimer;
-
-    cards.forEach((_, i) => {
-      const dot = document.createElement('button');
-      dot.className = 'testi-dot' + (i === 0 ? ' active' : '');
-      dot.addEventListener('click', () => goTo(i));
-      dotsContainer.appendChild(dot);
-    });
-
-    function goTo(idx) {
-      current = (idx + cards.length) % cards.length;
-      track.style.transform = `translateX(-${current * 100}%)`;
-      document.querySelectorAll('.testi-dot').forEach((d, i) => d.classList.toggle('active', i === current));
     }
 
-    function startAuto() { autoTimer = setInterval(() => goTo(current + 1), 5000); }
-    function resetAuto() { clearInterval(autoTimer); startAuto(); }
+    /* ══ MODAL ═══════════════════════════════════════════════════ */
+    async function openModal(id) {
+        currentProject = allProjects.find(p => p.id === id) || null;
+        if (!currentProject) return;
 
-    document.getElementById('testi-prev').addEventListener('click', () => { goTo(current - 1); resetAuto(); });
-    document.getElementById('testi-next').addEventListener('click', () => { goTo(current + 1); resetAuto(); });
-    startAuto();
+        // Reset
+        selectedRating = 0; renderStars(0);
+        document.getElementById('pm-text').value = '';
+        clearBanners();
+
+        // Header
+        document.getElementById('pm-title').textContent = currentProject.name;
+        document.getElementById('pm-chips').innerHTML = `
+            <span class="pm-chip cat">${CAT_LABEL[currentProject.category]||currentProject.category}</span>
+            <span class="pm-chip">📍 ${esc(currentProject.location)}</span>
+            ${currentProject.completionYear ? `<span class="pm-chip">📅 ${currentProject.completionYear}</span>` : ''}`;
+        document.getElementById('pm-desc').textContent = currentProject.description || '';
+
+        // Images
+        const strip = document.getElementById('pm-img-strip');
+        strip.innerHTML = (currentProject.images?.length)
+            ? currentProject.images.map(img =>
+                `<div class="pm-img-item" onclick="openLightbox('${img.imageUrl}')">
+                    <img src="${img.imageUrl}" alt="" loading="lazy">
+                </div>`).join('')
+            : '<span class="pm-img-empty">No photos uploaded yet.</span>';
+
+        // Posting-as label (client is always logged in here)
+        if (currentClient) {
+            const fullName = `${currentClient.name||''} ${currentClient.surname||''}`.trim();
+            document.getElementById('pm-posting-as').textContent = `Posting as ${fullName}`;
+        }
+
+        document.getElementById('proj-modal-overlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+
+        await loadComments(id);
+    }
+
+    async function loadComments(projectId) {
+        const list  = document.getElementById('pm-comment-list');
+        const badge = document.getElementById('pm-count');
+        list.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;"><span class="pm-spin"></span> Loading…</div>`;
+
+        try {
+            const res  = await fetch(`${API}/${projectId}/comments`);
+            const data = await res.json();
+            const comments = data.data || data || [];
+            badge.textContent = comments.length;
+            renderComments(comments, projectId);
+        } catch {
+            list.innerHTML = '<div class="pm-no-comments">Could not load comments.</div>';
+        }
+    }
+
+    function renderComments(comments, projectId) {
+        const list = document.getElementById('pm-comment-list');
+        if (!comments.length) {
+            list.innerHTML = '<div class="pm-no-comments">No approved comments yet — yours will appear after review!</div>';
+            return;
+        }
+        list.innerHTML = comments.map(c => {
+            const ini      = initials(c.authorDisplayName);
+            const isOwn    = currentClient && c.client && c.client.id === currentClient.id;
+            const stars    = c.rating
+                ? `<div class="pm-c-stars">${[1,2,3,4,5].map(n=>`<span class="s ${n<=c.rating?'on':'off'}">★</span>`).join('')}</div>`
+                : '';
+            return `
+            <div class="pm-comment ${isOwn?'own':''}" id="pmc-${c.id}">
+                <div class="pm-c-avatar" style="background:${avatarColor(ini)}">${ini}</div>
+                <div class="pm-c-body">
+                    <div class="pm-c-author">
+                        <span class="pm-c-name">${esc(c.authorDisplayName)}</span>
+                        <span class="pm-c-date">${fmtDate(c.createdAt)}</span>
+                        ${isOwn ? '<span class="pm-c-you">You</span>' : ''}
+                    </div>
+                    ${stars}
+                    <p class="pm-c-text">"${esc(c.content)}"</p>
+                </div>
+                ${isOwn ? `<div class="pm-c-actions">
+                    <button class="pm-c-del" title="Delete your comment" onclick="deleteOwnComment(${c.id},${projectId})">🗑</button>
+                </div>` : ''}
+            </div>`;
+        }).join('');
+    }
+
+    /* ── Post comment ── */
+    document.getElementById('pm-submit').addEventListener('click', async () => {
+        if (!currentClient || !currentProject) return;
+        const content = document.getElementById('pm-text').value.trim();
+        if (!content) { showErr('Please write something before posting.'); return; }
+
+        const btn = document.getElementById('pm-submit');
+        btn.innerHTML = '<span class="pm-spin"></span>Posting…'; btn.disabled = true;
+        clearBanners();
+
+        try {
+            const res  = await fetch(`${API}/${currentProject.id}/comments/client`, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    clientId: currentClient.id,
+                    content,
+                    rating: selectedRating || null
+                })
+            });
+            const data = await res.json();
+            if (data.success !== false) {
+                document.getElementById('pm-text').value = '';
+                selectedRating = 0; renderStars(0);
+                showOk('Comment submitted! It will appear once approved by our team. 🎉');
+                await loadComments(currentProject.id);
+            } else {
+                showErr(data.message || 'Failed to post comment.');
+            }
+        } catch { showErr('Server error. Please try again.'); }
+        finally  { btn.textContent = 'Post Comment'; btn.disabled = false; }
+    });
+
+    /* ── Delete own comment ── */
+    async function deleteOwnComment(commentId, projectId) {
+        if (!confirm('Delete your comment?')) return;
+        const el = document.getElementById(`pmc-${commentId}`);
+        el?.style.setProperty('opacity','0.3');
+        try {
+            const res  = await fetch(`${API}/${projectId}/comments/${commentId}/client`, {
+                method:  'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ clientId: currentClient.id })
+            });
+            const data = await res.json();
+            if (data.success !== false) {
+                el?.remove();
+                const b = document.getElementById('pm-count');
+                b.textContent = Math.max(0, parseInt(b.textContent) - 1);
+                showOk('Comment deleted.');
+            } else {
+                el?.style.setProperty('opacity','1');
+                showErr(data.message || 'Failed to delete comment.');
+            }
+        } catch {
+            el?.style.setProperty('opacity','1');
+            showErr('Server error.');
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('proj-modal-overlay').classList.remove('open');
+        document.body.style.overflow = '';
+        currentProject = null;
+    }
+
+    /* ── Lightbox ── */
+    function openLightbox(url) {
+        document.getElementById('pm-lb-img').src = url;
+        document.getElementById('pm-lightbox').classList.add('open');
+    }
+    function closeLightbox() { document.getElementById('pm-lightbox').classList.remove('open'); }
+
+    /* ── Star rating ── */
+    function renderStars(val) {
+        document.querySelectorAll('.si-star').forEach(s => s.classList.toggle('on', parseInt(s.dataset.v) <= val));
+        document.getElementById('star-hint').textContent = val ? `${val} star${val>1?'s':''} selected` : 'Optional star rating — click to set';
+    }
+    document.querySelectorAll('.si-star').forEach(s => {
+        s.addEventListener('mouseenter', () => document.querySelectorAll('.si-star').forEach(x => x.classList.toggle('hover', parseInt(x.dataset.v) <= parseInt(s.dataset.v))));
+        s.addEventListener('mouseleave', () => document.querySelectorAll('.si-star').forEach(x => x.classList.remove('hover')));
+        s.addEventListener('click',      () => { selectedRating = selectedRating===parseInt(s.dataset.v)?0:parseInt(s.dataset.v); renderStars(selectedRating); });
+    });
+
+    /* ── Banners ── */
+    function showErr(m) { const e=document.getElementById('pm-err'); e.textContent=m; e.style.display='block'; document.getElementById('pm-ok').style.display='none'; }
+    function showOk(m)  { const e=document.getElementById('pm-ok');  e.textContent=m; e.style.display='block'; document.getElementById('pm-err').style.display='none'; }
+    function clearBanners() { ['pm-err','pm-ok'].forEach(id => document.getElementById(id).style.display='none'); }
+
+    /* ── Helpers ── */
+    function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function initials(name) { return (name||'C').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+    function fmtDate(iso) { if(!iso) return ''; return new Date(iso).toLocaleDateString('en-ZW',{day:'numeric',month:'short',year:'numeric'}); }
+    const AV_COLS = ['#1a5fad','#e8762a','#3cb54a','#633cad'];
+    function avatarColor(ini) { return AV_COLS[(ini.charCodeAt(0)||0) % AV_COLS.length]; }
+
+    /* ══ STATIC LISTENERS ════════════════════════════════════════ */
+    function setupListeners() {
+        document.getElementById('pm-close').addEventListener('click', closeModal);
+        document.getElementById('proj-modal-overlay').addEventListener('click', e => { if(e.target===document.getElementById('proj-modal-overlay')) closeModal(); });
+        document.getElementById('pm-lb-close').addEventListener('click', closeLightbox);
+        document.getElementById('pm-lightbox').addEventListener('click', e => { if(e.target===document.getElementById('pm-lightbox')) closeLightbox(); });
+        document.addEventListener('keydown', e => { if(e.key==='Escape') { closeLightbox(); closeModal(); } });
+    }
+
+    /* ══ ORIGINAL SCRIPTS ════════════════════════════════════════ */
+    function logout() {
+        sessionStorage.clear();
+        window.location.href = '/login';
+    }
+
+    function setupTestimonials() {
+        const track = document.getElementById('testi-cards');
+        const dotsContainer = document.getElementById('testi-dots');
+        const cards = track.querySelectorAll('.testi-card');
+        let current = 0, autoTimer;
+
+        cards.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.className = 'testi-dot' + (i===0?' active':'');
+            dot.addEventListener('click', () => goTo(i));
+            dotsContainer.appendChild(dot);
+        });
+
+        function goTo(idx) {
+            current = (idx + cards.length) % cards.length;
+            track.style.transform = `translateX(-${current * 100}%)`;
+            document.querySelectorAll('.testi-dot').forEach((d,i) => d.classList.toggle('active', i===current));
+        }
+        function startAuto() { autoTimer = setInterval(() => goTo(current+1), 5000); }
+        function resetAuto() { clearInterval(autoTimer); startAuto(); }
+
+        document.getElementById('testi-prev').addEventListener('click', () => { goTo(current-1); resetAuto(); });
+        document.getElementById('testi-next').addEventListener('click', () => { goTo(current+1); resetAuto(); });
+        startAuto();
+    }
 </script>
 </body>
 </html>

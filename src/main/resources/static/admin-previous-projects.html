@@ -6,7 +6,6 @@
     <title>Mpho Yanga — Past Projects</title>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ── CSS VARIABLES (matching admin theme) ──────────────────── */
         :root {
             --blue:        #1a5fad;
             --blue-light:  #2471c8;
@@ -37,10 +36,9 @@
             overflow-x: hidden;
         }
 
-        /* ── APP SHELL ─────────────────────────────────────────────── */
         .app { display: flex; min-height: 100vh; }
 
-        /* ── SIDEBAR ───────────────────────────────────────────────── */
+        /* ── SIDEBAR ── */
         .sidebar {
             width: var(--sidebar-w);
             background: var(--sidebar-bg);
@@ -59,870 +57,237 @@
             border-bottom: 1px solid rgba(255,255,255,0.07);
         }
         .sb-logo-icons { display: flex; gap: 4px; }
-        .sb-logo-icon {
-            width: 26px; height: 26px;
-            border-radius: 6px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 13px;
-        }
+        .sb-logo-icon { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
         .sb-logo-icon.b { background: #1a5fad; }
         .sb-logo-icon.o { background: #e8762a; }
         .sb-logo-icon.g { background: #3cb54a; }
         .sb-brand { display: block; font-family: 'Oswald', sans-serif; font-size: 15px; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
         .sb-brand em { color: var(--orange); font-style: italic; }
         .sb-sub { display: block; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); }
-
         .sb-nav { flex: 1; padding: 14px 10px; overflow-y: auto; }
-        .sb-section-label {
-            display: block;
-            font-size: 9px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.25);
-            padding: 14px 8px 6px;
-        }
-        .sb-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            width: 100%;
-            padding: 9px 12px;
-            border: none;
-            background: none;
-            color: rgba(255,255,255,0.6);
-            font-family: 'Barlow', sans-serif;
-            font-size: 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.2s;
-            text-align: left;
-        }
+        .sb-section-label { display: block; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.25); padding: 14px 8px 6px; }
+        .sb-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 12px; border: none; background: none; color: rgba(255,255,255,0.6); font-family: 'Barlow', sans-serif; font-size: 14px; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; text-align: left; }
         .sb-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
-        .sb-item.active {
-            background: rgba(26,95,173,0.25);
-            color: #fff;
-            border-left: 3px solid var(--blue);
-        }
+        .sb-item.active { background: rgba(26,95,173,0.25); color: #fff; border-left: 3px solid var(--blue); }
         .sb-icon { font-size: 15px; width: 20px; text-align: center; }
+        .sb-footer { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-top: 1px solid rgba(255,255,255,0.07); }
+        .sb-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+        .sb-user-name { display: block; font-size: 13px; color: #fff; font-weight: 600; }
+        .sb-user-role { display: block; font-size: 10px; color: rgba(255,255,255,0.4); }
 
-        .sb-footer {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 14px 16px;
-            border-top: 1px solid rgba(255,255,255,0.07);
-        }
-        .sb-avatar {
-            width: 34px; height: 34px;
-            border-radius: 50%;
-            background: var(--blue);
-            color: #fff;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-        .sb-user-name  { display: block; font-size: 13px; color: #fff; font-weight: 600; }
-        .sb-user-role  { display: block; font-size: 10px; color: rgba(255,255,255,0.4); }
-
-        .overlay {
-            display: none;
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 190;
-        }
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 190; }
         .overlay.active { display: block; }
 
-        /* ── MAIN ──────────────────────────────────────────────────── */
-        .main {
-            flex: 1;
-            margin-left: var(--sidebar-w);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+        /* ── MAIN ── */
+        .main { flex: 1; margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* ── TOPBAR ────────────────────────────────────────────────── */
-        .topbar {
-            height: var(--topbar-h);
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-            position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-        }
-        .tb-left   { display: flex; align-items: center; gap: 14px; }
-        .tb-right  { display: flex; align-items: center; gap: 12px; }
-        .hamburger {
-            display: none;
-            flex-direction: column;
-            gap: 4px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 4px;
-        }
-        .hamburger span {
-            display: block;
-            width: 22px; height: 2px;
-            background: var(--text);
-            border-radius: 2px;
-        }
-        .page-heading h1 {
-            font-family: 'Oswald', sans-serif;
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--text);
-        }
+        /* ── TOPBAR ── */
+        .topbar { height: var(--topbar-h); background: var(--card-bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .tb-left  { display: flex; align-items: center; gap: 14px; }
+        .tb-right { display: flex; align-items: center; gap: 12px; }
+        .hamburger { display: none; flex-direction: column; gap: 4px; background: none; border: none; cursor: pointer; padding: 4px; }
+        .hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; }
+        .page-heading h1 { font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 600; color: var(--text); }
         .page-date { font-size: 12px; color: var(--text-light); display: block; }
-        .tb-search {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 7px 12px;
-        }
-        .tb-search input {
-            border: none;
-            background: none;
-            outline: none;
-            font-family: 'Barlow', sans-serif;
-            font-size: 14px;
-            color: var(--text);
-            width: 180px;
-        }
-        .tb-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 8px;
-            font-family: 'Barlow', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s, transform 0.15s;
-        }
+        .tb-search { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; }
+        .tb-search input { border: none; background: none; outline: none; font-family: 'Barlow', sans-serif; font-size: 14px; color: var(--text); width: 180px; }
+        .tb-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: none; border-radius: 8px; font-family: 'Barlow', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.2s, transform 0.15s; }
         .tb-btn:hover { opacity: 0.88; transform: translateY(-1px); }
         .tb-btn.primary { background: var(--blue); color: #fff; }
-        .tb-avatar {
-            width: 34px; height: 34px;
-            border-radius: 50%;
-            background: var(--blue);
-            color: #fff;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px; font-weight: 700;
-        }
+        .tb-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
 
-        /* ── CONTENT ───────────────────────────────────────────────── */
+        /* ── CONTENT ── */
         .content { padding: 24px; flex: 1; }
 
-        /* ── FILTER BAR ────────────────────────────────────────────── */
-        .filter-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-        .filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
-        .filter-tab {
-            padding: 7px 16px;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            background: var(--card-bg);
-            color: var(--text-light);
-            font-family: 'Barlow', sans-serif;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .filter-tab:hover  { border-color: var(--blue); color: var(--blue); }
-        .filter-tab.active { background: var(--blue); color: #fff; border-color: var(--blue); }
-
-        /* ── STATS STRIP ───────────────────────────────────────────── */
-        .stats-strip {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-bottom: 28px;
-        }
-        .stat-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 16px 22px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            flex: 1;
-            min-width: 160px;
-            box-shadow: var(--shadow);
-        }
-        .stat-icon {
-            width: 42px; height: 42px;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px;
-        }
+        /* ── STATS ── */
+        .stats-strip { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+        .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 22px; display: flex; align-items: center; gap: 14px; flex: 1; min-width: 160px; box-shadow: var(--shadow); }
+        .stat-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
         .stat-icon.blue   { background: rgba(26,95,173,0.1); }
         .stat-icon.orange { background: rgba(232,118,42,0.1); }
         .stat-icon.green  { background: rgba(60,181,74,0.1); }
         .stat-icon.red    { background: rgba(229,62,62,0.1); }
-        .stat-num  { font-family: 'Oswald', sans-serif; font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; }
-        .stat-lbl  { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+        .stat-num { font-family: 'Oswald', sans-serif; font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; }
+        .stat-lbl { font-size: 12px; color: var(--text-light); margin-top: 2px; }
 
-        /* ── PROJECTS GRID ─────────────────────────────────────────── */
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
+        /* ── FILTER BAR ── */
+        .filter-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+        .filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+        .filter-tab { padding: 7px 16px; border: 1px solid var(--border); border-radius: 20px; background: var(--card-bg); color: var(--text-light); font-family: 'Barlow', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        .filter-tab:hover  { border-color: var(--blue); color: var(--blue); }
+        .filter-tab.active { background: var(--blue); color: #fff; border-color: var(--blue); }
 
-        .project-tile {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .project-tile:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .tile-cover {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            display: block;
-            background: linear-gradient(135deg, #e8edf5, #d0d9e8);
-        }
-        .tile-cover-placeholder {
-            width: 100%;
-            height: 180px;
-            background: linear-gradient(135deg, #1a2e47, #0d1b2a);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            color: rgba(255,255,255,0.2);
-        }
-
+        /* ── GRID ── */
+        .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .project-tile { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .project-tile:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .tile-cover { width: 100%; height: 180px; object-fit: cover; display: block; }
+        .tile-cover-placeholder { width: 100%; height: 180px; background: linear-gradient(135deg, #1a2e47, #0d1b2a); display: flex; align-items: center; justify-content: center; font-size: 40px; color: rgba(255,255,255,0.2); }
         .tile-body { padding: 16px; }
-        .tile-category {
-            display: inline-block;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            padding: 3px 10px;
-            border-radius: 20px;
-            margin-bottom: 8px;
-        }
-        .cat-PLUMBING   { background: rgba(26,95,173,0.1);  color: var(--blue); }
-        .cat-TILING     { background: rgba(232,118,42,0.1); color: var(--orange); }
-        .cat-PAINTING   { background: rgba(60,181,74,0.1);  color: var(--green); }
-        .cat-CEILING    { background: rgba(99,60,173,0.1);  color: #633cad; }
-        .cat-RENOVATION { background: rgba(229,62,62,0.1);  color: var(--red); }
-        .cat-OTHER      { background: rgba(113,128,150,0.1);color: var(--text-light); }
-
-        .tile-name {
-            font-family: 'Oswald', sans-serif;
-            font-size: 17px;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .tile-location {
-            font-size: 12px;
-            color: var(--text-light);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .tile-desc {
-            font-size: 13px;
-            color: var(--text-light);
-            line-height: 1.5;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            margin-bottom: 12px;
-        }
-        .tile-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-top: 10px;
-            border-top: 1px solid var(--border);
-            font-size: 12px;
-            color: var(--text-xlight);
-        }
-        .tile-badge-pub {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 3px 8px;
-            border-radius: 6px;
-        }
-        .tile-badge-pub.published  { background: rgba(60,181,74,0.12);  color: var(--green); }
-        .tile-badge-pub.draft      { background: rgba(232,118,42,0.12); color: var(--orange); }
-
-        /* Empty state */
-        .empty-state {
-            grid-column: 1/-1;
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-light);
-        }
+        .tile-category { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; }
+        .cat-PLUMBING   { background: rgba(26,95,173,0.1);   color: var(--blue); }
+        .cat-TILING     { background: rgba(232,118,42,0.1);  color: var(--orange); }
+        .cat-PAINTING   { background: rgba(60,181,74,0.1);   color: var(--green); }
+        .cat-CEILING    { background: rgba(99,60,173,0.1);   color: #633cad; }
+        .cat-RENOVATION { background: rgba(229,62,62,0.1);   color: var(--red); }
+        .cat-OTHER      { background: rgba(113,128,150,0.1); color: var(--text-light); }
+        .tile-name     { font-family: 'Oswald', sans-serif; font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tile-location { font-size: 12px; color: var(--text-light); margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
+        .tile-desc     { font-size: 13px; color: var(--text-light); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 12px; }
+        .tile-footer   { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-xlight); }
+        .tile-badge-pub { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+        .tile-badge-pub.published { background: rgba(60,181,74,0.12);  color: var(--green); }
+        .tile-badge-pub.draft     { background: rgba(232,118,42,0.12); color: var(--orange); }
+        .empty-state { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-light); }
         .empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
         .empty-state h3 { font-family: 'Oswald', sans-serif; font-size: 20px; margin-bottom: 8px; color: var(--text); }
 
-        /* ── MODAL BASE ────────────────────────────────────────────── */
-        .modal {
-            display: none;
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.55);
-            backdrop-filter: blur(4px);
-            z-index: 500;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            animation: overlayIn 0.2s ease;
-        }
-        .modal.show { display: flex; }
+        /* ── MODAL BASE ── */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(4px); z-index: 500; align-items: center; justify-content: center; padding: 20px; }
+        .modal.show { display: flex; animation: overlayIn 0.2s ease; }
         @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .modal-box {
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: var(--shadow-lg);
-            width: 100%;
-            animation: modalIn 0.3s cubic-bezier(.16,1,.3,1) both;
-            display: flex;
-            flex-direction: column;
-            max-height: 92vh;
-            overflow: hidden;
-        }
-        @keyframes modalIn {
-            from { transform: scale(0.94) translateY(16px); opacity: 0; }
-            to   { transform: scale(1)    translateY(0);    opacity: 1; }
-        }
-
-        .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px 24px 16px;
-            border-bottom: 1px solid var(--border);
-            flex-shrink: 0;
-        }
-        .modal-header h2 {
-            font-family: 'Oswald', sans-serif;
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--text);
-        }
-        .close-btn {
-            width: 32px; height: 32px;
-            border: none;
-            background: var(--bg);
-            border-radius: 8px;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--text-light);
-            transition: background 0.2s;
-            flex-shrink: 0;
-        }
+        .modal-box { background: var(--card-bg); border-radius: 16px; box-shadow: var(--shadow-lg); width: 100%; animation: modalIn 0.3s cubic-bezier(.16,1,.3,1) both; display: flex; flex-direction: column; max-height: 92vh; overflow: hidden; }
+        @keyframes modalIn { from { transform: scale(0.94) translateY(16px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+        .modal-header h2 { font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 600; color: var(--text); }
+        .close-btn { width: 32px; height: 32px; border: none; background: var(--bg); border-radius: 8px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-light); transition: background 0.2s; flex-shrink: 0; }
         .close-btn:hover { background: #e2e8f0; color: var(--text); }
+        .modal-body { overflow-y: auto; flex: 1; padding: 20px 24px; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0; }
 
-        .modal-body {
-            overflow-y: auto;
-            flex: 1;
-            padding: 20px 24px;
-        }
-        .modal-footer {
-            padding: 16px 24px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            flex-shrink: 0;
-        }
-
-        /* ── ADD PROJECT MODAL ─────────────────────────────────────── */
-        #add-modal .modal-box { max-width: 640px; }
-
+        /* ── FORM ELEMENTS ── */
         .form-group { margin-bottom: 18px; }
-        .form-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            color: var(--text-light);
-            margin-bottom: 6px;
-        }
+        .form-group label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-light); margin-bottom: 6px; }
         .form-group input,
         .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-family: 'Barlow', sans-serif;
-            font-size: 14px;
-            color: var(--text);
-            background: var(--card-bg);
-            outline: none;
-            transition: border-color 0.2s;
-        }
+        .form-group textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-family: 'Barlow', sans-serif; font-size: 14px; color: var(--text); background: var(--card-bg); outline: none; transition: border-color 0.2s; }
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus { border-color: var(--blue); }
         .form-group textarea { resize: vertical; min-height: 90px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-        }
-
-        /* Image upload zone */
-        .upload-zone {
-            border: 2px dashed var(--border);
-            border-radius: 10px;
-            padding: 24px;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color 0.2s, background 0.2s;
-            margin-top: 6px;
-        }
+        /* ── UPLOAD ZONE ── */
+        .upload-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 24px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; margin-top: 6px; }
         .upload-zone:hover,
         .upload-zone.drag-over { border-color: var(--blue); background: rgba(26,95,173,0.04); }
-        .upload-zone p   { font-size: 14px; color: var(--text-light); margin-bottom: 4px; }
+        .upload-zone p     { font-size: 14px; color: var(--text-light); margin-bottom: 4px; }
         .upload-zone small { font-size: 12px; color: var(--text-xlight); }
 
-        /* Image preview grid inside add modal */
-        .img-preview-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(90px,1fr));
-            gap: 8px;
-            margin-top: 12px;
-        }
-        .img-preview-item {
-            position: relative;
-            border-radius: 8px;
-            overflow: hidden;
-            aspect-ratio: 1;
-        }
-        .img-preview-item img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-        .img-preview-item .rm-btn {
-            position: absolute;
-            top: 4px; right: 4px;
-            width: 20px; height: 20px;
-            background: rgba(229,62,62,0.85);
-            color: #fff;
-            border: none;
-            border-radius: 50%;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            line-height: 1;
-        }
-        .img-preview-item.cover-thumb::after {
-            content: '★ Cover';
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            background: rgba(26,95,173,0.8);
-            color: #fff;
-            font-size: 9px;
-            font-weight: 700;
-            text-align: center;
-            padding: 2px 0;
-        }
+        /* ── IMAGE PREVIEWS (add modal) ── */
+        .img-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px,1fr)); gap: 8px; margin-top: 12px; }
+        .img-preview-item { position: relative; border-radius: 8px; overflow: hidden; aspect-ratio: 1; }
+        .img-preview-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .img-preview-item .rm-btn { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; background: rgba(229,62,62,0.85); color: #fff; border: none; border-radius: 50%; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
+        .img-preview-item.cover-thumb::after { content: '★ Cover'; position: absolute; bottom: 0; left: 0; right: 0; background: rgba(26,95,173,0.8); color: #fff; font-size: 9px; font-weight: 700; text-align: center; padding: 2px 0; }
 
-        /* ── FORM BUTTONS ──────────────────────────────────────────── */
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-family: 'Barlow', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s, transform 0.15s;
-        }
-        .btn:hover { opacity: 0.88; transform: translateY(-1px); }
-        .btn:active { transform: translateY(0); }
+        /* ── EDIT IMAGE GRID ── */
+        .edit-img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px,1fr)); gap: 10px; margin-top: 6px; }
+        .edit-img-item { position: relative; border-radius: 8px; overflow: hidden; aspect-ratio: 1; border: 2px solid var(--border); transition: border-color 0.2s, opacity 0.3s; }
+        .edit-img-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .edit-img-item .del-img-btn { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; background: rgba(229,62,62,0.9); color: #fff; border: none; border-radius: 50%; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; transition: background 0.2s; }
+        .edit-img-item .del-img-btn:hover { background: var(--red); }
+        .edit-img-item.cover-img { border-color: var(--blue); }
+        .edit-img-item.cover-img::after { content: '★ Cover'; position: absolute; bottom: 0; left: 0; right: 0; background: rgba(26,95,173,0.85); color: #fff; font-size: 9px; font-weight: 700; text-align: center; padding: 2px 0; }
+        .edit-img-item.deleting { opacity: 0.3; pointer-events: none; }
+        .no-images-msg { font-size: 13px; color: var(--text-xlight); padding: 8px 0; }
+
+        /* ── BUTTONS ── */
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-family: 'Barlow', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.2s, transform 0.15s; }
+        .btn:hover    { opacity: 0.88; transform: translateY(-1px); }
+        .btn:active   { transform: translateY(0); }
         .btn:disabled { opacity: 0.5; cursor: default; transform: none; }
-        .btn-primary  { background: var(--blue);   color: #fff; }
-        .btn-cancel   { background: var(--bg);      color: var(--text-light); border: 1px solid var(--border); }
-        .btn-danger   { background: var(--red);     color: #fff; }
-        .btn-success  { background: var(--green);   color: #fff; }
+        .btn-primary { background: var(--blue);  color: #fff; }
+        .btn-cancel  { background: var(--bg);    color: var(--text-light); border: 1px solid var(--border); }
+        .btn-danger  { background: var(--red);   color: #fff; }
+        .btn-success { background: var(--green); color: #fff; }
+        .btn-edit    { background: var(--bg);    color: var(--text); border: 1px solid var(--border); }
 
-        /* ── PROJECT DETAIL MODAL ──────────────────────────────────── */
-        #detail-modal .modal-box { max-width: 860px; }
-
-        .detail-top {
-            padding: 0 24px 0;
-        }
-        .detail-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .detail-meta-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 12px;
-            padding: 4px 10px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            color: var(--text-light);
-        }
-        .detail-desc {
-            font-size: 14px;
-            color: var(--text-light);
-            line-height: 1.7;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 16px;
-        }
-
-        /* Horizontal image strip */
-        .img-strip-label {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--text-xlight);
-            margin-bottom: 10px;
-        }
-        .img-strip {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 10px;
-            scroll-snap-type: x mandatory;
-        }
-        .img-strip::-webkit-scrollbar { height: 4px; }
-        .img-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-        .img-strip-item {
-            flex-shrink: 0;
-            width: 200px;
-            height: 140px;
-            border-radius: 10px;
-            overflow: hidden;
-            cursor: pointer;
-            scroll-snap-align: start;
-            position: relative;
-            border: 2px solid transparent;
-            transition: border-color 0.2s, transform 0.2s;
-        }
-        .img-strip-item:hover { transform: scale(1.02); border-color: var(--blue); }
-        .img-strip-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .img-strip-item .caption-overlay {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.6));
-            color: #fff;
-            font-size: 10px;
-            padding: 8px 6px 4px;
-        }
-        .img-strip-empty {
-            font-size: 13px;
-            color: var(--text-xlight);
-            padding: 20px 0;
-            text-align: center;
-            width: 100%;
-        }
-
-        /* Divider */
-        .section-divider {
-            border: none;
-            border-top: 1px solid var(--border);
-            margin: 16px 0;
-        }
-
-        /* Comments section */
-        .comments-label {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--text-xlight);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .comments-count {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 2px 8px;
-            font-size: 11px;
-            color: var(--text-light);
-            font-weight: 600;
-        }
-        .comments-list {
-            max-height: 260px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding-right: 4px;
-        }
-        .comments-list::-webkit-scrollbar { width: 4px; }
-        .comments-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-        .comment-card {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px 14px;
-            display: flex;
-            gap: 12px;
-            align-items: flex-start;
-        }
-        .comment-avatar {
-            width: 34px; height: 34px;
-            border-radius: 50%;
-            background: var(--blue);
-            color: #fff;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px; font-weight: 700;
-            flex-shrink: 0;
-        }
-        .comment-body { flex: 1; min-width: 0; }
-        .comment-author {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 2px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .comment-date { font-size: 11px; color: var(--text-xlight); font-weight: 400; }
-        .comment-text { font-size: 13px; color: var(--text-light); line-height: 1.6; }
-        .comment-rating {
-            display: flex;
-            gap: 1px;
-            margin-top: 4px;
-        }
-        .star { font-size: 12px; }
-        .star.filled { color: #f6c90e; }
-        .star.empty  { color: #d1d5db; }
-
-        .comment-actions { flex-shrink: 0; }
-        .delete-comment-btn {
-            background: none;
-            border: none;
-            color: var(--text-xlight);
-            cursor: pointer;
-            font-size: 15px;
-            padding: 4px;
-            border-radius: 6px;
-            transition: color 0.2s, background 0.2s;
-        }
-        .delete-comment-btn:hover { color: var(--red); background: rgba(229,62,62,0.1); }
-
-        .pending-badge {
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
-            background: rgba(232,118,42,0.12);
-            color: var(--orange);
-        }
-        .approved-badge {
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
-            background: rgba(60,181,74,0.12);
-            color: var(--green);
-        }
-
-        .comments-empty {
-            text-align: center;
-            padding: 30px 0;
-            color: var(--text-xlight);
-            font-size: 13px;
-        }
-
-        /* Approve/reject buttons in comment */
-        .comment-approve-btn {
-            background: none;
-            border: 1px solid var(--green);
-            color: var(--green);
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 6px;
-            margin-right: 4px;
-            transition: all 0.2s;
-        }
-        .comment-approve-btn:hover { background: var(--green); color: #fff; }
-
-        /* ── LIGHTBOX ───────────────────────────────────────────────── */
-        #lightbox {
-            display: none;
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.92);
-            z-index: 900;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        #lightbox.show { display: flex; }
-        .lightbox-img {
-            max-width: 90vw;
-            max-height: 85vh;
-            border-radius: 8px;
-            object-fit: contain;
-            box-shadow: 0 0 60px rgba(0,0,0,0.5);
-        }
-        .lightbox-close {
-            position: absolute;
-            top: 16px; right: 20px;
-            background: rgba(255,255,255,0.12);
-            border: none;
-            color: #fff;
-            font-size: 22px;
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .lightbox-caption {
-            position: absolute;
-            bottom: 20px; left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.7);
-            color: #fff;
-            font-size: 13px;
-            padding: 6px 16px;
-            border-radius: 20px;
-            max-width: 80vw;
-            text-align: center;
-        }
-
-        /* ── PUBLISH TOGGLE ────────────────────────────────────────── */
-        .publish-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px 16px;
-            margin-top: 16px;
-        }
+        /* ── PUBLISH TOGGLE ── */
+        .publish-row { display: flex; align-items: center; justify-content: space-between; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-top: 6px; }
         .publish-row span { font-size: 13px; color: var(--text-light); font-weight: 500; }
-        .toggle-switch {
-            position: relative;
-            width: 44px; height: 24px;
-        }
+        .toggle-switch { position: relative; width: 44px; height: 24px; }
         .toggle-switch input { display: none; }
-        .toggle-track {
-            position: absolute; inset: 0;
-            background: #cbd5e0;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: background 0.25s;
-        }
-        .toggle-track::after {
-            content: '';
-            position: absolute;
-            top: 3px; left: 3px;
-            width: 18px; height: 18px;
-            background: #fff;
-            border-radius: 50%;
-            transition: transform 0.25s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
+        .toggle-track { position: absolute; inset: 0; background: #cbd5e0; border-radius: 12px; cursor: pointer; transition: background 0.25s; }
+        .toggle-track::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: transform 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
         input:checked ~ .toggle-track { background: var(--green); }
         input:checked ~ .toggle-track::after { transform: translateX(20px); }
 
-        /* ── TOAST ─────────────────────────────────────────────────── */
-        #toast {
-            position: fixed;
-            bottom: 24px; right: 24px;
-            background: #1a202c;
-            color: #fff;
-            padding: 12px 20px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 500;
-            z-index: 1000;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-            transform: translateY(80px);
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(.16,1,.3,1);
-        }
-        #toast.show { transform: translateY(0); opacity: 1; }
+        /* ── DETAIL MODAL ── */
+        #detail-modal .modal-box { max-width: 860px; }
+        .detail-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+        .detail-meta-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 4px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; color: var(--text-light); }
+        .detail-desc { font-size: 14px; color: var(--text-light); line-height: 1.7; padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+        .strip-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-xlight); margin-bottom: 10px; }
+        .img-strip { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; scroll-snap-type: x mandatory; }
+        .img-strip::-webkit-scrollbar { height: 4px; }
+        .img-strip::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        .img-strip-item { flex-shrink: 0; width: 200px; height: 140px; border-radius: 10px; overflow: hidden; cursor: pointer; scroll-snap-align: start; position: relative; border: 2px solid transparent; transition: border-color 0.2s, transform 0.2s; }
+        .img-strip-item:hover { transform: scale(1.02); border-color: var(--blue); }
+        .img-strip-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .caption-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.6)); color: #fff; font-size: 10px; padding: 8px 6px 4px; }
+        .img-strip-empty { font-size: 13px; color: var(--text-xlight); padding: 20px 0; text-align: center; width: 100%; }
+        .section-divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+        /* ── COMMENTS ── */
+        .comments-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .comments-title  { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-xlight); }
+        .comments-count  { background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 2px 8px; font-size: 11px; color: var(--text-light); font-weight: 600; }
+        .comments-list   { max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; }
+        .comments-list::-webkit-scrollbar { width: 4px; }
+        .comments-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        .comment-card    { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; }
+        .comment-avatar  { width: 34px; height: 34px; border-radius: 50%; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+        .comment-body    { flex: 1; min-width: 0; }
+        .comment-author  { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .comment-date    { font-size: 11px; color: var(--text-xlight); font-weight: 400; }
+        .comment-text    { font-size: 13px; color: var(--text-light); line-height: 1.6; margin-top: 2px; }
+        .comment-rating  { display: flex; gap: 1px; margin-top: 4px; }
+        .star            { font-size: 12px; }
+        .star.filled     { color: #f6c90e; }
+        .star.empty      { color: #d1d5db; }
+        .comment-actions { flex-shrink: 0; }
+        .del-comment-btn { background: none; border: none; color: var(--text-xlight); cursor: pointer; font-size: 15px; padding: 4px; border-radius: 6px; transition: color 0.2s, background 0.2s; }
+        .del-comment-btn:hover { color: var(--red); background: rgba(229,62,62,0.1); }
+        .approve-btn     { background: none; border: 1px solid var(--green); color: var(--green); cursor: pointer; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-right: 4px; transition: all 0.2s; }
+        .approve-btn:hover { background: var(--green); color: #fff; }
+        .badge-pending   { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: rgba(232,118,42,0.12); color: var(--orange); }
+        .badge-approved  { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: rgba(60,181,74,0.12);  color: var(--green); }
+        .comments-empty  { text-align: center; padding: 30px 0; color: var(--text-xlight); font-size: 13px; }
+
+        /* ── LIGHTBOX ── */
+        #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 900; align-items: center; justify-content: center; padding: 20px; }
+        #lightbox.show { display: flex; }
+        .lb-img     { max-width: 90vw; max-height: 85vh; border-radius: 8px; object-fit: contain; box-shadow: 0 0 60px rgba(0,0,0,0.5); }
+        .lb-close   { position: absolute; top: 16px; right: 20px; background: rgba(255,255,255,0.12); border: none; color: #fff; font-size: 22px; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .lb-caption { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: #fff; font-size: 13px; padding: 6px 16px; border-radius: 20px; max-width: 80vw; text-align: center; }
+
+        /* ── TOAST ── */
+        #toast { position: fixed; bottom: 24px; right: 24px; background: #1a202c; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 1000; box-shadow: 0 8px 24px rgba(0,0,0,0.2); transform: translateY(80px); opacity: 0; transition: all 0.3s cubic-bezier(.16,1,.3,1); }
+        #toast.show    { transform: translateY(0); opacity: 1; }
         #toast.success { border-left: 4px solid var(--green); }
         #toast.error   { border-left: 4px solid var(--red); }
 
-        /* ── RESPONSIVE ────────────────────────────────────────────── */
+        .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #add-modal  .modal-box { max-width: 640px; }
+        #edit-modal .modal-box { max-width: 700px; }
+
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.mobile-open { transform: translateX(0); }
             .main { margin-left: 0; }
             .hamburger { display: flex; }
             .tb-search { display: none; }
-            .form-row { grid-template-columns: 1fr; }
+            .form-row  { grid-template-columns: 1fr; }
         }
-
-        /* Loading spinner */
-        .spinner {
-            display: inline-block;
-            width: 18px; height: 18px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            vertical-align: middle;
-            margin-right: 6px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 <div class="app">
 
-    <!-- ── SIDEBAR ──────────────────────────────────────────────── -->
+    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sb-logo">
             <div class="sb-logo-icons">
@@ -935,26 +300,22 @@
                 <span class="sb-sub">Admin Portal</span>
             </div>
         </div>
-
         <nav class="sb-nav">
             <span class="sb-section-label">Main</span>
             <a class="sb-item" href="admin-dashboard.html"><span class="sb-icon">⊞</span> Dashboard</a>
             <a class="sb-item" href="projects.html"><span class="sb-icon">📋</span> Projects</a>
             <a class="sb-item" href="admin-quotations.html"><span class="sb-icon">📄</span> Quotations</a>
             <a class="sb-item" href="calendar.html"><span class="sb-icon">📅</span> Calendar</a>
-
             <span class="sb-section-label">Manage</span>
             <a class="sb-item" href="services.html"><span class="sb-icon">🔧</span> Services</a>
             <a class="sb-item" href="clients.html"><span class="sb-icon">👥</span> Clients</a>
             <a class="sb-item" href="team.html"><span class="sb-icon">👷</span> Team</a>
             <a class="sb-item active" href="admin-previous-projects.html"><span class="sb-icon">🏆</span> Past Projects</a>
             <a class="sb-item" href="reports.html"><span class="sb-icon">📊</span> Reports</a>
-
             <span class="sb-section-label">Account</span>
             <a class="sb-item" href="settings.html"><span class="sb-icon">⚙️</span> Settings</a>
             <button class="sb-item" id="logout-btn"><span class="sb-icon">↩</span> Logout</button>
         </nav>
-
         <div class="sb-footer">
             <div class="sb-avatar" id="sb-avatar">MA</div>
             <div>
@@ -966,15 +327,11 @@
 
     <div class="overlay" id="overlay"></div>
 
-    <!-- ── MAIN ─────────────────────────────────────────────────── -->
+    <!-- MAIN -->
     <main class="main">
-
-        <!-- TOPBAR -->
         <header class="topbar">
             <div class="tb-left">
-                <button class="hamburger" id="hamburger">
-                    <span></span><span></span><span></span>
-                </button>
+                <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
                 <div class="page-heading">
                     <h1>Past Projects</h1>
                     <span class="page-date" id="page-date"></span>
@@ -990,42 +347,14 @@
             </div>
         </header>
 
-        <!-- CONTENT -->
         <div class="content">
-
-            <!-- Stats -->
             <div class="stats-strip">
-                <div class="stat-card">
-                    <div class="stat-icon blue">🏆</div>
-                    <div>
-                        <div class="stat-num" id="stat-total">0</div>
-                        <div class="stat-lbl">Total Projects</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon green">✅</div>
-                    <div>
-                        <div class="stat-num" id="stat-published">0</div>
-                        <div class="stat-lbl">Published</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon orange">✏️</div>
-                    <div>
-                        <div class="stat-num" id="stat-draft">0</div>
-                        <div class="stat-lbl">Drafts</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon red">💬</div>
-                    <div>
-                        <div class="stat-num" id="stat-pending">0</div>
-                        <div class="stat-lbl">Pending Comments</div>
-                    </div>
-                </div>
+                <div class="stat-card"><div class="stat-icon blue">🏆</div><div><div class="stat-num" id="stat-total">0</div><div class="stat-lbl">Total Projects</div></div></div>
+                <div class="stat-card"><div class="stat-icon green">✅</div><div><div class="stat-num" id="stat-published">0</div><div class="stat-lbl">Published</div></div></div>
+                <div class="stat-card"><div class="stat-icon orange">✏️</div><div><div class="stat-num" id="stat-draft">0</div><div class="stat-lbl">Drafts</div></div></div>
+                <div class="stat-card"><div class="stat-icon red">💬</div><div><div class="stat-num" id="stat-pending">0</div><div class="stat-lbl">Pending Comments</div></div></div>
             </div>
 
-            <!-- Filters -->
             <div class="filter-bar">
                 <div class="filter-tabs">
                     <button class="filter-tab active" data-filter="all">All</button>
@@ -1038,19 +367,14 @@
                 </div>
             </div>
 
-            <!-- Projects grid -->
             <div class="projects-grid" id="projects-grid">
-                <div class="empty-state">
-                    <div class="empty-icon">🔄</div>
-                    <h3>Loading projects...</h3>
-                </div>
+                <div class="empty-state"><div class="empty-icon">🔄</div><h3>Loading projects...</h3></div>
             </div>
-
         </div>
     </main>
 </div>
 
-<!-- ── ADD PROJECT MODAL ─────────────────────────────────────────── -->
+<!-- ══ ADD MODAL ══════════════════════════════════════════════════ -->
 <div class="modal" id="add-modal">
     <div class="modal-box">
         <div class="modal-header">
@@ -1115,7 +439,7 @@
     </div>
 </div>
 
-<!-- ── PROJECT DETAIL MODAL ──────────────────────────────────────── -->
+<!-- ══ DETAIL MODAL ═══════════════════════════════════════════════ -->
 <div class="modal" id="detail-modal">
     <div class="modal-box">
         <div class="modal-header">
@@ -1123,56 +447,108 @@
             <button class="close-btn" id="close-detail-modal">&times;</button>
         </div>
         <div class="modal-body">
+            <div class="detail-meta" id="detail-meta"></div>
+            <p class="detail-desc" id="detail-desc">—</p>
 
-            <!-- Top: meta + images -->
-            <div class="detail-top">
-                <div class="detail-meta" id="detail-meta"><!-- chips injected --></div>
-                <p class="detail-desc" id="detail-desc">—</p>
-
-                <div class="img-strip-label">📷 Project Images</div>
-                <div class="img-strip" id="detail-img-strip">
-                    <div class="img-strip-empty">No images uploaded.</div>
-                </div>
+            <div class="strip-label">📷 Project Images</div>
+            <div class="img-strip" id="detail-img-strip">
+                <div class="img-strip-empty">No images uploaded.</div>
             </div>
 
             <hr class="section-divider">
 
-            <!-- Bottom: comments -->
-            <div style="padding: 0 0 4px;">
-                <div class="comments-label">
-                    <span>💬 Client Comments</span>
-                    <span class="comments-count" id="comments-count-badge">0</span>
-                </div>
-                <div class="comments-list" id="comments-list">
-                    <div class="comments-empty">No comments yet.</div>
-                </div>
+            <div class="comments-header">
+                <span class="comments-title">💬 Client Comments</span>
+                <span class="comments-count" id="comments-count-badge">0</span>
             </div>
-
+            <div class="comments-list" id="comments-list">
+                <div class="comments-empty">No comments yet.</div>
+            </div>
         </div>
         <div class="modal-footer">
             <button class="btn btn-danger"  id="detail-delete-btn">🗑 Delete Project</button>
             <button class="btn btn-success" id="detail-publish-btn">✅ Publish</button>
+            <button class="btn btn-edit"    id="detail-edit-btn">✏️ Edit</button>
             <button class="btn btn-cancel"  id="detail-close-btn">Close</button>
         </div>
     </div>
 </div>
 
-<!-- ── LIGHTBOX ───────────────────────────────────────────────────── -->
-<div id="lightbox">
-    <button class="lightbox-close" id="lightbox-close">&times;</button>
-    <img class="lightbox-img" id="lightbox-img" src="" alt="">
-    <div class="lightbox-caption" id="lightbox-caption"></div>
+<!-- ══ EDIT MODAL ═════════════════════════════════════════════════ -->
+<div class="modal" id="edit-modal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>Edit Past Project</h2>
+            <button class="close-btn" id="close-edit-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Project Name *</label>
+                <input type="text" id="edit-name" placeholder="Project name">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Service Category *</label>
+                    <select id="edit-category">
+                        <option value="PLUMBING">Plumbing</option>
+                        <option value="TILING">Tiling</option>
+                        <option value="PAINTING">Painting</option>
+                        <option value="CEILING">Ceiling Installation</option>
+                        <option value="RENOVATION">Renovation</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Completion Year</label>
+                    <input type="number" id="edit-year" placeholder="e.g. 2024" min="2000" max="2099">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Location *</label>
+                <input type="text" id="edit-location" placeholder="e.g. Avondale, Harare">
+            </div>
+            <div class="form-group">
+                <label>Description *</label>
+                <textarea id="edit-description" placeholder="Describe the work done..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Current Images <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-xlight);font-size:11px;">— click × to delete permanently</span></label>
+                <div class="edit-img-grid" id="edit-existing-images"></div>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label>Add More Images</label>
+                <div class="upload-zone" id="edit-upload-zone">
+                    <p>📸 Click to browse or drag &amp; drop</p>
+                    <small>New images will be appended to the existing ones</small>
+                </div>
+                <input type="file" id="edit-file-input" multiple accept="image/*" style="display:none;">
+                <div class="img-preview-grid" id="edit-preview-grid"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-cancel" id="cancel-edit-btn">Cancel</button>
+            <button class="btn btn-primary" id="confirm-edit-btn">Save Changes</button>
+        </div>
+    </div>
 </div>
 
-<!-- ── TOAST ──────────────────────────────────────────────────────── -->
+<!-- ══ LIGHTBOX ═══════════════════════════════════════════════════ -->
+<div id="lightbox">
+    <button class="lb-close" id="lb-close">&times;</button>
+    <img class="lb-img" id="lb-img" src="" alt="">
+    <div class="lb-caption" id="lb-caption"></div>
+</div>
+
 <div id="toast"></div>
 
 <script>
     const API = `${window.location.origin}/api/previous-projects`;
 
-    let allProjects = [];
-    let currentProjectId = null;
-    let selectedFiles   = [];   // File objects staged for upload
+    let allProjects       = [];
+    let currentProjectId  = null;
+    let currentProject    = null;
+    let selectedFiles     = [];
+    let editSelectedFiles = [];
 
     // ── INIT ──────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', async () => {
@@ -1185,21 +561,21 @@
 
     async function loadAdminUI() {
         try {
-            const res = await fetch(`${window.location.origin}/api/admin/current-session`, { credentials: 'include' });
+            const res = await fetch(`${window.location.origin}/api/admin/current-session`, { credentials:'include' });
             if (res.ok) {
                 const d = await res.json();
                 if (d.success && d.data) {
                     const a = d.data;
-                    const initials = (a.name[0] + (a.surname?.[0] || '')).toUpperCase();
-                    document.getElementById('sb-avatar').textContent = initials;
-                    document.getElementById('tb-avatar').textContent = initials;
+                    const i = (a.name[0] + (a.surname?.[0]||'')).toUpperCase();
+                    document.getElementById('sb-avatar').textContent = i;
+                    document.getElementById('tb-avatar').textContent = i;
                     document.getElementById('sb-name').textContent   = `${a.name} ${a.surname||''}`.trim();
                 }
             }
         } catch {}
     }
 
-    // ── LOAD & RENDER PROJECTS ────────────────────────────────────
+    // ── LOAD & RENDER ─────────────────────────────────────────────
     async function loadProjects() {
         try {
             const res  = await fetch(`${API}/admin/all`);
@@ -1207,7 +583,7 @@
             allProjects = data.data || data || [];
             renderGrid(allProjects);
             updateStats(allProjects);
-        } catch (e) {
+        } catch {
             document.getElementById('projects-grid').innerHTML =
                 `<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Failed to load projects</h3></div>`;
         }
@@ -1224,22 +600,21 @@
             return;
         }
         grid.innerHTML = list.map(p => {
-            const cover = p.coverImageUrl || (p.images && p.images[0]?.imageUrl) || null;
+            const cover    = p.coverImageUrl || (p.images && p.images[0]?.imageUrl) || null;
             const pubClass = p.published ? 'published' : 'draft';
             const pubLabel = p.published ? '✅ Published' : '✏️ Draft';
             return `
             <div class="project-tile" onclick="openDetail(${p.id})">
-                ${cover
-                    ? `<img class="tile-cover" src="${cover}" alt="${p.name}" loading="lazy">`
-                    : `<div class="tile-cover-placeholder">🏗️</div>`}
+                ${cover ? `<img class="tile-cover" src="${cover}" alt="${esc(p.name)}" loading="lazy">`
+                        : `<div class="tile-cover-placeholder">🏗️</div>`}
                 <div class="tile-body">
                     <span class="tile-category cat-${p.category}">${p.category}</span>
-                    <div class="tile-name">${p.name}</div>
-                    <div class="tile-location">📍 ${p.location}${p.completionYear ? ` &nbsp;·&nbsp; ${p.completionYear}` : ''}</div>
-                    <p class="tile-desc">${p.description || ''}</p>
+                    <div class="tile-name">${esc(p.name)}</div>
+                    <div class="tile-location">📍 ${esc(p.location)}${p.completionYear ? ` &nbsp;·&nbsp; ${p.completionYear}` : ''}</div>
+                    <p class="tile-desc">${esc(p.description||'')}</p>
                     <div class="tile-footer">
                         <span class="tile-badge-pub ${pubClass}">${pubLabel}</span>
-                        <span>${p.images?.length || 0} photo${(p.images?.length || 0) !== 1 ? 's' : ''}</span>
+                        <span>${p.images?.length||0} photo${(p.images?.length||0)!==1?'s':''}</span>
                     </div>
                 </div>
             </div>`;
@@ -1250,54 +625,33 @@
         document.getElementById('stat-total').textContent     = list.length;
         document.getElementById('stat-published').textContent = list.filter(p => p.published).length;
         document.getElementById('stat-draft').textContent     = list.filter(p => !p.published).length;
-        // pending comments count — fetched separately if needed, else sum from data
-        const pending = list.reduce((acc, p) => acc + (p.pendingCommentCount || 0), 0);
-        document.getElementById('stat-pending').textContent   = pending;
+        document.getElementById('stat-pending').textContent   = list.reduce((a,p) => a+(p.pendingCommentCount||0), 0);
     }
 
-    // ── ADD PROJECT MODAL ─────────────────────────────────────────
-
+    // ── ADD MODAL ─────────────────────────────────────────────────
     function openAddModal() {
         selectedFiles = [];
-        document.getElementById('add-name').value        = '';
+        ['add-name','add-year','add-location','add-description'].forEach(id => document.getElementById(id).value='');
         document.getElementById('add-category').value    = '';
-        document.getElementById('add-year').value        = '';
-        document.getElementById('add-location').value    = '';
-        document.getElementById('add-description').value = '';
         document.getElementById('add-published').checked = false;
         document.getElementById('add-preview-grid').innerHTML = '';
         document.getElementById('add-file-input').value  = '';
         document.getElementById('add-modal').classList.add('show');
     }
+    function closeAddModal() { document.getElementById('add-modal').classList.remove('show'); }
 
-    function closeAddModal() {
-        document.getElementById('add-modal').classList.remove('show');
-    }
-
-    // File selection & preview
     function handleFileSelect(files) {
-        Array.from(files).forEach(f => {
-            if (!f.type.startsWith('image/')) return;
-            selectedFiles.push(f);
-        });
-        renderPreviews();
+        Array.from(files).forEach(f => { if (f.type.startsWith('image/')) selectedFiles.push(f); });
+        renderAddPreviews();
     }
-
-    function renderPreviews() {
-        const grid = document.getElementById('add-preview-grid');
-        grid.innerHTML = selectedFiles.map((f, i) => {
-            const url = URL.createObjectURL(f);
-            return `<div class="img-preview-item ${i === 0 ? 'cover-thumb' : ''}" id="prev-${i}">
-                <img src="${url}" alt="">
-                <button class="rm-btn" onclick="removeFile(${i})">×</button>
-            </div>`;
-        }).join('');
+    function renderAddPreviews() {
+        document.getElementById('add-preview-grid').innerHTML = selectedFiles.map((f,i) =>
+            `<div class="img-preview-item ${i===0?'cover-thumb':''}">
+                <img src="${URL.createObjectURL(f)}" alt="">
+                <button class="rm-btn" onclick="removeAddFile(${i})">×</button>
+            </div>`).join('');
     }
-
-    function removeFile(idx) {
-        selectedFiles.splice(idx, 1);
-        renderPreviews();
-    }
+    function removeAddFile(idx) { selectedFiles.splice(idx,1); renderAddPreviews(); }
 
     async function saveProject() {
         const name        = document.getElementById('add-name').value.trim();
@@ -1307,289 +661,333 @@
         const description = document.getElementById('add-description').value.trim();
         const published   = document.getElementById('add-published').checked;
 
-        if (!name || !category || !location || !description) {
-            showToast('Please fill in all required fields.', 'error');
-            return;
-        }
+        if (!name||!category||!location||!description) { showToast('Please fill in all required fields.','error'); return; }
 
         const btn = document.getElementById('confirm-add-btn');
-        btn.innerHTML = '<span class="spinner"></span> Saving...';
-        btn.disabled  = true;
+        btn.innerHTML = '<span class="spinner"></span>Saving...'; btn.disabled = true;
 
         const fd = new FormData();
-        fd.append('name',        name);
-        fd.append('category',    category);
-        fd.append('location',    location);
-        fd.append('description', description);
-        fd.append('published',   published);
-        if (year) fd.append('completionYear', year);
-        selectedFiles.forEach(f => fd.append('images', f));
+        fd.append('name',name); fd.append('category',category); fd.append('location',location);
+        fd.append('description',description); fd.append('published',published);
+        if (year) fd.append('completionYear',year);
+        selectedFiles.forEach(f => fd.append('images',f));
 
         try {
-            const res  = await fetch(`${API}`, { method: 'POST', body: fd });
+            const res  = await fetch(API, { method:'POST', body:fd });
             const data = await res.json();
-            if (data.success !== false) {
-                showToast('Project saved successfully! 🎉', 'success');
-                closeAddModal();
-                await loadProjects();
-            } else {
-                showToast(data.message || 'Failed to save project.', 'error');
-            }
-        } catch {
-            showToast('Server error. Please try again.', 'error');
-        } finally {
-            btn.textContent = 'Save Project';
-            btn.disabled    = false;
-        }
+            if (data.success!==false) { showToast('Project saved! 🎉','success'); closeAddModal(); await loadProjects(); }
+            else { showToast(data.message||'Failed to save.','error'); }
+        } catch { showToast('Server error. Try again.','error'); }
+        finally  { btn.textContent='Save Project'; btn.disabled=false; }
     }
 
-    // ── PROJECT DETAIL MODAL ──────────────────────────────────────
-
+    // ── DETAIL MODAL ──────────────────────────────────────────────
     async function openDetail(id) {
         currentProjectId = id;
         try {
-            const [projRes, commRes] = await Promise.all([
+            const [projRes,commRes] = await Promise.all([
                 fetch(`${API}/${id}`),
                 fetch(`${API}/${id}/comments/admin`)
             ]);
             const proj = await projRes.json();
             const comm = await commRes.json();
-
-            populateDetailModal(proj.data || proj, comm.data || comm || []);
+            currentProject = proj.data || proj;
+            populateDetail(currentProject, comm.data||comm||[]);
             document.getElementById('detail-modal').classList.add('show');
-        } catch {
-            showToast('Could not load project details.', 'error');
-        }
+        } catch { showToast('Could not load project details.','error'); }
     }
 
-    function populateDetailModal(project, comments) {
-        document.getElementById('detail-title').textContent = project.name;
+    function populateDetail(p, comments) {
+        document.getElementById('detail-title').textContent = p.name;
+        document.getElementById('detail-meta').innerHTML = `
+            <span class="detail-meta-chip">📁 ${p.category}</span>
+            <span class="detail-meta-chip">📍 ${esc(p.location)}</span>
+            ${p.completionYear?`<span class="detail-meta-chip">📅 ${p.completionYear}</span>`:''}
+            <span class="detail-meta-chip tile-badge-pub ${p.published?'published':'draft'}">${p.published?'✅ Published':'✏️ Draft'}</span>`;
+        document.getElementById('detail-desc').textContent = p.description||'—';
 
-        // Meta chips
-        const meta = document.getElementById('detail-meta');
-        meta.innerHTML = `
-            <span class="detail-meta-chip">📁 ${project.category}</span>
-            <span class="detail-meta-chip">📍 ${project.location}</span>
-            ${project.completionYear ? `<span class="detail-meta-chip">📅 ${project.completionYear}</span>` : ''}
-            <span class="detail-meta-chip ${project.published ? 'tile-badge-pub published' : 'tile-badge-pub draft'}">${project.published ? '✅ Published' : '✏️ Draft'}</span>
-        `;
-        document.getElementById('detail-desc').textContent = project.description || '—';
-
-        // Publish button text
         const pubBtn = document.getElementById('detail-publish-btn');
-        pubBtn.textContent = project.published ? '🔒 Unpublish' : '✅ Publish';
-        pubBtn.onclick = () => togglePublish(project.id, !project.published);
+        pubBtn.textContent = p.published ? '🔒 Unpublish' : '✅ Publish';
+        pubBtn.onclick = () => togglePublish(p.id, !p.published);
 
-        // Images strip
         const strip = document.getElementById('detail-img-strip');
-        if (project.images && project.images.length > 0) {
-            strip.innerHTML = project.images.map(img => `
-                <div class="img-strip-item" onclick="openLightbox('${img.imageUrl}','${img.caption || ''}')">
-                    <img src="${img.imageUrl}" alt="${img.caption || project.name}" loading="lazy">
-                    ${img.caption ? `<div class="caption-overlay">${img.caption}</div>` : ''}
-                </div>
-            `).join('');
-        } else {
-            strip.innerHTML = '<div class="img-strip-empty">No images uploaded for this project.</div>';
-        }
+        strip.innerHTML = (p.images&&p.images.length)
+            ? p.images.map(img => `
+                <div class="img-strip-item" onclick="openLightbox('${img.imageUrl}','${esc(img.caption||'')}')">
+                    <img src="${img.imageUrl}" alt="" loading="lazy">
+                    ${img.caption?`<div class="caption-overlay">${esc(img.caption)}</div>`:''}
+                </div>`).join('')
+            : '<div class="img-strip-empty">No images uploaded for this project.</div>';
 
-        // Comments
-        renderComments(comments, project.id);
-
-        // Delete button
-        document.getElementById('detail-delete-btn').onclick = () => deleteProject(project.id);
-    }
-
-    function renderComments(comments, projectId) {
-        const list  = document.getElementById('comments-list');
-        const badge = document.getElementById('comments-count-badge');
-        badge.textContent = comments.length;
-
-        if (!comments.length) {
-            list.innerHTML = '<div class="comments-empty">No comments on this project yet.</div>';
-            return;
-        }
-
-        list.innerHTML = comments.map(c => {
-            const initials = (c.authorDisplayName || 'C').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-            const stars = c.rating ? [1,2,3,4,5].map(n => `<span class="star ${n <= c.rating ? 'filled':'empty'}">★</span>`).join('') : '';
-            const statusBadge = c.approved
-                ? `<span class="approved-badge">Approved</span>`
-                : `<span class="pending-badge">Pending</span>`;
-            const approveBtn = !c.approved
-                ? `<button class="comment-approve-btn" onclick="approveComment(${c.id},${projectId})">Approve</button>`
-                : '';
-            return `
-            <div class="comment-card" id="comment-${c.id}">
-                <div class="comment-avatar">${initials}</div>
-                <div class="comment-body">
-                    <div class="comment-author">
-                        ${c.authorDisplayName}
-                        <span class="comment-date">${formatDate(c.createdAt)}</span>
-                        ${statusBadge}
-                    </div>
-                    ${stars ? `<div class="comment-rating">${stars}</div>` : ''}
-                    <p class="comment-text">${c.content}</p>
-                    <div style="margin-top:6px;">${approveBtn}</div>
-                </div>
-                <div class="comment-actions">
-                    <button class="delete-comment-btn" title="Delete comment"
-                            onclick="deleteComment(${c.id},${projectId})">🗑</button>
-                </div>
-            </div>`;
-        }).join('');
+        renderComments(comments, p.id);
+        document.getElementById('detail-delete-btn').onclick = () => deleteProject(p.id);
+        document.getElementById('detail-edit-btn').onclick   = () => openEditModal(p);
     }
 
     function closeDetailModal() {
         document.getElementById('detail-modal').classList.remove('show');
-        currentProjectId = null;
+        currentProjectId = null; currentProject = null;
     }
 
-    // ── PUBLISH TOGGLE ────────────────────────────────────────────
+    // ── EDIT MODAL ────────────────────────────────────────────────
+    function openEditModal(p) {
+        editSelectedFiles = [];
+        document.getElementById('edit-name').value        = p.name||'';
+        document.getElementById('edit-category').value    = p.category||'OTHER';
+        document.getElementById('edit-year').value        = p.completionYear||'';
+        document.getElementById('edit-location').value    = p.location||'';
+        document.getElementById('edit-description').value = p.description||'';
+        document.getElementById('edit-preview-grid').innerHTML = '';
+        document.getElementById('edit-file-input').value  = '';
+        renderEditExistingImages(p.images||[], p.id);
+        document.getElementById('edit-modal').classList.add('show');
+    }
+
+    function renderEditExistingImages(images, projectId) {
+        const c = document.getElementById('edit-existing-images');
+        if (!images.length) { c.innerHTML='<p class="no-images-msg">No images yet.</p>'; return; }
+        c.innerHTML = images.map(img => `
+            <div class="edit-img-item ${img.coverImage?'cover-img':''}" id="edit-img-${img.id}">
+                <img src="${img.imageUrl}" alt="${esc(img.caption||'')}">
+                <button class="del-img-btn" title="Delete image"
+                        onclick="deleteImageInline(${img.id},${projectId})">×</button>
+            </div>`).join('');
+    }
+
+    async function deleteImageInline(imageId, projectId) {
+        if (!confirm('Delete this image permanently?')) return;
+        const el = document.getElementById(`edit-img-${imageId}`);
+        el?.classList.add('deleting');
+        try {
+            const res  = await fetch(`${API}/${projectId}/images/${imageId}`, { method:'DELETE' });
+            const data = await res.json();
+            if (data.success!==false) {
+                el?.remove();
+                await refreshDetailStrip(projectId);
+                showToast('Image deleted.','success');
+            } else { el?.classList.remove('deleting'); showToast(data.message||'Failed to delete image.','error'); }
+        } catch { el?.classList.remove('deleting'); showToast('Server error.','error'); }
+    }
+
+    async function refreshDetailStrip(projectId) {
+        try {
+            const res  = await fetch(`${API}/${projectId}`);
+            const data = await res.json();
+            const proj = data.data||data;
+            if (currentProject) currentProject.images = proj.images||[];
+            const strip = document.getElementById('detail-img-strip');
+            strip.innerHTML = (proj.images&&proj.images.length)
+                ? proj.images.map(img => `
+                    <div class="img-strip-item" onclick="openLightbox('${img.imageUrl}','${esc(img.caption||'')}')">
+                        <img src="${img.imageUrl}" alt="" loading="lazy">
+                        ${img.caption?`<div class="caption-overlay">${esc(img.caption)}</div>`:''}
+                    </div>`).join('')
+                : '<div class="img-strip-empty">No images uploaded for this project.</div>';
+        } catch {}
+    }
+
+    function handleEditFileSelect(files) {
+        Array.from(files).forEach(f => { if (f.type.startsWith('image/')) editSelectedFiles.push(f); });
+        renderEditPreviews();
+    }
+    function renderEditPreviews() {
+        document.getElementById('edit-preview-grid').innerHTML = editSelectedFiles.map((f,i) =>
+            `<div class="img-preview-item">
+                <img src="${URL.createObjectURL(f)}" alt="">
+                <button class="rm-btn" onclick="removeEditFile(${i})">×</button>
+            </div>`).join('');
+    }
+    function removeEditFile(idx) { editSelectedFiles.splice(idx,1); renderEditPreviews(); }
+    function closeEditModal() { document.getElementById('edit-modal').classList.remove('show'); editSelectedFiles=[]; }
+
+    async function saveEdit() {
+        const id          = currentProjectId;
+        const name        = document.getElementById('edit-name').value.trim();
+        const category    = document.getElementById('edit-category').value;
+        const year        = document.getElementById('edit-year').value;
+        const location    = document.getElementById('edit-location').value.trim();
+        const description = document.getElementById('edit-description').value.trim();
+
+        if (!name||!category||!location||!description) { showToast('Please fill in all required fields.','error'); return; }
+
+        const btn = document.getElementById('confirm-edit-btn');
+        btn.innerHTML = '<span class="spinner"></span>Saving...'; btn.disabled = true;
+
+        try {
+            const metaRes  = await fetch(`${API}/${id}`, {
+                method:'PUT', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ name, category, location, description,
+                                       completionYear: year ? parseInt(year) : null })
+            });
+            const metaData = await metaRes.json();
+            if (metaData.success===false) { showToast(metaData.message||'Failed to update.','error'); return; }
+
+            if (editSelectedFiles.length > 0) {
+                const fd = new FormData();
+                editSelectedFiles.forEach(f => fd.append('images',f));
+                await fetch(`${API}/${id}/images`, { method:'POST', body:fd });
+            }
+
+            showToast('Project updated! ✅','success');
+            closeEditModal();
+            await openDetail(id);
+            await loadProjects();
+        } catch { showToast('Server error. Try again.','error'); }
+        finally  { btn.textContent='Save Changes'; btn.disabled=false; }
+    }
+
+    // ── PUBLISH ───────────────────────────────────────────────────
     async function togglePublish(id, publish) {
         try {
             const res  = await fetch(`${API}/${id}/publish`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                method:'PUT', headers:{'Content-Type':'application/json'},
                 body: JSON.stringify({ published: publish })
             });
             const data = await res.json();
-            if (data.success !== false) {
-                showToast(publish ? 'Project published ✅' : 'Project unpublished', 'success');
-                closeDetailModal();
-                await loadProjects();
-            } else {
-                showToast(data.message || 'Failed to update.', 'error');
-            }
-        } catch { showToast('Server error.', 'error'); }
+            if (data.success!==false) {
+                showToast(publish?'Project published ✅':'Project unpublished','success');
+                closeDetailModal(); await loadProjects();
+            } else { showToast(data.message||'Failed.','error'); }
+        } catch { showToast('Server error.','error'); }
     }
 
     // ── DELETE PROJECT ────────────────────────────────────────────
     async function deleteProject(id) {
         if (!confirm('Delete this project and all its images and comments? This cannot be undone.')) return;
         try {
-            const res  = await fetch(`${API}/${id}`, { method: 'DELETE' });
+            const res  = await fetch(`${API}/${id}`, { method:'DELETE' });
             const data = await res.json();
-            if (data.success !== false) {
-                showToast('Project deleted.', 'success');
-                closeDetailModal();
-                await loadProjects();
-            } else {
-                showToast(data.message || 'Failed to delete.', 'error');
-            }
-        } catch { showToast('Server error.', 'error'); }
+            if (data.success!==false) { showToast('Project deleted.','success'); closeDetailModal(); await loadProjects(); }
+            else { showToast(data.message||'Failed.','error'); }
+        } catch { showToast('Server error.','error'); }
     }
 
     // ── COMMENTS ──────────────────────────────────────────────────
+    function renderComments(comments, projectId) {
+        const list  = document.getElementById('comments-list');
+        const badge = document.getElementById('comments-count-badge');
+        badge.textContent = comments.length;
+        if (!comments.length) { list.innerHTML='<div class="comments-empty">No comments on this project yet.</div>'; return; }
+        list.innerHTML = comments.map(c => {
+            const initials   = (c.authorDisplayName||'C').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+            const stars      = c.rating ? [1,2,3,4,5].map(n=>`<span class="star ${n<=c.rating?'filled':'empty'}">★</span>`).join('') : '';
+            const statusBadge= c.approved ? `<span class="badge-approved">Approved</span>` : `<span class="badge-pending">Pending</span>`;
+            const approveBtn = !c.approved ? `<button class="approve-btn" onclick="approveComment(${c.id},${projectId})">Approve</button>` : '';
+            return `
+            <div class="comment-card" id="comment-${c.id}">
+                <div class="comment-avatar">${initials}</div>
+                <div class="comment-body">
+                    <div class="comment-author">${esc(c.authorDisplayName)}<span class="comment-date">${formatDate(c.createdAt)}</span>${statusBadge}</div>
+                    ${stars?`<div class="comment-rating">${stars}</div>`:''}
+                    <p class="comment-text">${esc(c.content)}</p>
+                    <div style="margin-top:6px;">${approveBtn}</div>
+                </div>
+                <div class="comment-actions">
+                    <button class="del-comment-btn" title="Delete comment" onclick="deleteComment(${c.id},${projectId})">🗑</button>
+                </div>
+            </div>`;
+        }).join('');
+    }
 
     async function deleteComment(commentId, projectId) {
         if (!confirm('Delete this comment?')) return;
         try {
-            const res  = await fetch(`${API}/${projectId}/comments/${commentId}`, { method: 'DELETE' });
+            const res  = await fetch(`${API}/${projectId}/comments/${commentId}`, { method:'DELETE' });
             const data = await res.json();
-            if (data.success !== false) {
+            if (data.success!==false) {
                 document.getElementById(`comment-${commentId}`)?.remove();
-                const badge = document.getElementById('comments-count-badge');
-                badge.textContent = Math.max(0, parseInt(badge.textContent) - 1);
-                showToast('Comment deleted.', 'success');
-            } else {
-                showToast(data.message || 'Failed to delete comment.', 'error');
-            }
-        } catch { showToast('Server error.', 'error'); }
+                const b = document.getElementById('comments-count-badge');
+                b.textContent = Math.max(0, parseInt(b.textContent)-1);
+                showToast('Comment deleted.','success');
+            } else { showToast(data.message||'Failed.','error'); }
+        } catch { showToast('Server error.','error'); }
     }
 
     async function approveComment(commentId, projectId) {
         try {
-            const res  = await fetch(`${API}/${projectId}/comments/${commentId}/approve`, { method: 'PUT' });
+            const res  = await fetch(`${API}/${projectId}/comments/${commentId}/approve`, { method:'PUT' });
             const data = await res.json();
-            if (data.success !== false) {
-                showToast('Comment approved ✅', 'success');
-                // Re-open detail to refresh
-                openDetail(projectId);
-            } else {
-                showToast(data.message || 'Failed to approve.', 'error');
-            }
-        } catch { showToast('Server error.', 'error'); }
+            if (data.success!==false) { showToast('Comment approved ✅','success'); openDetail(projectId); }
+            else { showToast(data.message||'Failed.','error'); }
+        } catch { showToast('Server error.','error'); }
     }
 
     // ── LIGHTBOX ──────────────────────────────────────────────────
     function openLightbox(url, caption) {
-        document.getElementById('lightbox-img').src           = url;
-        document.getElementById('lightbox-caption').textContent = caption;
-        document.getElementById('lightbox-caption').style.display = caption ? 'block' : 'none';
+        document.getElementById('lb-img').src = url;
+        const cap = document.getElementById('lb-caption');
+        cap.textContent   = caption;
+        cap.style.display = caption ? 'block' : 'none';
         document.getElementById('lightbox').classList.add('show');
     }
-    function closeLightbox() {
-        document.getElementById('lightbox').classList.remove('show');
-    }
+    function closeLightbox() { document.getElementById('lightbox').classList.remove('show'); }
 
     // ── FILTERS & SEARCH ──────────────────────────────────────────
-    function applyFilter(category) {
-        if (category === 'all') { renderGrid(allProjects); return; }
-        renderGrid(allProjects.filter(p => p.category === category));
+    function applyFilter(cat) {
+        renderGrid(cat==='all' ? allProjects : allProjects.filter(p=>p.category===cat));
     }
 
     // ── TOAST ─────────────────────────────────────────────────────
     let toastTimer;
-    function showToast(msg, type = 'success') {
+    function showToast(msg, type='success') {
         const t = document.getElementById('toast');
-        t.textContent = msg;
-        t.className   = `show ${type}`;
+        t.textContent=msg; t.className=`show ${type}`;
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => t.className = '', 3200);
+        toastTimer = setTimeout(()=>t.className='', 3200);
     }
 
     // ── HELPERS ───────────────────────────────────────────────────
     function formatDate(iso) {
         if (!iso) return '';
-        return new Date(iso).toLocaleDateString('en-ZW', { day:'numeric', month:'short', year:'numeric' });
+        return new Date(iso).toLocaleDateString('en-ZW',{day:'numeric',month:'short',year:'numeric'});
+    }
+    function esc(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
     // ── EVENT LISTENERS ───────────────────────────────────────────
     function setupListeners() {
-
-        // Topbar add button
+        // Add modal
         document.getElementById('add-project-btn').addEventListener('click', openAddModal);
         document.getElementById('close-add-modal').addEventListener('click', closeAddModal);
         document.getElementById('cancel-add-btn').addEventListener('click', closeAddModal);
         document.getElementById('confirm-add-btn').addEventListener('click', saveProject);
+        document.getElementById('add-modal').addEventListener('click', e => { if(e.target===document.getElementById('add-modal')) closeAddModal(); });
+
+        const addZone=document.getElementById('add-upload-zone'), addInput=document.getElementById('add-file-input');
+        addZone.addEventListener('click',()=>addInput.click());
+        addInput.addEventListener('change',()=>handleFileSelect(addInput.files));
+        addZone.addEventListener('dragover',e=>{e.preventDefault();addZone.classList.add('drag-over');});
+        addZone.addEventListener('dragleave',()=>addZone.classList.remove('drag-over'));
+        addZone.addEventListener('drop',e=>{e.preventDefault();addZone.classList.remove('drag-over');handleFileSelect(e.dataTransfer.files);});
 
         // Detail modal
         document.getElementById('close-detail-modal').addEventListener('click', closeDetailModal);
         document.getElementById('detail-close-btn').addEventListener('click', closeDetailModal);
+        document.getElementById('detail-modal').addEventListener('click', e => { if(e.target===document.getElementById('detail-modal')) closeDetailModal(); });
 
-        // Close modals on backdrop click
-        document.getElementById('add-modal').addEventListener('click', e => {
-            if (e.target === document.getElementById('add-modal')) closeAddModal();
-        });
-        document.getElementById('detail-modal').addEventListener('click', e => {
-            if (e.target === document.getElementById('detail-modal')) closeDetailModal();
-        });
+        // Edit modal
+        document.getElementById('close-edit-modal').addEventListener('click', closeEditModal);
+        document.getElementById('cancel-edit-btn').addEventListener('click', closeEditModal);
+        document.getElementById('confirm-edit-btn').addEventListener('click', saveEdit);
+        document.getElementById('edit-modal').addEventListener('click', e => { if(e.target===document.getElementById('edit-modal')) closeEditModal(); });
+
+        const editZone=document.getElementById('edit-upload-zone'), editInput=document.getElementById('edit-file-input');
+        editZone.addEventListener('click',()=>editInput.click());
+        editInput.addEventListener('change',()=>handleEditFileSelect(editInput.files));
+        editZone.addEventListener('dragover',e=>{e.preventDefault();editZone.classList.add('drag-over');});
+        editZone.addEventListener('dragleave',()=>editZone.classList.remove('drag-over'));
+        editZone.addEventListener('drop',e=>{e.preventDefault();editZone.classList.remove('drag-over');handleEditFileSelect(e.dataTransfer.files);});
 
         // Lightbox
-        document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
-        document.getElementById('lightbox').addEventListener('click', e => {
-            if (e.target === document.getElementById('lightbox')) closeLightbox();
-        });
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+        document.getElementById('lb-close').addEventListener('click', closeLightbox);
+        document.getElementById('lightbox').addEventListener('click', e => { if(e.target===document.getElementById('lightbox')) closeLightbox(); });
+        document.addEventListener('keydown', e => { if(e.key==='Escape') closeLightbox(); });
 
-        // File upload zone
-        const zone  = document.getElementById('add-upload-zone');
-        const input = document.getElementById('add-file-input');
-        zone.addEventListener('click', () => input.click());
-        input.addEventListener('change', () => handleFileSelect(input.files));
-        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-        zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-        zone.addEventListener('drop', e => {
-            e.preventDefault();
-            zone.classList.remove('drag-over');
-            handleFileSelect(e.dataTransfer.files);
-        });
-
-        // Category filter tabs
+        // Filter tabs
         document.querySelectorAll('.filter-tab').forEach(tab => {
             tab.addEventListener('click', () => {
-                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
                 tab.classList.add('active');
                 applyFilter(tab.dataset.filter);
             });
@@ -1597,15 +995,15 @@
 
         // Search
         document.getElementById('search-input').addEventListener('input', e => {
-            const q = e.target.value.toLowerCase();
+            const q=e.target.value.toLowerCase();
             renderGrid(allProjects.filter(p =>
-                p.name.toLowerCase().includes(q) ||
-                p.location.toLowerCase().includes(q) ||
+                p.name.toLowerCase().includes(q)||
+                p.location.toLowerCase().includes(q)||
                 p.description?.toLowerCase().includes(q)
             ));
         });
 
-        // Sidebar hamburger
+        // Hamburger
         document.getElementById('hamburger').addEventListener('click', () => {
             document.getElementById('sidebar').classList.toggle('mobile-open');
             document.getElementById('overlay').classList.toggle('active');
@@ -1617,10 +1015,9 @@
 
         // Logout
         document.getElementById('logout-btn').addEventListener('click', async () => {
-            try { await fetch(`${window.location.origin}/api/admin/clear-session`, { method:'POST', credentials:'include' }); } catch {}
-            sessionStorage.removeItem('admin');
-            localStorage.removeItem('admin');
-            window.location.href = `${window.location.origin}/login`;
+            try { await fetch(`${window.location.origin}/api/admin/clear-session`,{method:'POST',credentials:'include'}); } catch {}
+            sessionStorage.removeItem('admin'); localStorage.removeItem('admin');
+            window.location.href=`${window.location.origin}/login`;
         });
     }
 </script>
