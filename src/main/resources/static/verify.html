@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mpho Yanga Construction — Verify Account</title>
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/login.css">
-  <link rel="stylesheet" href="css/verify.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mpho Yanga Construction — Verify Account</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/verify.css">
 </head>
 <body>
-  <div class="bg blurred" id="bg"></div>
-  <div class="shapes">
+<div class="bg blurred" id="bg"></div>
+<div class="shapes">
     <svg class="shape" viewBox="0 0 50 50" fill="white"><rect x="5" y="5" width="40" height="10" rx="2"/><rect x="5" y="20" width="40" height="10" rx="2"/><rect x="5" y="35" width="40" height="10" rx="2"/></svg>
     <svg class="shape" viewBox="0 0 50 50" fill="white"><path d="M10 40 L25 10 L40 40 Z"/></svg>
     <svg class="shape" viewBox="0 0 50 50" fill="white"><rect x="5" y="5" width="40" height="40" rx="4"/></svg>
@@ -18,168 +18,224 @@
     <svg class="shape" viewBox="0 0 50 50" fill="white"><path d="M5 25 L20 10 L45 10 L45 40 L5 40 Z"/></svg>
     <svg class="shape" viewBox="0 0 50 50" fill="white"><rect x="5" y="5" width="40" height="10" rx="2"/></svg>
     <svg class="shape" viewBox="0 0 50 50" fill="white"><path d="M10 40 L25 10 L40 40 Z"/></svg>
-  </div>
-  <div class="page">
+</div>
+<div class="page">
     <div class="logo-header">
-      <div class="logo-icons">
-        <div class="logo-icon blue">🔨</div>
-        <div class="logo-icon orange">🧱</div>
-        <div class="logo-icon green">🖌️</div>
-      </div>
-      <div class="logo-text">
-        <div class="brand">MPHO <span>YAN</span>GA</div>
-        <div class="sub">Construction</div>
-      </div>
+        <div class="logo-icons">
+            <div class="logo-icon blue">🔨</div>
+            <div class="logo-icon orange">🧱</div>
+            <div class="logo-icon green">🖌️</div>
+        </div>
+        <div class="logo-text">
+            <div class="brand">MPHO <span>YAN</span>GA</div>
+            <div class="sub">Construction</div>
+        </div>
     </div>
     <div class="login-card verify-card" id="verify-card">
-      <div class="card-accent admin"></div>
-      <div class="form-header">
-        <div class="form-role-badge admin">🔐 Account Verification</div>
-        <div class="form-title">Enter Your PIN</div>
-        <div class="form-subtitle">A 5-digit verification PIN was sent to your email address. Enter it below to activate your admin account.</div>
-      </div>
-      <div class="pin-inputs" id="pin-inputs">
-        <input class="pin-digit" type="text" maxlength="1" inputmode="numeric" id="p0">
-        <input class="pin-digit" type="text" maxlength="1" inputmode="numeric" id="p1">
-        <input class="pin-digit" type="text" maxlength="1" inputmode="numeric" id="p2">
-        <input class="pin-digit" type="text" maxlength="1" inputmode="numeric" id="p3">
-        <input class="pin-digit" type="text" maxlength="1" inputmode="numeric" id="p4">
-      </div>
-      <div id="verify-error" class="form-error" style="display:none;"></div>
-      <button class="btn-login admin" id="verify-btn" onclick="submitPin()">Verify Account &rarr;</button>
-      <div class="form-footer-link"><a href="/login">&#8592; Back to login</a></div>
+        <div class="card-accent admin"></div>
+        <div class="form-header">
+            <div class="form-role-badge admin">🔐 Account Verification</div>
+            <div class="form-title">Enter Your PIN</div>
+            <div class="form-subtitle">A 5-digit verification PIN was sent to the Admin. Contact the Admin for your PIN, or resend a new one below.</div>
+        </div>
+        <div class="pin-inputs" id="pin-inputs">
+            <input class="pin-digit" type="text" maxlength="1" inputmode="numeric" id="p0">
+            <input class="pin-digit" type="text" maxlength="1" inputmode="numeric" id="p1">
+            <input class="pin-digit" type="text" maxlength="1" inputmode="numeric" id="p2">
+            <input class="pin-digit" type="text" maxlength="1" inputmode="numeric" id="p3">
+            <input class="pin-digit" type="text" maxlength="1" inputmode="numeric" id="p4">
+        </div>
+        <div id="verify-error" class="form-error" style="display:none;"></div>
+        <button class="btn-login admin" id="verify-btn" onclick="submitPin()">Verify Account &rarr;</button>
+        <div id="resend-msg" style="display:none; text-align:center; margin-top:12px; font-size:13px; border-radius:8px; padding:10px 14px;"></div>
+        <div class="form-footer-link">
+            <a href="#" id="resend-link" onclick="resendPin(event)">🔁 Resend PIN</a>
+            &nbsp;&nbsp;·&nbsp;&nbsp;
+            <a href="/login">&#8592; Back to login</a>
+        </div>
     </div>
-  </div>
-  <div class="bp-badge">BP No.0200269091</div>
-  <script >
-      const digits = document.querySelectorAll('.pin-digit');
+</div>
+<div class="bp-badge">BP No.0200269091</div>
+<script>
+    const digits = document.querySelectorAll('.pin-digit');
 
-// ── Auto-focus and tab between PIN boxes ──────────────────────
-digits.forEach((input, i) => {
-  input.addEventListener('input', (e) => {
-    const val = e.target.value.replace(/\D/g, ''); // numbers only
-    e.target.value = val;
+    // ── Auto-focus and tab between PIN boxes ──────────────────────
+    digits.forEach((input, i) => {
+      input.addEventListener('input', (e) => {
+        const val = e.target.value.replace(/\D/g, '');
+        e.target.value = val;
 
-    if (val) {
-      e.target.classList.add('filled');
-      e.target.classList.remove('error');
-      // Move to next input
-      if (i < digits.length - 1) {
-        digits[i + 1].focus();
-      } else {
-        // All filled — auto submit
-        submitPin();
-      }
-    } else {
-      e.target.classList.remove('filled');
-    }
-  });
+        if (val) {
+          e.target.classList.add('filled');
+          e.target.classList.remove('error');
+          if (i < digits.length - 1) {
+            digits[i + 1].focus();
+          } else {
+            submitPin();
+          }
+        } else {
+          e.target.classList.remove('filled');
+        }
+      });
 
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Backspace' && !e.target.value && i > 0) {
-      digits[i - 1].focus();
-      digits[i - 1].value = '';
-      digits[i - 1].classList.remove('filled');
-    }
-  });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !e.target.value && i > 0) {
+          digits[i - 1].focus();
+          digits[i - 1].value = '';
+          digits[i - 1].classList.remove('filled');
+        }
+      });
 
-  // Handle paste — spread digits across inputs
-  input.addEventListener('paste', (e) => {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 5);
-    pasted.split('').forEach((char, j) => {
-      if (digits[j]) {
-        digits[j].value = char;
-        digits[j].classList.add('filled');
-      }
-    });
-    const nextEmpty = [...digits].findIndex(d => !d.value);
-    if (nextEmpty !== -1) {
-      digits[nextEmpty].focus();
-    } else {
-      submitPin();
-    }
-  });
-});
-
-// Focus first box on load
-digits[0].focus();
-
-// ── Collect PIN from all inputs ───────────────────────────────
-function getPin() {
-  return [...digits].map(d => d.value).join('');
-}
-
-// ── Submit PIN to backend ─────────────────────────────────────
-async function submitPin() {
-  const btn = document.getElementById('verify-btn');
-  const errorEl = document.getElementById('verify-error');
-  const pin = getPin();
-
-  if (pin.length < 5) {
-    markError('Please enter all 5 digits of your PIN.');
-    return;
-  }
-
-  btn.textContent = 'Verifying...';
-  btn.disabled = true;
-  btn.style.opacity = '0.75';
-  errorEl.style.display = 'none';
-
-  try {
-    const response = await fetch('/api/admin/verify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pin })
+      // Handle paste — spread digits across inputs
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 5);
+        pasted.split('').forEach((char, j) => {
+          if (digits[j]) {
+            digits[j].value = char;
+            digits[j].classList.add('filled');
+          }
+        });
+        const nextEmpty = [...digits].findIndex(d => !d.value);
+        if (nextEmpty !== -1) {
+          digits[nextEmpty].focus();
+        } else {
+          submitPin();
+        }
+      });
     });
 
-    const data = await response.json();
+    // Focus first box on load
+    digits[0].focus();
 
-    if (data.success) {
-      // Show success state before redirect
-      btn.textContent = '✅ Verified!';
-      btn.style.background = 'linear-gradient(135deg, #3cb54a, #2a8a36)';
-      digits.forEach(d => { d.classList.remove('error'); d.classList.add('filled'); });
+    // ── Collect PIN from all inputs ───────────────────────────────
+    function getPin() {
+      return [...digits].map(d => d.value).join('');
+    }
 
-      setTimeout(() => {
-        window.location.href ='/admin-dashboard.html';
-      }, 800);
+    // ── Submit PIN to backend ─────────────────────────────────────
+    async function submitPin() {
+      const btn     = document.getElementById('verify-btn');
+      const errorEl = document.getElementById('verify-error');
+      const pin     = getPin();
 
-    } else {
-      markError(data.message || 'Incorrect PIN. Please try again.');
-      btn.textContent = 'Verify Account →';
-      btn.disabled = false;
-      btn.style.opacity = '1';
+      if (pin.length < 5) {
+        markError('Please enter all 5 digits of your PIN.');
+        return;
+      }
 
-      // Handle session expiry
-      if (data.redirect) {
-        setTimeout(() => { window.location.href = data.redirect; }, 2000);
+      btn.textContent    = 'Verifying...';
+      btn.disabled       = true;
+      btn.style.opacity  = '0.75';
+      errorEl.style.display = 'none';
+
+      try {
+        const response = await fetch(`${window.location.origin}/api/admin/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ pin })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          btn.textContent        = '✅ Verified!';
+          btn.style.background   = 'linear-gradient(135deg, #3cb54a, #2a8a36)';
+          digits.forEach(d => { d.classList.remove('error'); d.classList.add('filled'); });
+          setTimeout(() => { window.location.href = '/admin-dashboard.html'; }, 800);
+
+        } else {
+          markError(data.message || 'Incorrect PIN. Please try again.');
+          btn.textContent   = 'Verify Account →';
+          btn.disabled      = false;
+          btn.style.opacity = '1';
+          if (data.redirect) {
+            setTimeout(() => { window.location.href = data.redirect; }, 2000);
+          }
+        }
+
+      } catch {
+        markError('Network error. Please check your connection.');
+        btn.textContent   = 'Verify Account →';
+        btn.disabled      = false;
+        btn.style.opacity = '1';
       }
     }
 
-  } catch (err) {
-    markError('Network error. Please check your connection.');
-    btn.textContent = 'Verify Account →';
-    btn.disabled = false;
-    btn.style.opacity = '1';
-  }
-}
+    function markError(message) {
+      const errorEl = document.getElementById('verify-error');
+      errorEl.textContent    = message;
+      errorEl.style.display  = 'block';
+      digits.forEach(d => { d.classList.add('error'); d.classList.remove('filled'); });
+      digits.forEach(d => d.value = '');
+      digits[0].focus();
+    }
 
-function markError(message) {
-  const errorEl = document.getElementById('verify-error');
-  errorEl.textContent = message;
-  errorEl.style.display = 'block';
+    // ── Resend PIN ────────────────────────────────────────────────
+    async function resendPin(e) {
+      e.preventDefault();
+      const link    = document.getElementById('resend-link');
+      const msgEl   = document.getElementById('resend-msg');
+      const origTxt = link.textContent;
 
-  // Shake and highlight all digit inputs red
-  digits.forEach(d => {
-    d.classList.add('error');
-    d.classList.remove('filled');
-  });
+      link.textContent         = 'Sending...';
+      link.style.pointerEvents = 'none';
+      msgEl.style.display      = 'none';
 
-  // Clear inputs and refocus
-  digits.forEach(d => d.value = '');
-  digits[0].focus();
-}
-  </script>
+      function startCooldown() {
+        let secs = 60;
+        link.textContent = `Resend PIN (${secs}s)`;
+        const timer = setInterval(() => {
+          secs--;
+          if (secs <= 0) {
+            clearInterval(timer);
+            link.textContent         = '🔁 Resend PIN';
+            link.style.pointerEvents = 'auto';
+          } else {
+            link.textContent = `Resend PIN (${secs}s)`;
+          }
+        }, 1000);
+      }
+
+      try {
+        const res  = await fetch(`${window.location.origin}/api/admin/resend-pin`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        const data = await res.json();
+
+        msgEl.style.display = 'block';
+
+        if (data.success) {
+          msgEl.style.background = 'rgba(60,181,74,0.12)';
+          msgEl.style.border     = '1px solid rgba(60,181,74,0.35)';
+          msgEl.style.color      = '#88e899';
+          msgEl.textContent      = '✅ ' + data.message;
+          startCooldown();
+        } else {
+          msgEl.style.background = 'rgba(255,80,80,0.12)';
+          msgEl.style.border     = '1px solid rgba(255,80,80,0.35)';
+          msgEl.style.color      = '#ff8888';
+          msgEl.textContent      = data.message;
+          if (data.redirect) {
+            setTimeout(() => { window.location.href = data.redirect; }, 2000);
+          } else {
+            link.textContent         = origTxt;
+            link.style.pointerEvents = 'auto';
+          }
+        }
+
+      } catch {
+        msgEl.style.display    = 'block';
+        msgEl.style.background = 'rgba(255,80,80,0.12)';
+        msgEl.style.border     = '1px solid rgba(255,80,80,0.35)';
+        msgEl.style.color      = '#ff8888';
+        msgEl.textContent      = 'Network error. Please try again.';
+        link.textContent         = origTxt;
+        link.style.pointerEvents = 'auto';
+      }
+    }
+</script>
 </body>
 </html>

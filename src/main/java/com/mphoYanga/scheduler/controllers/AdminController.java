@@ -170,6 +170,38 @@ public class AdminController {
     }
 
     // ─────────────────────────────────────────────────────────
+// POST /api/admin/resend-pin
+// Requires an active session from a prior login
+// ─────────────────────────────────────────────────────────
+    @PostMapping("/resend-pin")
+    public ResponseEntity<Map<String, Object>> resendPin(HttpSession session) {
+        Map<String, Object> res = new HashMap<>();
+
+        Long adminId = (Long) session.getAttribute("userId");
+        if (adminId == null) {
+            res.put("success", false);
+            res.put("message", "Session expired. Please log in again.");
+            res.put("redirect", "/login");
+            return ResponseEntity.status(401).body(res);
+        }
+
+        try {
+            adminService.resendPin(adminId);
+            res.put("success", true);
+            res.put("message", "A new PIN has been sent to the Admin.");
+            return ResponseEntity.ok(res);
+        } catch (IllegalStateException e) {
+            res.put("success", false);
+            res.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(res);
+        } catch (IllegalArgumentException e) {
+            res.put("success", false);
+            res.put("message", e.getMessage());
+            return ResponseEntity.status(404).body(res);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────
     // POST /api/admin/logout
     // ─────────────────────────────────────────────────────────
     @PostMapping("/logout")

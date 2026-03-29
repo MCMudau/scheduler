@@ -824,8 +824,13 @@
 
             if (editSelectedFiles.length > 0) {
                 const fd = new FormData();
-                editSelectedFiles.forEach(f => fd.append('images',f));
-                await fetch(`${API}/${id}/images`, { method:'POST', body:fd });
+                editSelectedFiles.forEach(f => fd.append('images', f));
+                const imgRes  = await fetch(`${API}/${id}/images`, { method: 'POST', body: fd });
+                const imgData = await imgRes.json();
+                if (imgData.success === false) {
+                    showToast(imgData.message || 'Images failed to upload.', 'error');
+                    return;
+                }
             }
 
             showToast('Project updated! ✅','success');

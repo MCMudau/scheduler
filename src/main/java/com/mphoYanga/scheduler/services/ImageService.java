@@ -37,7 +37,7 @@ public class ImageService {
                 .orElseThrow(() -> new Exception("Stage not found"));
 
         String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-        String stageDirPath = stage.getProject().getProjectDirectory() + "stage_" + stage.getStageNumber() + "/";
+        String stageDirPath = "projects/"+ stage.getProject().getId() + "/stage_" + stage.getStageNumber() + "/";
         String filePath = stageDirPath + fileName;
 
         createImageDirectory(stageDirPath);
@@ -70,7 +70,7 @@ public class ImageService {
             throw new Exception("No files provided");
         }
 
-        String stageDirPath = stage.getProject().getProjectDirectory() + "stage_" + stage.getStageNumber() + "/";
+        String stageDirPath = "projects/"+ stage.getProject().getId() + "/stage_" + stage.getStageNumber() + "/";
         createImageDirectory(stageDirPath);
 
         for (int i = 0; i < files.length; i++) {

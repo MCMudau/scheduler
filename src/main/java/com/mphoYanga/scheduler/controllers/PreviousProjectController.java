@@ -89,6 +89,21 @@ public class PreviousProjectController {
      *   name, description, location, category, completionYear (optional),
      *   published (boolean, default false), images[] (files, optional)
      */
+    /** Update project metadata (name, description, location, category, completionYear). */
+    @PutMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> update(
+            @PathVariable Long id,
+            @RequestBody  Map<String, Object> fields) {
+        try {
+            PreviousProject updated = service.update(id, fields);
+            return ok(updated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(Map.of("success", false, "message", e.getMessage()));
+        } catch (Exception e) {
+            return error("Failed to update project: " + e.getMessage());
+        }
+    }
+
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<Map<String, Object>> create(
             @RequestParam("name")                     String name,
@@ -212,6 +227,7 @@ public class PreviousProjectController {
      *
      * Body: { "clientId": 42 }
      */
+
     @DeleteMapping("/{id}/comments/{commentId}/client")
     public ResponseEntity<Map<String, Object>> deleteClientComment(
             @PathVariable Long id,
