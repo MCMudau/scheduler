@@ -79,6 +79,21 @@ public class ProjectRestController {
      * GET /api/projects/client/{clientId}
      * Accessible to both clients and admins
      */
+
+    /**
+     * Get all images for a project across all stages
+     * GET /api/projects/{projectId}/images
+     */
+    @GetMapping("/{projectId}/images")
+    public ResponseEntity<?> getAllImagesForProject(@PathVariable Long projectId) {
+        try {
+            List<ProjectImage> images = projectService.getProjectImages(projectId);
+            return ResponseEntity.ok(new ApiResponse(true, "All project images retrieved", images));
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(new ApiResponse(false, "Failed to retrieve project images: " + e.getMessage(), null));
+        }
+    }
+
     @GetMapping("/client/{clientId}")
     public ResponseEntity<?> getClientProjects(@PathVariable Long clientId) {
         try {

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -36,14 +37,15 @@ public class ImageService {
         ProjectStage stage = projectStageRepository.findById(stageId)
                 .orElseThrow(() -> new Exception("Stage not found"));
 
-        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-        String stageDirPath = "projects/"+ stage.getProject().getId() + "/stage_" + stage.getStageNumber() + "/";
-        String filePath = stageDirPath + fileName;
+        String fileName     = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        String stageDirPath = "projects/" + stage.getProject().getId() + "/stage_" + stage.getStageNumber();
+        String filePath     = stageDirPath + "/" + fileName;
 
-        createImageDirectory(stageDirPath);
+        Path folder   = Paths.get(projectUploadDir, stageDirPath);
+        Files.createDirectories(folder);
 
-        Path fullPath = Paths.get(projectUploadDir, filePath);
-        Files.write(fullPath, file.getBytes());
+        // NIO copy — reliable across all environments including Tomcat temp dirs
+        Files.copy(file.getInputStream(), folder.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
 
         ProjectImage image = new ProjectImage(
                 stage,
@@ -64,23 +66,25 @@ public class ImageService {
         ProjectStage stage = projectStageRepository.findById(stageId)
                 .orElseThrow(() -> new Exception("Stage not found"));
 
-        List<ProjectImage> uploadedImages = new ArrayList<>();
-
         if (files == null || files.length == 0) {
             throw new Exception("No files provided");
         }
 
-        String stageDirPath = "projects/"+ stage.getProject().getId() + "/stage_" + stage.getStageNumber() + "/";
-        createImageDirectory(stageDirPath);
+        String stageDirPath = "projects/" + stage.getProject().getId() + "/stage_" + stage.getStageNumber();
+        Path folder = Paths.get(projectUploadDir, stageDirPath);
+        Files.createDirectories(folder);
+
+        List<ProjectImage> uploadedImages = new ArrayList<>();
 
         for (int i = 0; i < files.length; i++) {
             MultipartFile file = files[i];
+            if (file == null || file.isEmpty()) continue;
 
             String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            String filePath = stageDirPath + fileName;
+            String filePath = stageDirPath + "/" + fileName;
 
-            Path fullPath = Paths.get(projectUploadDir, filePath);
-            Files.write(fullPath, file.getBytes());
+            // NIO copy — reliable across all environments including Tomcat temp dirs
+            Files.copy(file.getInputStream(), folder.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
 
             ProjectImage image = new ProjectImage(
                     stage,
@@ -106,12 +110,11 @@ public class ImageService {
     public List<ProjectImage> getStageImages(Long stageId) throws Exception {
         ProjectStage stage = projectStageRepository.findById(stageId)
                 .orElseThrow(() -> new Exception("Stage not found"));
-
         return projectImageRepository.findByStageOrderByUploadedAtDesc(stage);
     }
 
     /**
-     * Get all images for a project
+     * Get all images for a project (across all stages)
      */
     public List<ProjectImage> getProjectImages(Long projectId) throws Exception {
         return projectImageRepository.findByProjectId(projectId);
@@ -123,13 +126,11 @@ public class ImageService {
     public void deleteImage(Long imageId) throws Exception {
         ProjectImage image = projectImageRepository.findById(imageId)
                 .orElseThrow(() -> new Exception("Image not found"));
-
         try {
             deleteImageFile(image.getFilePath());
         } catch (IOException e) {
             System.err.println("Failed to delete file from disk: " + e.getMessage());
         }
-
         projectImageRepository.deleteById(imageId);
     }
 
@@ -139,28 +140,15 @@ public class ImageService {
     public ProjectImage updateImageCaption(Long imageId, String caption) throws Exception {
         ProjectImage image = projectImageRepository.findById(imageId)
                 .orElseThrow(() -> new Exception("Image not found"));
-
         image.setCaption(caption);
         return projectImageRepository.save(image);
     }
 
-    /**
-     * Create image directory if not exists
-     */
-    private void createImageDirectory(String stageDirPath) throws IOException {
-        Path path = Paths.get(projectUploadDir, stageDirPath);
-        if (!Files.exists(path)) {
-            Files.createDirectories(path);
-        }
-    }
+    // ── Private Helpers ───────────────────────────────────────
 
-    /**
-     * Delete image file from disk
-     */
     private void deleteImageFile(String filePath) throws IOException {
-        Path path = Paths.get(projectUploadDir, filePath);
-        if (Files.exists(path)) {
-            Files.delete(path);
-        }
+        if (filePath == null) return;
+        Path path = Paths.get(projectUploadDir, filePath.replace('/', java.io.File.separatorChar));
+        Files.deleteIfExists(path);
     }
 }

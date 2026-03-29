@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mpho Yanga — Project Progress</title>
+    <title>Mpho Yanga . Project Progress</title>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -48,9 +48,9 @@
         .project-meta { font-size: 14px; color: var(--muted); margin-bottom: 4px; }
         .project-status-block { display: flex; flex-direction: column; gap: 12px; align-items: flex-end; }
         .status-badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
-        .status-badge.ongoing { background: rgba(232,118,42,0.2); color: #ffb347; }
-        .status-badge.paused { background: rgba(255,152,0,0.15); color: #ffb347; }
-        .status-badge.completed { background: rgba(60,181,74,0.2); color: #5debb8; }
+        .status-badge.ongoing  { background: rgba(232,118,42,0.2);  color: #ffb347; }
+        .status-badge.paused   { background: rgba(255,152,0,0.15);  color: #ffb347; }
+        .status-badge.completed{ background: rgba(60,181,74,0.2);   color: #5debb8; }
         .progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--green)); transition: width 0.5s ease; }
         .progress-text { font-size: 12px; color: var(--muted); margin-top: 8px; }
@@ -69,9 +69,9 @@
         .stage-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
         .stage-title { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 600; color: #fff; margin: 0; }
         .stage-status { display: inline-block; padding: 3px 10px; border-radius: 12px; font-weight: 600; text-transform: uppercase; font-size: 9px; letter-spacing: 0.5px; }
-        .stage-status.pending { background: rgba(255,152,0,0.15); color: #ffb347; }
-        .stage-status.ongoing { background: rgba(232,118,42,0.15); color: #ffb347; }
-        .stage-status.completed { background: rgba(60,181,74,0.15); color: #5debb8; }
+        .stage-status.pending   { background: rgba(255,152,0,0.15);  color: #ffb347; }
+        .stage-status.ongoing   { background: rgba(232,118,42,0.15); color: #ffb347; }
+        .stage-status.completed { background: rgba(60,181,74,0.15);  color: #5debb8; }
         .stage-desc { font-size: 13px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
         .stage-meta { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
         .images-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; margin-top: 16px; }
@@ -83,9 +83,6 @@
         .image-thumb:hover .image-overlay { opacity: 1; }
         .image-icon { font-size: 24px; color: #fff; }
         .no-images { padding: 16px; text-align: center; color: var(--muted); font-size: 13px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.08); border-radius: 12px; margin-top: 12px; }
-        .completion-marker { margin-top: 24px; padding-top: 24px; border-top: 1px dashed rgba(60,181,74,0.3); }
-        .completion-marker .stage-card { background: rgba(60,181,74,0.08); border: 1px solid rgba(60,181,74,0.25); }
-        .completion-marker .stage-card h3 { color: #5debb8; }
         .modal-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .modal-overlay.active { opacity: 1; pointer-events: all; }
         .modal { background: rgba(13,27,42,0.95); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 36px; max-width: 700px; width: 100%; transform: translateY(20px); transition: transform 0.3s; position: relative; }
@@ -93,7 +90,7 @@
         .modal-close { position: absolute; top: 20px; right: 20px; width: 36px; height: 36px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; font-size: 22px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
         .modal-close:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); }
         .modal-image { max-width: 100%; max-height: 500px; border-radius: 12px; margin-bottom: 16px; }
-        .modal-image-name { font-size: 13px; color: var(--muted); text-align: center; }
+        .modal-caption { font-size: 13px; color: var(--muted); text-align: center; }
         @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
         @media (max-width: 900px) { main { padding-left: 20px; padding-right: 20px; } .project-header-section { flex-direction: column; gap: 20px; } }
         @media (max-width: 600px) { nav, main { padding-left: 16px; padding-right: 16px; } .timeline-layout { flex-direction: column; } .project-details { grid-template-columns: 1fr; } }
@@ -176,199 +173,190 @@
     <div class="modal">
         <button class="modal-close" onclick="closeImageModal()">&times;</button>
         <img id="modalImage" class="modal-image" src="" alt="">
-        <p class="modal-image-name" id="modalImageName"></p>
+        <p class="modal-caption" id="modalCaption"></p>
     </div>
 </div>
 
 <script>
-    const API_BASE = 'http://localhost:8080/api';
+    const API_BASE = `${window.location.origin}/api`;
     let currentProjectId = null;
-    let currentProject = null;
-    let allStages = [];
+    let currentProject   = null;
+    let allStages        = [];
+
+    // Fallback SVG shown when an image fails to load
+    const BROKEN_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect fill='%23333' width='120' height='120'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23666' font-size='14'%3E?%3C/text%3E%3C/svg%3E";
 
     document.addEventListener('DOMContentLoaded', () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        currentProjectId = urlParams.get('id');
-
-        console.log('Page loaded. Current URL:', window.location.href);
-        console.log('Project ID from URL:', currentProjectId);
+        const urlParams      = new URLSearchParams(window.location.search);
+        currentProjectId     = urlParams.get('id');
 
         if (!currentProjectId) {
-            document.getElementById('stages-container').innerHTML = '<p style="color: #ff6b6b; text-align: center; padding: 40px 20px;">❌ No project ID provided. Please go back and select a project.</p>';
-            setTimeout(() => {
-                window.location.href = 'client-dashboard.html';
-            }, 3000);
+            document.getElementById('stages-container').innerHTML =
+                '<p style="color:#ff6b6b;text-align:center;padding:40px 20px;">❌ No project ID provided. Redirecting...</p>';
+            setTimeout(() => { window.location.href = 'client-dashboard.html'; }, 3000);
             return;
         }
 
-        console.log('Loading project with ID:', currentProjectId);
         loadProject();
     });
 
+    // ── LOAD PROJECT ─────────────────────────────────────────
+
     async function loadProject() {
         try {
-            console.log('Fetching project:', currentProjectId);
-            const response = await fetch(`${API_BASE}/projects/${currentProjectId}`, { credentials: 'include' });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const result = await response.json();
-            console.log('Project result:', result);
+            const res    = await fetch(`${API_BASE}/projects/${currentProjectId}`, { credentials: 'include' });
+            const result = await res.json();
 
             if (result.success && result.data) {
                 currentProject = result.data;
-                console.log('Project loaded:', currentProject);
                 renderProjectInfo();
                 await loadStages();
             } else {
-                console.error('Failed to load project:', result);
-                document.getElementById('stages-container').innerHTML = '<p style="color: var(--muted); text-align: center; padding: 40px 20px;">Failed to load project data</p>';
+                document.getElementById('stages-container').innerHTML =
+                    '<p style="color:var(--muted);text-align:center;padding:40px 20px;">Failed to load project data.</p>';
             }
         } catch (error) {
             console.error('Error loading project:', error);
-            document.getElementById('stages-container').innerHTML = `<p style="color: var(--muted); text-align: center; padding: 40px 20px;">Error: ${error.message}</p>`;
+            document.getElementById('stages-container').innerHTML =
+                `<p style="color:var(--muted);text-align:center;padding:40px 20px;">Error: ${error.message}</p>`;
         }
     }
 
     function renderProjectInfo() {
-        console.log('Rendering project info:', currentProject);
-        
-        if (!currentProject) {
-            console.error('No project data to render');
-            return;
-        }
+        if (!currentProject) return;
+        document.getElementById('project-name').textContent        = currentProject.name        || 'Unknown Project';
+        document.getElementById('project-service').textContent     = `Service: ${currentProject.serviceType  || '—'}`;
+        document.getElementById('project-location').textContent    = `Location: ${currentProject.location    || '—'}`;
+        document.getElementById('project-description').textContent = currentProject.description  || '—';
+        document.getElementById('project-budget').textContent      = currentProject.estimatedBudget
+            ? `ZWL ${currentProject.estimatedBudget.toFixed(2)}` : '—';
+        document.getElementById('project-date').textContent        = currentProject.createdAt
+            ? new Date(currentProject.createdAt).toLocaleDateString() : '—';
 
-        document.getElementById('project-name').textContent = currentProject.name || 'Unknown Project';
-        document.getElementById('project-service').textContent = `Service: ${currentProject.serviceType || '—'}`;
-        document.getElementById('project-location').textContent = `Location: ${currentProject.location || '—'}`;
-        document.getElementById('project-description').textContent = currentProject.description || '—';
-        document.getElementById('project-budget').textContent = currentProject.estimatedBudget ? `ZWL ${currentProject.estimatedBudget.toFixed(2)}` : '—';
-        document.getElementById('project-date').textContent = currentProject.createdAt ? new Date(currentProject.createdAt).toLocaleDateString() : '—';
-
-        const badge = document.getElementById('status-badge');
-        const status = currentProject.status || 'ONGOING';
-        badge.textContent = status;
-        badge.className = `status-badge ${status.toLowerCase()}`;
-        
-        console.log('Project info rendered successfully');
+        const status  = (currentProject.status || 'ONGOING').toLowerCase();
+        const badge   = document.getElementById('status-badge');
+        badge.textContent = status.toUpperCase();
+        badge.className   = `status-badge ${status}`;
     }
+
+    // ── LOAD STAGES ──────────────────────────────────────────
 
     async function loadStages() {
         try {
-            console.log('Fetching stages for project:', currentProjectId);
-            const response = await fetch(`${API_BASE}/projects/${currentProjectId}/stages`, { credentials: 'include' });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const result = await response.json();
-            console.log('Stages result:', result);
+            const res    = await fetch(`${API_BASE}/projects/${currentProjectId}/stages`, { credentials: 'include' });
+            const result = await res.json();
 
             if (result.success) {
                 allStages = result.data || [];
-                console.log('Loaded stages:', allStages);
-                
-                for (let stage of allStages) {
-                    await loadStageImages(stage.id);
-                }
-                
+                // Load images for every stage in parallel
+                await Promise.all(allStages.map(stage => loadStageImages(stage.id)));
                 renderStages();
                 updateProgress();
             } else {
-                console.error('Failed to load stages:', result);
-                document.getElementById('stages-container').innerHTML = '<p style="color: var(--muted); text-align: center; padding: 40px 20px;">No stages loaded</p>';
+                document.getElementById('stages-container').innerHTML =
+                    '<p style="color:var(--muted);text-align:center;padding:40px 20px;">No stages loaded.</p>';
             }
         } catch (error) {
             console.error('Error loading stages:', error);
-            document.getElementById('stages-container').innerHTML = `<p style="color: var(--muted); text-align: center; padding: 40px 20px;">Error loading stages: ${error.message}</p>`;
         }
     }
 
     async function loadStageImages(stageId) {
         try {
-            const response = await fetch(`${API_BASE}/projects/${currentProjectId}/stages/${stageId}/images`, { credentials: 'include' });
-            const result = await response.json();
-            const images = result.data || [];
+            const res    = await fetch(`${API_BASE}/projects/${currentProjectId}/stages/${stageId}/images`, { credentials: 'include' });
+            const result = await res.json();
 
-            const stage = allStages.find(s => s.id === stageId);
-            if (stage) {
-                stage.images = images;
-            }
+            // Controller returns images under result.images, not result.data
+            const images = result.images || result.data || [];
+            const stage  = allStages.find(s => s.id === stageId);
+            if (stage) stage.images = images;
         } catch (error) {
-            console.error('Error loading stage images:', error);
+            console.error(`Error loading images for stage ${stageId}:`, error);
         }
     }
+
+    // ── RENDER STAGES ────────────────────────────────────────
 
     function renderStages() {
         const container = document.getElementById('stages-container');
 
         if (allStages.length === 0) {
-            container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 40px 20px;">No stages added yet</p>';
+            container.innerHTML =
+                '<p style="color:var(--muted);text-align:center;padding:40px 20px;">No stages added yet.</p>';
             return;
         }
 
-        let html = '';
-        allStages.forEach((stage, index) => {
-            const images = stage.images || [];
+        let html = allStages.map((stage, index) => {
+            const images    = stage.images || [];
             const hasImages = images.length > 0;
-            
-            html += `
-                <div style="position: relative;">
+            const status    = (stage.status || 'PENDING').toLowerCase();
+
+            return `
+                <div style="position:relative;">
                     <div class="stage-number ${hasImages ? 'has-images' : ''}">${index + 1}</div>
                     <div class="stage-card">
                         <div class="stage-header">
-                            <h3 class="stage-title">${stage.stageName || stage.name}</h3>
-                            <span class="stage-status ${(stage.status || 'PENDING').toLowerCase()}">${stage.status || 'PENDING'}</span>
+                            <h3 class="stage-title">${stage.stageName || stage.name || 'Stage'}</h3>
+                            <span class="stage-status ${status}">${status.toUpperCase()}</span>
                         </div>
                         <p class="stage-desc">${stage.description || '—'}</p>
-                        <div class="stage-meta">📅 ${new Date(stage.createdAt).toLocaleDateString()} • 📸 ${images.length} image${images.length !== 1 ? 's' : ''}</div>
-                        ${images.length > 0 ? `
+                        <div class="stage-meta">
+                            📅 ${stage.createdAt ? new Date(stage.createdAt).toLocaleDateString() : '—'}
+                            &nbsp;•&nbsp;
+                            📸 ${images.length} image${images.length !== 1 ? 's' : ''}
+                        </div>
+                        ${hasImages ? `
                             <div class="images-gallery">
-                                ${images.map(img => `
-                                    <div class="image-thumb" onclick="openImageModal('/uploads/${img.filePath}', '${img.fileName}')">
-                                        <img src="/uploads/${img.filePath}" alt="${img.fileName}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22%3E%3Crect fill=%22%23333%22 width=%22120%22 height=%22120%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23666%22 font-size=%2214%22%3E?%3C/text%3E%3C/svg%3E'">
-                                        <div class="image-overlay"><span class="image-icon">🔍</span></div>
-                                    </div>
-                                `).join('')}
+                                ${images.map(img => {
+                                    // Use imageUrl (computed getter) if available,
+                                    // otherwise fall back to building from filePath
+                                    const src = img.imageUrl || (img.filePath ? `/uploads/${img.filePath.replace(/\\/g, '/')}` : '');
+                                    const caption = img.caption || img.fileName || '';
+                                    return `
+                                        <div class="image-thumb" onclick="openImageModal('${src}', '${caption.replace(/'/g, "\\'")}')">
+                                            <img src="${src}" alt="${img.fileName || 'Project image'}"
+                                                 onerror="this.src='${BROKEN_IMG}'">
+                                            <div class="image-overlay"><span class="image-icon">🔍</span></div>
+                                        </div>`;
+                                }).join('')}
                             </div>
-                        ` : `<div class="no-images">No images yet</div>`}
+                        ` : `<div class="no-images">No images uploaded for this stage yet.</div>`}
                     </div>
-                </div>
-            `;
-        });
+                </div>`;
+        }).join('');
 
+        // Completion marker
         if (currentProject && currentProject.status === 'COMPLETED') {
             html += `
-                <div style="position: relative; margin-top: 24px;">
-                    <div class="stage-number" style="background: rgba(60,181,74,0.3); border-color: var(--green); color: #5debb8;">✓</div>
-                    <div class="stage-card completion-marker">
-                        <h3 class="stage-title">Project Completed</h3>
-                        <p class="stage-desc">All stages have been completed successfully</p>
+                <div style="position:relative;margin-top:24px;">
+                    <div class="stage-number" style="background:rgba(60,181,74,0.3);border-color:var(--green);color:#5debb8;">✓</div>
+                    <div class="stage-card" style="background:rgba(60,181,74,0.08);border-color:rgba(60,181,74,0.25);">
+                        <h3 class="stage-title" style="color:#5debb8;">Project Completed</h3>
+                        <p class="stage-desc">All stages have been completed successfully.</p>
                         <div class="stage-meta">✓ ${new Date().toLocaleDateString()}</div>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
 
         container.innerHTML = html;
     }
 
+    // ── PROGRESS BAR ─────────────────────────────────────────
+
     function updateProgress() {
         if (allStages.length === 0) return;
-
-        const completedStages = allStages.filter(s => s.images && s.images.length > 0).length;
-        const percentage = Math.round((completedStages / allStages.length) * 100);
-
-        document.getElementById('progress-fill').style.width = percentage + '%';
-        document.getElementById('progress-text').textContent = `${percentage}% Complete (${completedStages}/${allStages.length} stages)`;
+        const withImages = allStages.filter(s => s.images && s.images.length > 0).length;
+        const pct        = Math.round((withImages / allStages.length) * 100);
+        document.getElementById('progress-fill').style.width = pct + '%';
+        document.getElementById('progress-text').textContent =
+            `${pct}% Complete (${withImages}/${allStages.length} stages with photos)`;
     }
 
-    function openImageModal(src, name) {
-        document.getElementById('modalImage').src = src;
-        document.getElementById('modalImageName').textContent = name;
+    // ── IMAGE MODAL ──────────────────────────────────────────
+
+    function openImageModal(src, caption) {
+        document.getElementById('modalImage').src         = src;
+        document.getElementById('modalCaption').textContent = caption;
         document.getElementById('imageModal').classList.add('active');
     }
 
@@ -376,16 +364,12 @@
         document.getElementById('imageModal').classList.remove('active');
     }
 
-    document.getElementById('imageModal').addEventListener('click', (e) => {
-        if (e.target.id === 'imageModal') {
-            closeImageModal();
-        }
+    document.getElementById('imageModal').addEventListener('click', e => {
+        if (e.target.id === 'imageModal') closeImageModal();
     });
 
-    // Auto-refresh every 30 seconds
-    setInterval(() => {
-        loadProject();
-    }, 30000);
+    // ── AUTO-REFRESH every 30 s ───────────────────────────────
+    setInterval(loadProject, 30000);
 </script>
 </body>
 </html>

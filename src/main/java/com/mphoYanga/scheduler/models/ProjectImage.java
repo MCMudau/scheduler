@@ -82,4 +82,11 @@ public class ProjectImage {
         return "ProjectImage{id=" + id + ", fileName='" + fileName + 
                "', stage=" + (stage != null ? stage.getId() : "N/A") + "}";
     }
+    public String getImageUrl() {
+        if (filePath == null) return null;
+        // normalize backslashes from Windows paths
+        String normalized = filePath.replace("\\", "/");
+        if (normalized.startsWith("/uploads/")) return normalized;
+        return "/uploads/" + normalized;
+    }
 }
