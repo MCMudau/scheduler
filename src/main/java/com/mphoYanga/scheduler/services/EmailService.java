@@ -163,6 +163,39 @@ public class EmailService {
         }
     }
 
+    public void sendQuotationRejected(String toEmail, String clientName,
+                                      String quotationNumber, String projectTitle) {
+        try {
+            log.info("=== ATTEMPTING TO SEND REJECTION EMAIL TO: {}", toEmail);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("api-key", brevoApiKey);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            String htmlContent = buildQuotationRejectedHtml(clientName, quotationNumber, projectTitle);
+
+            String body = String.format("""
+                {
+                    "sender": {"name": "%s", "email": "%s"},
+                    "to": [{"email": "%s", "name": "%s"}],
+                    "subject": "Mpho Yanga Construction — Update on Your Quotation",
+                    "htmlContent": %s
+                }
+                """,
+                    FROM_NAME, FROM_EMAIL, toEmail, clientName,
+                    objectMapper.writeValueAsString(htmlContent)
+            );
+
+            HttpEntity<String> request = new HttpEntity<>(body, headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(BREVO_API_URL, request, String.class);
+            log.info("=== REJECTION EMAIL SENT TO: {} | Status: {}", toEmail, response.getStatusCode());
+
+        } catch (Exception e) {
+            log.error("=== REJECTION MAIL FAILED: {}", e.getMessage(), e);
+            throw new RuntimeException("Rejection mail failed: " + e.getMessage(), e);
+        }
+    }
+
     // ── Email HTML builders ───────────────────────────────────────────
 
     /**
@@ -341,6 +374,60 @@ public class EmailService {
                 "© 2025 Mpho Yanga Construction · BP No. 0200269091 · Zimbabwe</p>" +
                 "</div>" +
 
+                "</div></body></html>";
+    }
+
+    private String buildQuotationRejectedHtml(String clientName, String quotationNumber,
+                                               String projectTitle) {
+        return "<!DOCTYPE html>" +
+                "<html><head><meta charset='UTF-8'></head>" +
+                "<body style='margin:0;padding:0;background:#f0f2f5;font-family:Arial,sans-serif;'>" +
+                "<div style='max-width:580px;margin:40px auto;background:#ffffff;border-radius:16px;" +
+                "overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.1);'>" +
+
+                "<div style='background:linear-gradient(135deg,#0d1b2a,#1a2e47);padding:32px 40px;text-align:center;'>" +
+                "<div style='display:inline-flex;gap:8px;margin-bottom:12px;'>" +
+                "<span style='background:#1a5fad;width:32px;height:32px;border-radius:7px;display:inline-block;line-height:32px;font-size:16px;'>🔨</span>" +
+                "<span style='background:#e8762a;width:32px;height:32px;border-radius:7px;display:inline-block;line-height:32px;font-size:16px;'>🧱</span>" +
+                "<span style='background:#3cb54a;width:32px;height:32px;border-radius:7px;display:inline-block;line-height:32px;font-size:16px;'>🖌️</span>" +
+                "</div>" +
+                "<h1 style='color:#ffffff;font-size:22px;margin:0;letter-spacing:1px;'>MPHO YANGA CONSTRUCTION</h1>" +
+                "<p style='color:rgba(255,255,255,0.5);font-size:11px;letter-spacing:3px;margin:4px 0 0;text-transform:uppercase;'>Client Portal</p>" +
+                "</div>" +
+
+                "<div style='background:#fff5f5;border-bottom:3px solid #e53e3e;padding:20px 40px;display:flex;align-items:center;gap:14px;'>" +
+                "<span style='font-size:28px;'>📋</span>" +
+                "<div>" +
+                "<div style='font-size:16px;font-weight:700;color:#742a2a;'>Quotation Not Approved</div>" +
+                "<div style='font-size:13px;color:#c53030;margin-top:2px;'>We were unable to proceed with this quotation at this time.</div>" +
+                "</div>" +
+                "</div>" +
+
+                "<div style='padding:36px 40px;'>" +
+                "<p style='font-size:16px;color:#333;margin-bottom:20px;'>Hi <strong>" + clientName + "</strong>,</p>" +
+                "<p style='font-size:14px;color:#555;line-height:1.7;margin-bottom:24px;'>" +
+                "Thank you for submitting your quotation request. After careful review, we are unable to " +
+                "proceed with quotation <strong>" + quotationNumber + "</strong> for <strong>" + projectTitle + "</strong> at this time.</p>" +
+
+                "<div style='background:#fff5f5;border:1px solid #fed7d7;border-radius:10px;padding:18px 20px;margin-bottom:24px;'>" +
+                "<div style='font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#c53030;font-weight:700;margin-bottom:8px;'>Quotation Details</div>" +
+                "<div style='font-size:13px;color:#4a5568;'><strong>Reference:</strong> " + quotationNumber + "</div>" +
+                "<div style='font-size:13px;color:#4a5568;margin-top:4px;'><strong>Project:</strong> " + projectTitle + "</div>" +
+                "</div>" +
+
+                "<p style='font-size:14px;color:#555;line-height:1.7;margin-bottom:24px;'>" +
+                "We encourage you to reach out to our team if you would like to discuss your requirements " +
+                "further or submit a revised quotation. We value your interest and hope to work with you in the future.</p>" +
+
+                "<div style='background:#f0f6ff;border:1px solid #bee3f8;border-radius:10px;padding:18px 20px;margin-bottom:24px;'>" +
+                "<div style='font-size:13px;font-weight:700;color:#2c5282;margin-bottom:8px;'>Contact Us</div>" +
+                "<div style='font-size:13px;color:#4a5568;'>📧 <a href='mailto:mudaumuthusi@gmail.com' style='color:#1a5fad;'>mudaumuthusi@gmail.com</a></div>" +
+                "</div>" +
+                "</div>" +
+
+                "<div style='background:#f8f8f8;border-top:1px solid #eee;padding:20px 40px;text-align:center;'>" +
+                "<p style='font-size:12px;color:#aaa;margin:0;'>© 2025 Mpho Yanga Construction · BP No. 0200269091 · Zimbabwe</p>" +
+                "</div>" +
                 "</div></body></html>";
     }
 }

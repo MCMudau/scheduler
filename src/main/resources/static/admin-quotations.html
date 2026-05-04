@@ -649,7 +649,7 @@
             const items = q.quotationItems || [];
             const total = q.totalAmount || 0;
             const date = new Date(q.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-            const clientName = q.client ? (q.client.firstName + ' ' + q.client.lastName) : 'Unknown Client';
+            const clientName = q.client ? (q.client.name + ' ' + q.client.surname) : 'Unknown Client';
 
             const needsReview = q.status === 'SENT';
 
@@ -672,8 +672,8 @@
                     </button>`;
             } else if (q.status === 'ACCEPTED') {
                 actionsHtml = `
-                    <button class="action-btn btn-confirm" onclick="adminApp.openReviewModal(${q.quotationId})">
-                        <i class="fas fa-file-pdf"></i> View / PDF
+                    <button class="action-btn btn-confirm" onclick="window.open('/api/quotations/${q.quotationId}/pdf?inline=true','_blank')">
+                        <i class="fas fa-file-pdf"></i> View PDF
                     </button>`;
             } else {
                 actionsHtml = `<button class="action-btn" onclick="adminApp.openReviewModal(${q.quotationId})"><i class="fas fa-eye"></i> View</button>`;
@@ -721,7 +721,7 @@
             this.currentQuotation = q;
             this.currentItemPrices = {};
 
-            const clientName = q.client ? (q.client.firstName + ' ' + q.client.lastName) : 'Unknown Client';
+            const clientName = q.client ? (q.client.name + ' ' + q.client.surname) : 'Unknown Client';
             document.getElementById('reviewModalTitle').textContent = q.title || 'Review Quotation';
             document.getElementById('reviewModalSub').textContent = `Set unit prices for each item — totals update automatically`;
             document.getElementById('reviewClientName').textContent = clientName;
@@ -852,7 +852,7 @@
         }
 
         showPDFPreview(q) {
-            const clientName = q.client ? (q.client.firstName + ' ' + q.client.lastName) : 'Client';
+            const clientName = q.client ? (q.client.name + ' ' + q.client.surname) : 'Client';
             const clientEmail = q.client?.email || '';
             const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
             const validUntil = q.validUntil ? new Date(q.validUntil).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : 'N/A';
@@ -989,9 +989,12 @@
 
             try {
                 if (type === 'reject') {
-                    const params = new URLSearchParams({ status: 'REJECTED', updatedBy: 'admin' });
-                    await fetch(`${API_BASE}/quotations/${quotationId}/status?${params}`, { method: 'PUT' });
-                    this.showToast('Quotation rejected', 'info');
+                    const res = await fetch(`${API_BASE}/quotations/${quotationId}/decline`, { method: 'POST' });
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({}));
+                        throw new Error(err.error || 'Server error');
+                    }
+                    this.showToast('Quotation declined — client has been notified by email', 'info');
                     closeModal('reviewModal');
                     closeModal('pdfPreviewModal');
                     await this.loadQuotations();
