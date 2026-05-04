@@ -56,7 +56,7 @@ public class QuotationService {
      */
     @Transactional(readOnly = true)
     public List<Quotation> getAllQuotations() {
-        return quotationRepository.findAll();
+        return quotationRepository.findAllByOrderByCreatedAtDesc();
     }
 
     /**

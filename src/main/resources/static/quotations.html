@@ -126,6 +126,9 @@
 
         .btn-done { background: rgba(60,181,74,0.15) !important; border-color: rgba(60,181,74,0.4) !important; color: #5debb8 !important; }
         .btn-done:hover { background: rgba(60,181,74,0.25) !important; }
+        .btn-done:disabled { opacity: 0.35 !important; cursor: not-allowed !important; pointer-events: none !important; }
+
+        .quote-card.active-card { border-color: rgba(26,95,173,0.7) !important; background: rgba(26,95,173,0.08) !important; box-shadow: 0 0 0 2px rgba(26,95,173,0.3), 0 12px 40px rgba(0,0,0,0.3) !important; transform: translateY(-4px); }
 
         .btn-delete-draft { background: rgba(220,50,50,0.15) !important; border-color: rgba(220,50,50,0.4) !important; color: #ff6b6b !important; }
         .btn-delete-draft:hover { background: rgba(220,50,50,0.25) !important; }
@@ -330,10 +333,6 @@
             <div class="form-group">
                 <label class="form-label">Quotation Title *</label>
                 <input type="text" class="form-input" id="quoteTitle" placeholder="e.g., Bathroom Renovation" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Description</label>
-                <textarea class="form-textarea" id="quoteDesc" placeholder="Add detailed description..."></textarea>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn-modal secondary" onclick="closeModal('createQuoteModal')">Cancel</button>
@@ -865,6 +864,12 @@ debugger;
         createQuotationCard(quote) {
             const card = document.createElement('div');
             card.className = 'quote-card';
+            if (this.selectedQuotationId === quote.quotationId) card.classList.add('active-card');
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.quote-card').forEach(c => c.classList.remove('active-card'));
+                card.classList.add('active-card');
+                this.selectedQuotationId = quote.quotationId;
+            });
 
             const statusClass = quote.status.toLowerCase();
             const itemsCount = quote.quotationItems ? quote.quotationItems.length : 0;
@@ -894,7 +899,7 @@ debugger;
                         <i class="fas fa-plus"></i> Item
                     </button>
                     ${itemsCount > 0 ? `<button class="action-btn btn-delete-items" onclick="app.confirmDeleteAllItems(${quote.quotationId})"><i class="fas fa-trash"></i> Items</button>` : ''}
-                    <button class="action-btn btn-done" onclick="app.publishQuotation(${quote.quotationId})">
+                    <button class="action-btn btn-done" onclick="app.publishQuotation(${quote.quotationId})" ${itemsCount === 0 ? 'disabled title="Add at least one item before submitting"' : ''}>
                         <i class="fas fa-check"></i> Done
                     </button>
                     <button class="action-btn btn-delete-draft" onclick="app.confirmDelete(${quote.quotationId}, '${quote.title}')">
@@ -961,7 +966,6 @@ debugger;
             e.preventDefault();
 
             const title = document.getElementById('quoteTitle').value;
-            const description = document.getElementById('quoteDesc').value;
 
             if (!title) {
                 this.showToast('Please fill required fields', 'error');
@@ -969,15 +973,17 @@ debugger;
             }
 
             try {
-                const params = new URLSearchParams({ title, description });
+                const params = new URLSearchParams({ title });
                 const response = await fetch(`/api/quotations/create?${params}`, { method: 'POST' });
 
                 if (!response.ok) throw new Error('Failed to create quotation');
 
-                this.showToast('Quotation created successfully! ✓', 'success');
+                const created = await response.json();
+                this.selectedQuotationId = created.quotationId;
                 closeModal('createQuoteModal');
                 document.getElementById('createQuoteForm').reset();
                 await this.loadQuotations();
+                this.showToast('Quotation created! Now add your items using the + Item button on the card.', 'success');
             } catch (error) {
                 console.error('Error:', error);
                 this.showToast('Failed to create quotation', 'error');
