@@ -207,6 +207,50 @@ public class QuotationPdfController {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    // ADMIN — DECLINE QUOTATION
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @PostMapping("/{quotationId}/decline")
+    public ResponseEntity<?> declineQuotation(
+            @PathVariable Long quotationId,
+            HttpSession session) {
+
+        Long adminId = (Long) session.getAttribute("userId");
+        if (adminId == null) adminId = (Long) session.getAttribute("adminId");
+        if (adminId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Admin session not found"));
+        }
+
+        Optional<Quotation> opt = quotationService.getQuotationById(quotationId);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+
+        Quotation quotation = opt.get();
+
+        try {
+            quotationService.updateQuotationStatus(quotationId, QuotationStatus.REJECTED,
+                    "admin:" + adminId);
+
+            try {
+                emailService.sendQuotationRejected(
+                        quotation.getClient().getEmail(),
+                        quotation.getClient().getName(),
+                        quotation.getQuotationNumber(),
+                        quotation.getTitle() != null ? quotation.getTitle() : "Construction Project"
+                );
+            } catch (Exception emailErr) {
+                System.err.println("[QuotationPdfController] Rejection email failed: " + emailErr.getMessage());
+            }
+
+            return ResponseEntity.ok(Map.of("success", true, "message", "Quotation declined and client notified"));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to decline quotation: " + e.getMessage()));
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     // CLIENT — LIST MY CONFIRMED DOCUMENTS
     // ─────────────────────────────────────────────────────────────────────────
 

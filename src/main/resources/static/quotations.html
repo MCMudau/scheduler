@@ -1125,14 +1125,18 @@ debugger;
                 return;
             }
 
-            gallery.innerHTML = images.map(img => `
+            gallery.innerHTML = images.map(img => {
+                const rawPath = img.imagePath.replace(/^.*uploads[/\\]/, '').replace(/\\/g, '/');
+                const imgUrl = '/uploads/' + rawPath;
+                return `
                 <div class="gallery-item">
-                    <img src="/${img.imagePath}" alt="${img.description}" onclick="openLightbox('/uploads/${img.imagePath}')">
+                    <img src="${imgUrl}" alt="${img.description || ''}" onclick="openLightbox('${imgUrl}')">
                     <button type="button" class="gallery-item-remove" onclick="app.deleteItemImage(${img.id})">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         switchItemDetailTab(tabName) {

@@ -28,7 +28,7 @@ public class QuotationService {
     private final QuotationItemImageRepository quotationItemImageRepository;
     private final ClientRepository clientRepository;
 
-    @Value("${file.upload-dir:uploads/quotations}")
+    @Value("${project.upload.dir}")
     private String uploadDir;
 
     /**
