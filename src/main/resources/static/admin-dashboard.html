@@ -11,49 +11,7 @@
 
 <div class="app">
 
-    <!-- ── SIDEBAR ─────────────────────────────────────────── -->
-    <aside class="sidebar" id="sidebar">
-
-        <div class="sb-logo">
-            <div class="sb-logo-icons">
-                <div class="sb-logo-icon b">🔨</div>
-                <div class="sb-logo-icon o">🧱</div>
-                <div class="sb-logo-icon g">🖌️</div>
-            </div>
-            <div class="sb-brand-text">
-                <span class="sb-brand">MPHO <em>YAN</em>GA</span>
-                <span class="sb-sub">Admin Portal</span>
-            </div>
-        </div>
-
-        <nav class="sb-nav">
-            <span class="sb-section-label">Main</span>
-            <button class="sb-item active" data-page="dashboard"><span class="sb-icon">⊞</span> Dashboard</button>
-            <a class="sb-item nav-link" href="projects.html" data-admin-id=""><span class="sb-icon">📋</span> Projects</a>
-            <a class="sb-item nav-link" href="admin-quotations.html" data-admin-id=""><span class="sb-icon">📄</span> Quotations <span class="sb-badge">3</span></a>
-            <a class="sb-item nav-link" href="calendar.html" data-admin-id=""><span class="sb-icon">📅</span> Calendar</a>
-            <a class="sb-item active" href="admin-previous-projects.html"><span class="sb-icon">🏆</span> Past Projects</a>
-
-            <span class="sb-section-label">Manage</span>
-            <a class="sb-item nav-link" href="services.html" data-admin-id=""><span class="sb-icon">🔧</span> Services</a>
-            <a class="sb-item nav-link" href="clients.html" data-admin-id=""><span class="sb-icon">👥</span> Clients</a>
-            <a class="sb-item nav-link" href="team.html" data-admin-id=""><span class="sb-icon">👷</span> Team</a>
-            <a class="sb-item nav-link" href="reports.html" data-admin-id=""><span class="sb-icon">📊</span> Reports</a>
-
-            <span class="sb-section-label">Account</span>
-            <a class="sb-item nav-link" href="settings.html" data-admin-id=""><span class="sb-icon">⚙️</span> Settings</a>
-            <button class="sb-item" id="logout-btn"><span class="sb-icon">↩</span> Logout</button>
-        </nav>
-
-        <div class="sb-footer">
-            <div class="sb-avatar" id="sb-avatar">MA</div>
-            <div>
-                <span class="sb-user-name" id="sb-name">Admin</span>
-                <span class="sb-user-role">Administrator</span>
-            </div>
-        </div>
-    </aside>
-
+    <aside class="sidebar" id="sidebar"></aside>
     <div class="overlay" id="overlay"></div>
 
     <!-- ── MAIN ───────────────────────────────────────────── -->
@@ -136,7 +94,7 @@
 
             <div class="qa-grid">
 
-                <div class="qa-card qa-blue" style="--d:0.05s" onclick="navigateToPage('projects.html')">
+                <div class="qa-card qa-blue" style="--d:0.05s" onclick="location.href='projects.html'">
                     <div class="qa-top">
                         <div class="qa-icon-wrap">📋</div>
                         <span class="qa-arrow">↗</span>
@@ -145,7 +103,7 @@
                     <p>Create a project and begin tracking progress updates for a client in real time</p>
                 </div>
 
-                <div class="qa-card qa-orange" style="--d:0.1s" onclick="navigateToPage('clients-quotations.html')">
+                <div class="qa-card qa-orange" style="--d:0.1s" onclick="location.href='admin-quotations.html'">
                     <div class="qa-top">
                         <div class="qa-icon-wrap">📄</div>
                         <span class="qa-badge-dot">3 pending</span>
@@ -154,7 +112,7 @@
                     <p>Verify, accept or decline client quote requests before work begins</p>
                 </div>
 
-                <div class="qa-card qa-green" style="--d:0.15s" onclick="navigateToPage('calendar.html')">
+                <div class="qa-card qa-green" style="--d:0.15s" onclick="location.href='calendar.html'">
                     <div class="qa-top">
                         <div class="qa-icon-wrap">📅</div>
                         <span class="qa-arrow">↗</span>
@@ -163,7 +121,7 @@
                     <p>Open new availability for consultations, site visits or client meetings</p>
                 </div>
 
-                <div class="qa-card qa-blue" style="--d:0.2s" onclick="navigateToPage('services.html')">
+                <div class="qa-card qa-blue" style="--d:0.2s" onclick="location.href='services.html'">
                     <div class="qa-top">
                         <div class="qa-icon-wrap">🔧</div>
                         <span class="qa-arrow">↗</span>
@@ -172,7 +130,7 @@
                     <p>Register a new service offering to the company's public portfolio</p>
                 </div>
 
-                <div class="qa-card qa-orange" style="--d:0.25s" onclick="navigateToPage('clients.html')">
+                <div class="qa-card qa-orange" style="--d:0.25s" onclick="location.href='clients.html'">
                     <div class="qa-top">
                         <div class="qa-icon-wrap">👥</div>
                         <span class="qa-arrow">↗</span>
@@ -181,7 +139,7 @@
                     <p>View client profiles, project history and active job assignments</p>
                 </div>
 
-                <div class="qa-card qa-green" style="--d:0.3s" onclick="navigateToPage('team.html')">
+                <div class="qa-card qa-green" style="--d:0.3s" onclick="location.href='team.html'">
                     <div class="qa-top">
                         <div class="qa-icon-wrap">👷</div>
                         <span class="qa-arrow">↗</span>
@@ -190,7 +148,7 @@
                     <p>Assign workers to projects and keep track of workforce availability</p>
                 </div>
 
-                <div class="qa-card qa-blue" style="--d:0.35s" onclick="navigateToPage('reports.html')">
+                <div class="qa-card qa-blue" style="--d:0.35s" onclick="location.href='reports.html'">
                     <div class="qa-top">
                         <div class="qa-icon-wrap">📊</div>
                         <span class="qa-arrow">↗</span>
@@ -199,7 +157,7 @@
                     <p>Revenue summaries, project completion rates and performance analytics</p>
                 </div>
 
-                <div class="qa-card qa-orange" style="--d:0.4s" onclick="navigateToPage('settings.html')">
+                <div class="qa-card qa-orange" style="--d:0.4s" onclick="location.href='settings.html'">
                     <div class="qa-top">
                         <div class="qa-icon-wrap">⚙️</div>
                         <span class="qa-arrow">↗</span>
@@ -233,7 +191,7 @@
                 <div class="panel">
                     <div class="panel-hdr">
                         <h3>Pending Quotations</h3>
-                        <a href="#" class="panel-link" onclick="navigateToPage('quotations.html'); return false;">Review all →</a>
+                        <a href="#" class="panel-link" onclick="location.href='admin-quotations.html'; return false;">Review all →</a>
                     </div>
                     <div class="quote-list">
                         <div class="quote-item">
@@ -404,14 +362,7 @@ const API_BASE = getApiBase();
         }
     }
 
-    // Handle nav link clicks
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const href = link.getAttribute('href');
-            navigateToPage(href);
-        });
-    });
+    // Nav links navigate directly — session cookie persists automatically
 
     // ── COUNTER ANIMATION ─────────────────────────────────────────
     function animateCount(el, target) {
@@ -463,30 +414,6 @@ const API_BASE = getApiBase();
       overlay.classList.toggle('show');
     });
     overlay.addEventListener('click', closeSidebar);
-
-    // ── LOGOUT ───────────────────────────────────────────────────
-    document.getElementById('logout-btn').addEventListener('click', async () => {
-      try {
-        console.log('Logging out...');
-
-        // Clear backend session
-        await fetch(`${API_BASE}/admin/clear-session`, {
-            method: 'POST',
-            credentials: 'include'
-        });
-
-        // Clear frontend storage
-        localStorage.removeItem('admin');
-        sessionStorage.removeItem('admin');
-
-        console.log('Session cleared. Redirecting to login...');
-        window.location.href = 'login.html';
-      } catch (error) {
-        console.error('Logout error:', error);
-        // Still redirect even if there's an error
-        window.location.href = 'login.html';
-      }
-    });
 
     // ── QUICK ACCEPT / DECLINE QUOTATIONS ─────────────────────────
     document.querySelectorAll('.qi-btn.acc').forEach(btn => {
@@ -581,6 +508,6 @@ const API_BASE = getApiBase();
         }
     }
 </script>
-
+<script src="admin-sidebar.js"></script>
 </body>
 </html>

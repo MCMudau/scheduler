@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -34,31 +34,6 @@
             overflow-x: hidden;
         }
 
-        /* ─── TOPBAR ─────────────────────────────────────────────────── */
-        nav {
-            position: sticky; top: 0; z-index: 100;
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            box-shadow: 0 1px 8px rgba(26,95,173,0.07);
-            padding: 0 32px;
-            display: flex; align-items: center; justify-content: space-between;
-            height: 66px;
-        }
-        .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-        .nav-icons { display: flex; gap: 5px; }
-        .nav-icon { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-        .nav-icon.b { background: var(--blue); color: #fff; }
-        .nav-icon.o { background: var(--orange); color: #fff; }
-        .nav-icon.g { background: var(--green); color: #fff; }
-        .nav-brand { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1px; color: var(--text); }
-        .nav-brand span { color: var(--orange); }
-        .nav-badge { background: linear-gradient(135deg, var(--blue), var(--blue-lt)); color: #fff; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 10px; border-radius: 100px; font-weight: 600; }
-        .nav-right { display: flex; align-items: center; gap: 14px; }
-        .nav-link { display: flex; align-items: center; gap: 7px; padding: 7px 16px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; text-decoration: none; transition: all 0.2s; font-weight: 500; }
-        .nav-link:hover { border-color: var(--blue); color: var(--blue); background: rgba(26,95,173,0.05); }
-        .nav-link.active { border-color: var(--blue); color: var(--blue); background: rgba(26,95,173,0.08); }
-        .nav-user { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); font-weight: 500; }
-        .nav-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), var(--green)); display: flex; align-items: center; justify-content: center; font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700; color: #fff; }
 
         /* ─── MAIN ───────────────────────────────────────────────────── */
         main { padding: 40px 32px 80px; max-width: 1440px; margin: 0 auto; }
@@ -293,40 +268,10 @@
     </style>
 </head>
 <body>
-
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- NAV                                                              -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<nav>
-    <a href="/admin/dashboard" class="nav-logo">
-        <div class="nav-icons">
-            <div class="nav-icon b">🔨</div>
-            <div class="nav-icon o">🧱</div>
-            <div class="nav-icon g">🖌️</div>
-        </div>
-        <span class="nav-brand">MPHO <span>YAN</span>GA</span>
-    </a>
-
-    <div style="display:flex; align-items:center; gap: 10px;">
-        <a href="/admin-dashboard.html" class="nav-link"><i class="fas fa-grid-2"></i> Dashboard</a>
-
-        <a href="/admin-quotations.html" class="nav-link active"><i class="fas fa-file-invoice-dollar"></i> Quotations</a>
-
-    </div>
-
-    <div class="nav-right">
-        <span class="nav-badge">Admin</span>
-        <div class="nav-user">
-            <div class="nav-avatar" id="userAvatar">A</div>
-            <span id="userName">Admin</span>
-        </div>
-    </div>
-</nav>
-
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- MAIN                                                             -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<main>
+<div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="overlay" id="overlay"></div>
+    <main class="main" style="background:var(--bg,#f4f6fb);">
     <!-- PAGE HEADER -->
     <div class="page-header">
         <div>
@@ -1143,5 +1088,7 @@
     let adminApp;
     document.addEventListener('DOMContentLoaded', () => { adminApp = new AdminQuotationApp(); });
 </script>
+</main></div>
+<script src="admin-sidebar.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -386,43 +386,7 @@
 <body>
 <div class="shell">
 
-    <!-- ══ SIDEBAR ══════════════════════════════════════════════ -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sb-logo">
-            <div class="sb-logo-icons">
-                <div class="sb-logo-icon b">🔨</div>
-                <div class="sb-logo-icon o">🧱</div>
-                <div class="sb-logo-icon g">🖌️</div>
-            </div>
-            <div>
-                <span class="sb-brand">MPHO <em>YAN</em>GA</span>
-                <span class="sb-sub">Admin Portal</span>
-            </div>
-        </div>
-        <nav class="sb-nav">
-            <span class="sb-section-label">Main</span>
-            <a class="sb-item" href="admin-dashboard.html"><span class="sb-icon">⊞</span> Dashboard</a>
-            <a class="sb-item" href="projects.html"><span class="sb-icon">📋</span> Projects</a>
-            <a class="sb-item" href="quotations.html"><span class="sb-icon">📄</span> Quotations <span class="sb-badge">3</span></a>
-            <a class="sb-item active" href="calendar.html"><span class="sb-icon">📅</span> Calendar</a>
-            <a class="sb-item active" href="admin-previous-projects.html"><span class="sb-icon">🏆</span> Past Projects</a>
-            <span class="sb-section-label">Manage</span>
-            <a class="sb-item" href="services.html"><span class="sb-icon">🔧</span> Services</a>
-            <a class="sb-item" href="clients.html"><span class="sb-icon">👥</span> Clients</a>
-            <a class="sb-item" href="team.html"><span class="sb-icon">👷</span> Team</a>
-            <a class="sb-item" href="reports.html"><span class="sb-icon">📊</span> Reports</a>
-            <span class="sb-section-label">Account</span>
-            <a class="sb-item" href="settings.html"><span class="sb-icon">⚙️</span> Settings</a>
-            <button class="sb-item" id="logout-btn"><span class="sb-icon">↩</span> Logout</button>
-        </nav>
-        <div class="sb-footer">
-            <div class="sb-avatar" id="sb-avatar">MA</div>
-            <div>
-                <span class="sb-user-name" id="sb-name">Admin</span>
-                <span class="sb-user-role">Administrator</span>
-            </div>
-        </div>
-    </aside>
+    <aside class="sidebar" id="sidebar"></aside>
 
     <div class="overlay" id="overlay"></div>
 
@@ -1299,58 +1263,20 @@
     });
 
     // ══════════════════════════════════════════════════════════════
-    //  SIDEBAR TOGGLE
-    // ══════════════════════════════════════════════════════════════
-
-    const sidebar = document.getElementById('sidebar');
-    const ov      = document.getElementById('overlay');
-    document.getElementById('hamburger').addEventListener('click', () => {
-        sidebar.classList.toggle('open');
-        ov.classList.toggle('show');
-    });
-    ov.addEventListener('click', () => {
-        sidebar.classList.remove('open');
-        ov.classList.remove('show');
-    });
-
-    // ══════════════════════════════════════════════════════════════
-    //  LOGOUT
-    // ══════════════════════════════════════════════════════════════
-
-    document.getElementById('logout-btn').addEventListener('click', async () => {
-        try { await fetch('/api/admin/logout', {method: 'POST'}); }
-        finally { window.location.href = '/'; }
-    });
-
-    // ══════════════════════════════════════════════════════════════
-    //  BOOT  — session check → load all slots → render today
+    //  BOOT  — load all slots → render today
     // ══════════════════════════════════════════════════════════════
 
     async function boot() {
-        // 1. Verify session and grab adminId
-        let session;
+        // Read adminId from session (non-blocking — sidebar already loaded it)
         try {
-            const r = await fetch('/api/admin/session');
-            session = await r.json();
-        } catch {
-            window.location.href = '/login';
-            return;
-        }
+            const r = await fetch('/api/admin/current-session', { credentials: 'include' });
+            if (r.ok) {
+                const d = await r.json();
+                if (d && d.data) adminId = d.data.id;
+            }
+        } catch { /* non-fatal */ }
 
-        if (!session.loggedIn) {
-            window.location.href = '/login';
-            return;
-        }
-
-        // Populate admin identity in the UI
-        adminId = session.adminId;
-        const name = session.name || 'Admin';
-        const ini  = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-        document.getElementById('sb-name').textContent   = name;
-        document.getElementById('sb-avatar').textContent = ini;
-        document.getElementById('tb-avatar').textContent = ini;
-
-        // 2. Load all slots so the strip dots are populated on first paint
+        // Load all slots so the strip dots are populated on first paint
         try {
             const raw = await apiLoadAllSlots();
             slots = raw.map(normaliseSlot);
@@ -1365,4 +1291,5 @@
 
     boot();
 </script>
+<script src="admin-sidebar.js"></script>
 </body>

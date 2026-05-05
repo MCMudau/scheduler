@@ -12,47 +12,7 @@
 <div class="app">
 
     <!-- ── SIDEBAR ─────────────────────────────────────────── -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sb-logo">
-            <div class="sb-logo-icons">
-                <div class="sb-logo-icon b">🔨</div>
-                <div class="sb-logo-icon o">🧱</div>
-                <div class="sb-logo-icon g">🖌️</div>
-            </div>
-            <div class="sb-brand-text">
-                <span class="sb-brand">MPHO <em>YAN</em>GA</span>
-                <span class="sb-sub">Admin Portal</span>
-            </div>
-        </div>
-
-        <nav class="sb-nav">
-            <span class="sb-section-label">Main</span>
-            <a class="sb-item" href="admin-dashboard.html"><span class="sb-icon">⊞</span> Dashboard</a>
-            <button class="sb-item active" data-page="projects"><span class="sb-icon">📋</span> Projects</button>
-            <a class="sb-item" href="quotations.html"><span class="sb-icon">📄</span> Quotations</a>
-            <a class="sb-item" href="calendar.html"><span class="sb-icon">📅</span> Calendar</a>
-            <a class="sb-item active" href="admin-previous-projects.html"><span class="sb-icon">🏆</span> Past Projects</a>
-
-            <span class="sb-section-label">Manage</span>
-            <a class="sb-item" href="services.html"><span class="sb-icon">🔧</span> Services</a>
-            <a class="sb-item" href="clients.html"><span class="sb-icon">👥</span> Clients</a>
-            <a class="sb-item" href="team.html"><span class="sb-icon">👷</span> Team</a>
-
-            <a class="sb-item" href="reports.html"><span class="sb-icon">📊</span> Reports</a>
-
-            <span class="sb-section-label">Account</span>
-            <a class="sb-item" href="settings.html"><span class="sb-icon">⚙️</span> Settings</a>
-            <button class="sb-item" id="logout-btn"><span class="sb-icon">↩</span> Logout</button>
-        </nav>
-
-        <div class="sb-footer">
-            <div class="sb-avatar" id="sb-avatar">MA</div>
-            <div>
-                <span class="sb-user-name" id="sb-name">Admin</span>
-                <span class="sb-user-role">Administrator</span>
-            </div>
-        </div>
-    </aside>
+    <aside class="sidebar" id="sidebar"></aside>
 
     <div class="overlay" id="overlay"></div>
 
@@ -1003,40 +963,10 @@
             // TODO: Implement add stage modal
         });
 
-        // Logout
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            try {
-                console.log('Logging out...');
-                // Call backend to clear session
-                await fetch(`${API_BASE}/admin/clear-session`, {
-                    method: 'POST',
-                    credentials: 'include'
-                });
-            } catch (error) {
-                console.error('Logout error:', error);
-            }
-
-            // Clear frontend storage
-            sessionStorage.removeItem('admin');
-            localStorage.removeItem('admin');
-
-            console.log('Session cleared. Redirecting to login...');
-            window.location.href = 'login.html';
-        });
-
-        // Hamburger menu
-        document.getElementById('hamburger').addEventListener('click', () => {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
-            document.getElementById('overlay').classList.toggle('active');
-        });
-
-        document.getElementById('overlay').addEventListener('click', () => {
-            document.getElementById('sidebar').classList.remove('mobile-open');
-            document.getElementById('overlay').classList.remove('active');
-        });
     }
 
 </script>
+<script src="admin-sidebar.js"></script>
 
 </body>
 </html>
