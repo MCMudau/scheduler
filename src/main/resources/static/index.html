@@ -603,48 +603,7 @@
             <p class="section-sub">Honest feedback from the people we've worked with across Zimbabwe.</p>
         </div>
         <div class="testimonials-track">
-            <div class="testi-cards" id="testi-cards">
-                <div class="testi-card">
-                    <div class="testi-stars">★★★★★</div>
-                    <blockquote>"Mpho Yanga completely transformed my kitchen with their tiling work. Absolutely professional from start to finish — on time, clean and the results are stunning."</blockquote>
-                    <div class="testi-author">
-                        <div class="testi-avatar blue">TM</div>
-                        <div><strong>Tendai Mutasa</strong><span>Homeowner · Harare</span></div>
-                    </div>
-                </div>
-                <div class="testi-card">
-                    <div class="testi-stars">★★★★★</div>
-                    <blockquote>"We had a burst pipe emergency and they were on site within 2 hours. Fixed it properly and gave us a written report. Saved us from serious damage."</blockquote>
-                    <div class="testi-author">
-                        <div class="testi-avatar orange">BK</div>
-                        <div><strong>Blessing Kambarami</strong><span>Property Manager · Bulawayo</span></div>
-                    </div>
-                </div>
-                <div class="testi-card">
-                    <div class="testi-stars">★★★★★</div>
-                    <blockquote>"The ceiling installation was flawless. I was nervous because of previous contractors who left a mess — Mpho Yanga were clean, punctual and professional throughout."</blockquote>
-                    <div class="testi-author">
-                        <div class="testi-avatar green">TR</div>
-                        <div><strong>Tarisai Rusike</strong><span>Homeowner · Chitungwiza</span></div>
-                    </div>
-                </div>
-                <div class="testi-card">
-                    <div class="testi-stars">★★★★★</div>
-                    <blockquote>"Used them for painting our office block and warehouse. Very competitive pricing and the finish quality matched what I saw on their portfolio. Will use again."</blockquote>
-                    <div class="testi-author">
-                        <div class="testi-avatar blue">KD</div>
-                        <div><strong>Kudakwashe Dube</strong><span>Business Owner · Gweru</span></div>
-                    </div>
-                </div>
-                <div class="testi-card">
-                    <div class="testi-stars">★★★★★</div>
-                    <blockquote>"They tiled our new kitchen and bathrooms and the work is beautiful. Neat, precise and they gave us tips on maintenance. Genuinely good people to work with."</blockquote>
-                    <div class="testi-author">
-                        <div class="testi-avatar orange">SM</div>
-                        <div><strong>Sithembile Mpofu</strong><span>Homeowner · Masvingo</span></div>
-                    </div>
-                </div>
-            </div>
+            <div class="testi-cards" id="testi-cards"></div>
         </div>
         <div class="testi-controls reveal">
             <button class="testi-btn" id="testi-prev">←</button>
@@ -1219,34 +1178,66 @@
     }, { threshold: 0.5 });
     document.querySelectorAll('.stat-num[data-target]').forEach(el => counterObserver.observe(el));
 
-    /* ── TESTIMONIAL CAROUSEL ── */
-    const testitCards = document.getElementById('testi-cards');
-    const testiDotsContainer = document.getElementById('testi-dots');
-    const testiPrev = document.getElementById('testi-prev');
-    const testiNext = document.getElementById('testi-next');
-    const cards = testitCards.querySelectorAll('.testi-card');
-    const total = cards.length;
-    let currentIndex = 0;
-    cards.forEach((_, i) => {
-      const dot = document.createElement('button');
-      dot.className = 'testi-dot' + (i===0?' active':'');
-      dot.setAttribute('aria-label', `Testimonial ${i+1}`);
-      dot.addEventListener('click', () => goTo(i));
-      testiDotsContainer.appendChild(dot);
-    });
-    function getVisible() { return window.innerWidth < 520 ? 1 : window.innerWidth < 900 ? 2 : 3; }
-    function goTo(index) {
-      const max = Math.max(0, total - getVisible());
-      currentIndex = Math.min(Math.max(index, 0), max);
-      testitCards.style.transform = `translateX(-${currentIndex * (cards[0].offsetWidth + 24)}px)`;
-      testiDotsContainer.querySelectorAll('.testi-dot').forEach((d,i) => d.classList.toggle('active', i===currentIndex));
+    /* ── TESTIMONIAL CAROUSEL (dynamic) ── */
+    const AV_COLS_IDX = ['blue','orange','green'];
+    function idxAvatarClass(ini) {
+        return AV_COLS_IDX[((ini.charCodeAt(0)||65) + (ini.charCodeAt(1)||65)) % AV_COLS_IDX.length];
     }
-    testiNext.addEventListener('click', () => goTo(currentIndex+1));
-    testiPrev.addEventListener('click', () => goTo(currentIndex-1));
-    let autoAdv = setInterval(() => goTo(currentIndex+1 > total-getVisible() ? 0 : currentIndex+1), 5000);
-    testitCards.addEventListener('mouseenter', () => clearInterval(autoAdv));
-    testitCards.addEventListener('mouseleave', () => { autoAdv = setInterval(() => goTo(currentIndex+1 > total-getVisible() ? 0 : currentIndex+1), 5000); });
-    window.addEventListener('resize', () => goTo(currentIndex));
+    function starsHtml(n) { return '★'.repeat(n) + '☆'.repeat(5 - n); }
+    function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    const FALLBACK_TESTIMONIALS = [
+        { name:'Tendai Mutasa',    initials:'TM', rating:5, comment:'Mpho Yanga completely transformed my kitchen with their tiling work. Absolutely professional from start to finish — on time, clean and the results are stunning.' },
+        { name:'Blessing Kambarami', initials:'BK', rating:5, comment:'We had a burst pipe emergency and they were on site within 2 hours. Fixed it properly and gave us a written report. Saved us from serious damage.' },
+        { name:'Tarisai Rusike',   initials:'TR', rating:5, comment:'The ceiling installation was flawless. Mpho Yanga were clean, punctual and professional throughout.' },
+        { name:'Kudakwashe Dube',  initials:'KD', rating:5, comment:'Used them for painting our office block and warehouse. Very competitive pricing and the finish quality matched what I saw on their portfolio.' },
+        { name:'Sithembile Mpofu', initials:'SM', rating:5, comment:'They tiled our new kitchen and bathrooms and the work is beautiful. Neat, precise and they gave us tips on maintenance.' }
+    ];
+
+    async function loadIndexTestimonials() {
+        const track          = document.getElementById('testi-cards');
+        const dotsContainer  = document.getElementById('testi-dots');
+        let items = [];
+        try {
+            const res = await fetch('/api/testimonials/approved');
+            if (res.ok) items = await res.json();
+        } catch (_) {}
+        if (items.length === 0) items = FALLBACK_TESTIMONIALS;
+
+        track.innerHTML = '';
+        dotsContainer.innerHTML = '';
+        items.forEach(t => {
+            const div = document.createElement('div');
+            div.className = 'testi-card';
+            div.innerHTML = `<div class="testi-stars">${starsHtml(t.rating)}</div><blockquote>"${esc(t.comment)}"</blockquote><div class="testi-author"><div class="testi-avatar ${idxAvatarClass(t.initials)}">${esc(t.initials)}</div><div><strong>${esc(t.name)}</strong><span>Verified Client</span></div></div>`;
+            track.appendChild(div);
+        });
+
+        const cards = track.querySelectorAll('.testi-card');
+        const total = cards.length;
+        let currentIndex = 0;
+        cards.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.className = 'testi-dot' + (i===0?' active':'');
+            dot.setAttribute('aria-label', `Testimonial ${i+1}`);
+            dot.addEventListener('click', () => goTo(i));
+            dotsContainer.appendChild(dot);
+        });
+        function getVisible() { return window.innerWidth < 520 ? 1 : window.innerWidth < 900 ? 2 : 3; }
+        function goTo(index) {
+            const max = Math.max(0, total - getVisible());
+            currentIndex = Math.min(Math.max(index, 0), max);
+            track.style.transform = `translateX(-${currentIndex * ((cards[0] ? cards[0].offsetWidth : 0) + 24)}px)`;
+            dotsContainer.querySelectorAll('.testi-dot').forEach((d,i) => d.classList.toggle('active', i===currentIndex));
+        }
+        document.getElementById('testi-next').onclick = () => goTo(currentIndex+1);
+        document.getElementById('testi-prev').onclick = () => goTo(currentIndex-1);
+        let autoAdv = setInterval(() => goTo(currentIndex+1 > total-getVisible() ? 0 : currentIndex+1), 5000);
+        track.addEventListener('mouseenter', () => clearInterval(autoAdv));
+        track.addEventListener('mouseleave', () => { autoAdv = setInterval(() => goTo(currentIndex+1 > total-getVisible() ? 0 : currentIndex+1), 5000); });
+        window.addEventListener('resize', () => goTo(currentIndex));
+    }
+    loadIndexTestimonials();
 
     /* ── SMOOTH SCROLL ── */
     document.querySelectorAll('a[href^="#"]').forEach(a => {

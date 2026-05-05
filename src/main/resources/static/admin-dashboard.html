@@ -252,6 +252,24 @@
                 </div>
 
             </div>
+            <!-- TESTIMONIALS MODERATION -->
+            <div style="margin-top:32px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+                    <div>
+                        <h3 style="margin:0;font-size:16px;color:#fff;">Testimonials</h3>
+                        <p style="margin:4px 0 0;font-size:12px;color:#64748b;">Review and approve client testimonials before they go live.</p>
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button onclick="loadTestimonials('PENDING')" id="testi-filter-pending" style="padding:6px 14px;background:rgba(232,118,42,0.2);border:1px solid rgba(232,118,42,0.4);color:#fdba74;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600;">Pending</button>
+                        <button onclick="loadTestimonials('APPROVED')" id="testi-filter-approved" style="padding:6px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:8px;font-size:12px;cursor:pointer;">Approved</button>
+                        <button onclick="loadTestimonials('ALL')" id="testi-filter-all" style="padding:6px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:8px;font-size:12px;cursor:pointer;">All</button>
+                    </div>
+                </div>
+                <div id="testi-list" style="display:flex;flex-direction:column;gap:10px;">
+                    <div style="color:#64748b;font-size:13px;padding:16px;text-align:center;">Loading testimonials…</div>
+                </div>
+            </div>
+
         </div><!-- end dashboard page -->
 
         <!-- Placeholder sub-pages -->
@@ -491,7 +509,77 @@ const API_BASE = getApiBase();
     // Initialize on page load
     window.addEventListener('load', () => {
         loadAdminData();
+        loadTestimonials('PENDING');
     });
+
+    /* ── TESTIMONIALS MODERATION ── */
+    let currentTestiFilter = 'PENDING';
+    const STARS = n => '★'.repeat(n) + '☆'.repeat(5 - n);
+    const ESC   = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+    function setTestitFilter(f) {
+        currentTestiFilter = f;
+        ['pending','approved','all'].forEach(k => {
+            const btn = document.getElementById('testi-filter-' + k);
+            if (!btn) return;
+            const active = k.toUpperCase() === f || (k === 'all' && f === 'ALL');
+            btn.style.background = active ? 'rgba(26,95,173,0.2)' : 'rgba(255,255,255,0.05)';
+            btn.style.borderColor = active ? 'rgba(26,95,173,0.5)' : 'rgba(255,255,255,0.1)';
+            btn.style.color = active ? '#93c5fd' : '#94a3b8';
+            btn.style.fontWeight = active ? '600' : '400';
+        });
+    }
+
+    async function loadTestimonials(filter) {
+        setTestitFilter(filter);
+        const list = document.getElementById('testi-list');
+        list.innerHTML = '<div style="color:#64748b;font-size:13px;padding:16px;text-align:center;">Loading…</div>';
+        try {
+            const res = await fetch('/api/testimonials', { credentials: 'include' });
+            if (!res.ok) { list.innerHTML = '<div style="color:#f87171;font-size:13px;padding:16px;text-align:center;">Could not load testimonials.</div>'; return; }
+            let items = await res.json();
+            if (filter !== 'ALL') items = items.filter(t => t.status === filter);
+            if (items.length === 0) {
+                list.innerHTML = `<div style="color:#64748b;font-size:13px;padding:16px;text-align:center;">No ${filter.toLowerCase()} testimonials.</div>`;
+                return;
+            }
+            list.innerHTML = '';
+            items.forEach(t => {
+                const row = document.createElement('div');
+                row.style.cssText = 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start;';
+                const statusColor = t.status === 'APPROVED' ? '#4ade80' : t.status === 'REJECTED' ? '#f87171' : '#fdba74';
+                row.innerHTML = `
+                    <div style="width:40px;height:40px;border-radius:50%;background:rgba(26,95,173,0.3);color:#93c5fd;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${ESC(t.initials)}</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;">
+                            <strong style="color:#e2e8f0;font-size:14px;">${ESC(t.name)}</strong>
+                            <span style="font-size:13px;color:#f59e0b;letter-spacing:1px;">${STARS(t.rating)}</span>
+                            <span style="font-size:11px;color:${statusColor};background:${statusColor}22;padding:2px 8px;border-radius:20px;font-weight:600;">${t.status}</span>
+                        </div>
+                        <p style="margin:0 0 10px;font-size:13px;color:#94a3b8;line-height:1.6;">"${ESC(t.comment)}"</p>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            ${t.status !== 'APPROVED' ? `<button onclick="testitAction(${t.id},'approve')" style="padding:5px 14px;background:rgba(60,181,74,0.15);border:1px solid rgba(60,181,74,0.4);color:#4ade80;border-radius:7px;font-size:12px;cursor:pointer;font-weight:600;">✓ Approve</button>` : ''}
+                            ${t.status !== 'REJECTED' ? `<button onclick="testitAction(${t.id},'reject')" style="padding:5px 14px;background:rgba(232,118,42,0.12);border:1px solid rgba(232,118,42,0.35);color:#fdba74;border-radius:7px;font-size:12px;cursor:pointer;">✕ Reject</button>` : ''}
+                            <button onclick="testitAction(${t.id},'delete')" style="padding:5px 14px;background:rgba(220,50,50,0.1);border:1px solid rgba(220,50,50,0.3);color:#f87171;border-radius:7px;font-size:12px;cursor:pointer;">🗑 Delete</button>
+                        </div>
+                    </div>`;
+                list.appendChild(row);
+            });
+        } catch (e) {
+            list.innerHTML = '<div style="color:#f87171;font-size:13px;padding:16px;text-align:center;">Server error loading testimonials.</div>';
+        }
+    }
+
+    async function testitAction(id, action) {
+        try {
+            const url    = action === 'delete' ? `/api/testimonials/${id}` : `/api/testimonials/${id}/${action}`;
+            const method = action === 'delete' ? 'DELETE' : 'PUT';
+            const res = await fetch(url, { method, credentials: 'include' });
+            if (res.ok) loadTestimonials(currentTestiFilter);
+        } catch (e) {
+            alert('Action failed. Please try again.');
+        }
+    }
 </script>
 
 </body>

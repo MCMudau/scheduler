@@ -163,6 +163,7 @@
         .form-label { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: block; font-weight: 600; }
         .form-input, .form-select, .form-textarea { width: 100%; padding: 11px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 14px; font-family: inherit; transition: all 0.2s; }
         .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: rgba(26,95,173,0.5); background: rgba(26,95,173,0.1); }
+        .form-select option { background: #1a2233; color: #e2e8f0; }
         .form-textarea { resize: vertical; min-height: 80px; }
         .form-input:disabled { background: rgba(255,255,255,0.02); color: var(--muted); cursor: not-allowed; }
 
@@ -357,38 +358,16 @@
                 <textarea class="form-textarea" id="itemDesc" placeholder="Describe the item or service..." required></textarea>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Service Type</label>
-                    <select class="form-select" id="serviceType">
-                        <option value="">Select type...</option>
-                        <option value="Plumbing">Plumbing</option>
-                        <option value="Tiling">Tiling</option>
-                        <option value="Painting">Painting</option>
-                        <option value="Ceiling">Ceiling</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Quantity *</label>
-                    <input type="number" class="form-input" id="itemQty" step="0.01" placeholder="1.00" required>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Unit of Measure</label>
-                    <input type="text" class="form-input" id="itemUnit" placeholder="e.g., m², hours">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Unit Price (ZWL) *</label>
-                    <input type="number" class="form-input" id="itemPrice" step="0.01" placeholder="0.00" required>
-                </div>
-            </div>
-
             <div class="form-group">
-                <label class="form-label">Total Price (ZWL)</label>
-                <input type="number" class="form-input" id="itemTotal" readonly placeholder="0.00">
+                <label class="form-label">Service Type</label>
+                <select class="form-select" id="serviceType">
+                    <option value="">Select type...</option>
+                    <option value="Plumbing">Plumbing</option>
+                    <option value="Tiling">Tiling</option>
+                    <option value="Painting">Painting</option>
+                    <option value="Ceiling">Ceiling</option>
+                    <option value="Other">Other</option>
+                </select>
             </div>
 
             <div class="form-group">
@@ -509,38 +488,16 @@
                 <textarea class="form-textarea" id="editItemDesc" placeholder="Describe the item or service..." required></textarea>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Service Type</label>
-                    <select class="form-select" id="editServiceType">
-                        <option value="">Select type...</option>
-                        <option value="Plumbing">Plumbing</option>
-                        <option value="Tiling">Tiling</option>
-                        <option value="Painting">Painting</option>
-                        <option value="Ceiling">Ceiling</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Quantity *</label>
-                    <input type="number" class="form-input" id="editItemQty" step="0.01" placeholder="1.00" required>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Unit of Measure</label>
-                    <input type="text" class="form-input" id="editItemUnit" placeholder="e.g., m², hours">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Unit Price (ZWL) *</label>
-                    <input type="number" class="form-input" id="editItemPrice" step="0.01" placeholder="0.00" required>
-                </div>
-            </div>
-
             <div class="form-group">
-                <label class="form-label">Total Price (ZWL)</label>
-                <input type="number" class="form-input" id="editItemTotal" readonly placeholder="0.00">
+                <label class="form-label">Service Type</label>
+                <select class="form-select" id="editServiceType">
+                    <option value="">Select type...</option>
+                    <option value="Plumbing">Plumbing</option>
+                    <option value="Tiling">Tiling</option>
+                    <option value="Painting">Painting</option>
+                    <option value="Ceiling">Ceiling</option>
+                    <option value="Other">Other</option>
+                </select>
             </div>
 
             <div class="form-group">
@@ -725,11 +682,6 @@ debugger;
                 this.handleEditImageDrop(e);
             });
 
-            // Price Calculation
-            document.getElementById('itemQty').addEventListener('input', () => this.calculateTotal());
-            document.getElementById('itemPrice').addEventListener('input', () => this.calculateTotal());
-            document.getElementById('editItemQty').addEventListener('input', () => this.calculateEditTotal());
-            document.getElementById('editItemPrice').addEventListener('input', () => this.calculateEditTotal());
 
             // Modal Overlay Click
             document.querySelectorAll('.modal-overlay').forEach(overlay => {
@@ -911,6 +863,10 @@ debugger;
                     <button class="action-btn btn-delete" onclick="app.confirmDelete(${quote.quotationId}, '${quote.title}')">
                         <i class="fas fa-trash"></i> Delete
                     </button>
+                    ${quote.status === 'ACCEPTED' ? `
+                    <button class="action-btn btn-done" onclick="window.open('/api/quotations/${quote.quotationId}/pdf?inline=false','_blank')">
+                        <i class="fas fa-file-pdf"></i> Download Quote
+                    </button>` : ''}
                 `;
             }
 
@@ -996,19 +952,16 @@ debugger;
             const quotationId = document.getElementById('quotationIdForItem').value;
             const description = document.getElementById('itemDesc').value;
             const serviceType = document.getElementById('serviceType').value;
-            const quantity = document.getElementById('itemQty').value;
-            const unitOfMeasure = document.getElementById('itemUnit').value;
-            const unitPrice = document.getElementById('itemPrice').value;
             const notes = document.getElementById('itemNotes').value;
 
-            if (!description || !quantity || !unitPrice) {
+            if (!description) {
                 this.showToast('Please fill required fields', 'error');
                 return;
             }
 
             try {
                 const params = new URLSearchParams({
-                    description, serviceType, quantity, unitOfMeasure, unitPrice, notes
+                    description, serviceType, quantity: 1, unitPrice: 0, notes
                 });
 
                 const response = await fetch(`/api/quotations/${quotationId}/items?${params}`, {
@@ -1039,19 +992,16 @@ debugger;
             const itemId = document.getElementById('editItemId').value;
             const description = document.getElementById('editItemDesc').value;
             const serviceType = document.getElementById('editServiceType').value;
-            const quantity = document.getElementById('editItemQty').value;
-            const unitOfMeasure = document.getElementById('editItemUnit').value;
-            const unitPrice = document.getElementById('editItemPrice').value;
             const notes = document.getElementById('editItemNotes').value;
 
-            if (!description || !quantity || !unitPrice) {
+            if (!description) {
                 this.showToast('Please fill required fields', 'error');
                 return;
             }
 
             try {
                 const params = new URLSearchParams({
-                    description, serviceType, quantity, unitOfMeasure, unitPrice, notes
+                    description, serviceType, quantity: 1, unitPrice: 0, notes
                 });
 
                 const response = await fetch(`/api/quotations/items/${itemId}?${params}`, {

@@ -638,19 +638,18 @@
 
     <!-- TESTIMONIALS -->
     <section class="testimonials-section">
-        <div class="section-header-block">
-            <span class="section-tag-badge" style="background:rgba(60,181,74,0.12);border-color:rgba(60,181,74,0.25);color:var(--green);">What Clients Say</span>
-            <h2 class="section-big-title">Real <em style="color:var(--green);">Testimonials</em></h2>
-            <p class="section-big-sub">Don't take our word for it — hear it from the people we've worked for.</p>
+        <div class="section-header-block" style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;">
+            <div>
+                <span class="section-tag-badge" style="background:rgba(60,181,74,0.12);border-color:rgba(60,181,74,0.25);color:var(--green);">What Clients Say</span>
+                <h2 class="section-big-title">Real <em style="color:var(--green);">Testimonials</em></h2>
+                <p class="section-big-sub">Don't take our word for it — hear it from the people we've worked for.</p>
+            </div>
+            <button onclick="openTestiModal()" style="flex-shrink:0;padding:10px 20px;background:rgba(60,181,74,0.15);border:1px solid rgba(60,181,74,0.4);color:#5debb8;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:0.5px;">
+                ✏️ Share Your Experience
+            </button>
         </div>
         <div class="testimonials-track">
-            <div class="testi-cards" id="testi-cards">
-                <div class="testi-card"><div class="testi-stars">★★★★★</div><blockquote>"Mpho Yanga did our entire home — tiling, painting and ceilings. The quality was exceptional and they finished on time. I refer them to everyone I know."</blockquote><div class="testi-author"><div class="testi-avatar blue">NM</div><div><strong>Nyasha Moyo</strong><span>Homeowner · Harare</span></div></div></div>
-                <div class="testi-card"><div class="testi-stars">★★★★★</div><blockquote>"We had a burst pipe emergency and they were on site within 2 hours. Fixed it properly and gave us a written report. Saved us from serious damage."</blockquote><div class="testi-author"><div class="testi-avatar orange">BK</div><div><strong>Blessing Kambarami</strong><span>Property Manager · Bulawayo</span></div></div></div>
-                <div class="testi-card"><div class="testi-stars">★★★★★</div><blockquote>"The ceiling installation was flawless. Mpho Yanga were clean, punctual and professional throughout."</blockquote><div class="testi-author"><div class="testi-avatar green">TR</div><div><strong>Tarisai Rusike</strong><span>Homeowner · Chitungwiza</span></div></div></div>
-                <div class="testi-card"><div class="testi-stars">★★★★★</div><blockquote>"Used them for painting our office block and warehouse. Very competitive pricing and the finish quality matched what I saw on their portfolio. Will use again."</blockquote><div class="testi-author"><div class="testi-avatar blue">KD</div><div><strong>Kudakwashe Dube</strong><span>Business Owner · Gweru</span></div></div></div>
-                <div class="testi-card"><div class="testi-stars">★★★★★</div><blockquote>"They tiled our new kitchen and bathrooms and the work is beautiful. Neat, precise and they gave us tips on maintenance."</blockquote><div class="testi-author"><div class="testi-avatar orange">SM</div><div><strong>Sithembile Mpofu</strong><span>Homeowner · Masvingo</span></div></div></div>
-            </div>
+            <div class="testi-cards" id="testi-cards"></div>
         </div>
         <div class="testi-controls">
             <button class="testi-btn" id="testi-prev">←</button>
@@ -658,6 +657,39 @@
             <button class="testi-btn" id="testi-next">→</button>
         </div>
     </section>
+
+    <!-- ADD TESTIMONIAL MODAL -->
+    <div id="testi-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;">
+        <div style="background:#111827;border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:32px;width:100%;max-width:480px;margin:16px;">
+            <h3 style="margin:0 0 6px;color:#fff;font-size:18px;">Share Your Experience</h3>
+            <p style="margin:0 0 24px;color:#94a3b8;font-size:13px;">Your review helps others trust Mpho Yanga Construction.</p>
+
+            <div style="margin-bottom:20px;">
+                <label style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;font-weight:600;margin-bottom:10px;">Your Rating *</label>
+                <div id="testi-star-input" style="display:flex;gap:8px;">
+                    <span data-v="1" class="testi-modal-star" style="font-size:32px;cursor:pointer;color:#334155;transition:color 0.15s;">★</span>
+                    <span data-v="2" class="testi-modal-star" style="font-size:32px;cursor:pointer;color:#334155;transition:color 0.15s;">★</span>
+                    <span data-v="3" class="testi-modal-star" style="font-size:32px;cursor:pointer;color:#334155;transition:color 0.15s;">★</span>
+                    <span data-v="4" class="testi-modal-star" style="font-size:32px;cursor:pointer;color:#334155;transition:color 0.15s;">★</span>
+                    <span data-v="5" class="testi-modal-star" style="font-size:32px;cursor:pointer;color:#334155;transition:color 0.15s;">★</span>
+                </div>
+                <p id="testi-star-hint" style="margin:6px 0 0;font-size:12px;color:#64748b;">Click a star to rate</p>
+            </div>
+
+            <div style="margin-bottom:24px;">
+                <label style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;font-weight:600;margin-bottom:8px;">Your Comment *</label>
+                <textarea id="testi-comment" placeholder="Tell us about your experience with Mpho Yanga Construction..." style="width:100%;min-height:110px;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#fff;font-size:14px;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
+            </div>
+
+            <p id="testi-modal-err" style="display:none;color:#f87171;font-size:13px;margin-bottom:12px;"></p>
+            <p id="testi-modal-ok" style="display:none;color:#4ade80;font-size:13px;margin-bottom:12px;"></p>
+
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button onclick="closeTestiModal()" style="padding:10px 20px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:10px;font-size:13px;cursor:pointer;">Cancel</button>
+                <button onclick="submitTestimonial()" style="padding:10px 24px;background:rgba(60,181,74,0.2);border:1px solid rgba(60,181,74,0.5);color:#4ade80;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">Submit</button>
+            </div>
+        </div>
+    </div>
 
     <!-- WHATSAPP CTA -->
     <div class="whatsapp-cta">
@@ -753,7 +785,7 @@
         await loadSession();
         await loadProjects();
         setupListeners();
-        setupTestimonials();
+        await loadAndSetupTestimonials();
     });
 
     function setupGreeting() {
@@ -1060,19 +1092,44 @@
         window.location.href = '/login';
     }
 
-    function setupTestimonials() {
-        const track = document.getElementById('testi-cards');
+    const AV_COLS_T = ['blue','orange','green','blue','orange'];
+    function testitAvatarClass(ini) {
+        const idx = ((ini.charCodeAt(0)||65) + (ini.charCodeAt(1)||65)) % AV_COLS_T.length;
+        return AV_COLS_T[idx];
+    }
+    function starsHtml(n) { return '★'.repeat(n) + '☆'.repeat(5-n); }
+
+    async function loadAndSetupTestimonials() {
+        const track       = document.getElementById('testi-cards');
         const dotsContainer = document.getElementById('testi-dots');
+        dotsContainer.innerHTML = '';
+        track.innerHTML   = '';
+
+        let items = [];
+        try {
+            const res = await fetch('/api/testimonials/approved');
+            if (res.ok) items = await res.json();
+        } catch (_) {}
+
+        if (items.length === 0) {
+            track.innerHTML = '<div class="testi-card"><div class="testi-stars">★★★★★</div><blockquote>"Mpho Yanga did our entire home — tiling, painting and ceilings. The quality was exceptional."</blockquote><div class="testi-author"><div class="testi-avatar blue">NM</div><div><strong>Nyasha Moyo</strong><span>Homeowner · Harare</span></div></div></div>';
+        } else {
+            items.forEach(t => {
+                const div = document.createElement('div');
+                div.className = 'testi-card';
+                div.innerHTML = `<div class="testi-stars">${starsHtml(t.rating)}</div><blockquote>"${esc(t.comment)}"</blockquote><div class="testi-author"><div class="testi-avatar ${testitAvatarClass(t.initials)}">${esc(t.initials)}</div><div><strong>${esc(t.name)}</strong><span>Verified Client</span></div></div>`;
+                track.appendChild(div);
+            });
+        }
+
         const cards = track.querySelectorAll('.testi-card');
         let current = 0, autoTimer;
-
         cards.forEach((_, i) => {
             const dot = document.createElement('button');
             dot.className = 'testi-dot' + (i===0?' active':'');
             dot.addEventListener('click', () => goTo(i));
             dotsContainer.appendChild(dot);
         });
-
         function goTo(idx) {
             current = (idx + cards.length) % cards.length;
             track.style.transform = `translateX(-${current * 100}%)`;
@@ -1080,10 +1137,67 @@
         }
         function startAuto() { autoTimer = setInterval(() => goTo(current+1), 5000); }
         function resetAuto() { clearInterval(autoTimer); startAuto(); }
-
-        document.getElementById('testi-prev').addEventListener('click', () => { goTo(current-1); resetAuto(); });
-        document.getElementById('testi-next').addEventListener('click', () => { goTo(current+1); resetAuto(); });
+        document.getElementById('testi-prev').onclick = () => { goTo(current-1); resetAuto(); };
+        document.getElementById('testi-next').onclick = () => { goTo(current+1); resetAuto(); };
         startAuto();
+    }
+
+    /* ── Testimonial modal ── */
+    let testitRating = 0;
+
+    function openTestiModal() {
+        testitRating = 0;
+        document.getElementById('testi-comment').value = '';
+        document.getElementById('testi-modal-err').style.display = 'none';
+        document.getElementById('testi-modal-ok').style.display  = 'none';
+        renderTestitStars(0);
+        const ov = document.getElementById('testi-modal-overlay');
+        ov.style.display = 'flex';
+    }
+    function closeTestiModal() {
+        document.getElementById('testi-modal-overlay').style.display = 'none';
+    }
+    function renderTestitStars(val) {
+        document.querySelectorAll('.testi-modal-star').forEach(s => {
+            s.style.color = parseInt(s.dataset.v) <= val ? '#f59e0b' : '#334155';
+        });
+        document.getElementById('testi-star-hint').textContent =
+            val ? `${val} star${val>1?'s':''} selected` : 'Click a star to rate';
+    }
+    document.querySelectorAll('.testi-modal-star').forEach(s => {
+        s.addEventListener('mouseenter', () => {
+            const v = parseInt(s.dataset.v);
+            document.querySelectorAll('.testi-modal-star').forEach(x =>
+                x.style.color = parseInt(x.dataset.v) <= v ? '#f59e0b' : '#334155');
+        });
+        s.addEventListener('mouseleave', () => renderTestitStars(testitRating));
+        s.addEventListener('click', () => { testitRating = parseInt(s.dataset.v); renderTestitStars(testitRating); });
+    });
+    document.getElementById('testi-modal-overlay').addEventListener('click', e => {
+        if (e.target === document.getElementById('testi-modal-overlay')) closeTestiModal();
+    });
+
+    async function submitTestimonial() {
+        const comment = document.getElementById('testi-comment').value.trim();
+        const errEl = document.getElementById('testi-modal-err');
+        const okEl  = document.getElementById('testi-modal-ok');
+        errEl.style.display = 'none'; okEl.style.display = 'none';
+
+        if (!testitRating) { errEl.textContent = 'Please select a star rating.'; errEl.style.display='block'; return; }
+        if (!comment)       { errEl.textContent = 'Please write a comment.';       errEl.style.display='block'; return; }
+
+        try {
+            const params = new URLSearchParams({ rating: testitRating, comment });
+            const res = await fetch('/api/testimonials', { method: 'POST', body: params });
+            const data = await res.json();
+            if (!res.ok) { errEl.textContent = data.error || 'Failed to submit.'; errEl.style.display='block'; return; }
+            okEl.textContent = 'Thank you! Your testimonial is pending approval.';
+            okEl.style.display = 'block';
+            setTimeout(closeTestiModal, 2500);
+        } catch (_) {
+            errEl.textContent = 'Server error. Please try again.';
+            errEl.style.display = 'block';
+        }
     }
 </script>
 </body>
