@@ -370,16 +370,35 @@
 /* ── BP BADGE ─────────────────────────────────────────────── */
 .bp-badge { position: fixed; bottom: 18px; right: 22px; background: rgba(13,27,42,0.75); backdrop-filter: blur(10px); color: rgba(255,255,255,0.45); font-size: 10px; font-weight: 600; letter-spacing: 1px; padding: 5px 12px; border-radius: 20px; pointer-events: none; z-index: 999; }
 
-/* ══ RESPONSIVE ══════════════════════════════════════════════ */
+/* ══ RESPONSIVE ══════════════════════════════════════════════
+   Breakpoints are based on VIEWPORT width. The sidebar takes
+   252px, so effective content width = viewport - 252px.
+   Rule of thumb used here: stack panels when content < 520px,
+   i.e. viewport < 772px.  Reduce right panel at < 1100px.
+════════════════════════════════════════════════════════════ */
 
-@media (max-width: 960px) {
+/* Bookings panel toggle button — shown on medium/small screens */
+.bk-panel-toggle {
+  display: none;
+  align-items: center; gap: 8px;
+  width: 100%; padding: 10px 18px;
+  background: var(--card-bg);
+  border: none; border-top: 1px solid rgba(0,0,0,0.07);
+  font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600;
+  color: var(--dark); cursor: pointer;
+  justify-content: space-between;
+}
+.bk-panel-toggle .toggle-arrow { font-size: 12px; transition: transform 0.2s; }
+.bk-panel-toggle.open .toggle-arrow { transform: rotate(180deg); }
+
+@media (max-width: 1100px) {
   .dvh-legend { display: none; }
-  .split-right { width: 270px; }
+  .split-right { width: 240px; }
 }
 
-/* Tablet / large mobile: stack panels */
-@media (max-width: 768px) {
-  /* Page no longer uses fixed-height overflow:hidden — it scrolls naturally */
+/* Stack panels when viewport is narrow enough that the
+   timeline would get less than ~420px of usable width */
+@media (max-width: 900px) {
   .cal-wrap { height: auto; overflow: visible; }
   .day-view-section { overflow: visible; }
 
@@ -388,27 +407,22 @@
     overflow: visible;
     min-height: 0;
   }
-
   .split-left { overflow: visible; }
 
-  /* Timeline scrolls as part of the page */
-  .timeline-container {
-    overflow-y: visible;
-    height: auto;
-  }
+  .timeline-container { overflow-y: visible; height: auto; }
+  .timeline { height: calc(24 * 60px); }
 
-  /* Tighter row height on mobile: 56px/hr instead of 72px */
-  .timeline { height: calc(24 * 56px); }
-  .tl-hour-lbl { /* height set by JS; font smaller */ }
-
-  /* Bookings panel full width below timeline */
+  /* Bookings panel full-width below timeline, collapsed by default */
   .split-right {
     width: 100%;
     border-left: none;
     border-top: 2px solid rgba(0,0,0,0.07);
     overflow: visible;
   }
-  .bk-list { max-height: none; overflow-y: visible; }
+  .bk-panel-toggle { display: flex; }
+  .bk-panel-body { display: none; }
+  .bk-panel-body.open { display: flex; flex-direction: column; }
+  .bk-list { max-height: 320px; overflow-y: auto; }
   .bk-panel-hdr { position: static; }
 }
 
@@ -421,20 +435,23 @@
   .mform-grid { grid-template-columns: 1fr; }
   .mfield.full { grid-column: 1; }
 
-  .day-view-header { padding: 10px 14px; gap: 8px; }
+  .day-view-header { padding: 10px 14px; gap: 8px; flex-wrap: wrap; }
   .dvh-date { font-size: 14px; }
   .dvh-meta { font-size: 11px; padding: 3px 8px; }
 
-  /* Narrow gutter */
   .tl-gutter { width: 42px; }
   .tl-hour-lbl { padding-right: 6px; font-size: 10px; }
-
-  /* Narrower slot blocks */
   .tl-slot-block { left: 6px; right: 6px; border-radius: 8px; }
   .tsb-type { font-size: 12px; }
   .tsb-time { font-size: 10px; }
-
-  /* On touch devices, always show action buttons (no hover) */
   .tsb-actions { opacity: 1; }
   .tsb-btn { width: 28px; height: 28px; font-size: 13px; }
+
+  .timeline { height: calc(24 * 52px); }
+}
+
+/* When sidebar is hidden on mobile, content fills full width */
+@media (max-width: 768px) {
+  .split-right { width: 100%; }
+  .bk-list { max-height: 260px; }
 }

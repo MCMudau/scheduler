@@ -229,8 +229,6 @@
         .bk-row-label{color:var(--light);font-size:11px;margin-top:1px}
         .bk-service-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(26,95,173,.08);color:var(--blue);border:1px solid rgba(26,95,173,.15);font-size:11px;font-weight:600;padding:3px 10px;border-radius:8px;margin-top:2px}
         .bk-notes{margin-top:4px;padding:8px 10px;background:rgba(0,0,0,.03);border-radius:8px;font-size:12px;color:var(--mid);line-height:1.6;border-left:3px solid var(--orange)}
-        @media(max-width:1100px){.split-right{width:290px}}
-        @media(max-width:860px){.split-view{flex-direction:column}.split-right{width:100%;border-left:none;border-top:2px solid rgba(0,0,0,.07);min-height:auto}.bk-panel-hdr{position:static}}
 
         .tl-empty{
           display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -479,17 +477,22 @@
 
                 <!-- RIGHT: client bookings panel -->
                 <div class="split-right" id="split-right">
-                    <div class="bk-panel-hdr" id="bk-panel-hdr">
-                        <div class="bk-panel-title">
-                            👤 Client Bookings
-                            <span class="bk-count-badge" id="bk-count" style="display:none">0</span>
+                    <button class="bk-panel-toggle" id="bk-panel-toggle" onclick="toggleBkPanel()">
+                        <span>👤 Client Bookings <span class="bk-count-badge" id="bk-count" style="display:none">0</span></span>
+                        <span class="toggle-arrow">▼</span>
+                    </button>
+                    <div class="bk-panel-body" id="bk-panel-body">
+                        <div class="bk-panel-hdr" id="bk-panel-hdr">
+                            <div class="bk-panel-title">
+                                👤 Client Bookings
+                            </div>
+                            <div class="bk-panel-sub" id="bk-panel-sub">Select a day to see who has booked</div>
                         </div>
-                        <div class="bk-panel-sub" id="bk-panel-sub">Select a day to see who has booked</div>
-                    </div>
-                    <div class="bk-list" id="bk-list">
-                        <div class="bk-no-day">
-                            <div class="bk-no-day-icon">📅</div>
-                            <div class="bk-no-day-msg">Select a day on the calendar to see client booking details</div>
+                        <div class="bk-list" id="bk-list">
+                            <div class="bk-no-day">
+                                <div class="bk-no-day-icon">📅</div>
+                                <div class="bk-no-day-msg">Select a day on the calendar to see client booking details</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -838,6 +841,7 @@
         }
 
         badge.textContent   = total;
+        ensureBkPanelOpen();
         badge.style.display = '';
         sub.textContent     = `${total} booking${total > 1 ? 's' : ''} from ${slotBookingGroups.length} slot${slotBookingGroups.length > 1 ? 's' : ''}`;
 
@@ -1287,6 +1291,23 @@
         // 3. Build the strip and open today
         buildStrip();
         pickDay(new Date(today));
+    }
+
+    function toggleBkPanel() {
+        const body   = document.getElementById('bk-panel-body');
+        const toggle = document.getElementById('bk-panel-toggle');
+        const open   = body.classList.toggle('open');
+        toggle.classList.toggle('open', open);
+    }
+
+    // On desktop the panel body is always visible (CSS handles this via display:flex)
+    // On mobile it starts collapsed; auto-open when bookings are loaded
+    function ensureBkPanelOpen() {
+        const toggle = document.getElementById('bk-panel-toggle');
+        if (toggle && getComputedStyle(toggle).display !== 'none') {
+            document.getElementById('bk-panel-body').classList.add('open');
+            toggle.classList.add('open');
+        }
     }
 
     boot();
