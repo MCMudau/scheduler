@@ -31,7 +31,7 @@ public class SecurityConfig {
             // session-fixation protection which creates a new empty session and
             // wipes the adminId attribute set during login, causing the redirect to login.
             .sessionManagement(sm -> sm
-                .sessionCreationPolicy(SessionCreationPolicy.NEVER)
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .sessionFixation(sf -> sf.none())
             )
             .exceptionHandling(ex -> ex

@@ -1,9 +1,9 @@
 package com.mphoYanga.scheduler.controllers;
 
 import com.mphoYanga.scheduler.models.*;
+import com.mphoYanga.scheduler.services.ActivityService;
 import com.mphoYanga.scheduler.services.QuotationService;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +15,14 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/quotations")
-
 @CrossOrigin(origins = "*")
 public class QuotationRestController {
 
     @Autowired
     private QuotationService quotationService;
+
+    @Autowired
+    private ActivityService activityService;
 
     // ==================== QUOTATION ENDPOINTS ====================
 
@@ -132,6 +134,18 @@ public class QuotationRestController {
         try {
             QuotationStatus statusEnum = QuotationStatus.valueOf(status.toUpperCase());
             Quotation quotation = quotationService.updateQuotationStatus(quotationId, statusEnum, updatedBy);
+
+            if (statusEnum == QuotationStatus.SENT && quotation.getClient() != null) {
+                Client c = quotation.getClient();
+                String clientName = c.getName() + " " + c.getSurname();
+                activityService.log(
+                        c.getId(), clientName,
+                        Activity.ActorType.CLIENT,
+                        "Submitted quotation: " + quotation.getTitle(),
+                        "QUOTATION", quotation.getQuotationId()
+                );
+            }
+
             return ResponseEntity.ok(quotation);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

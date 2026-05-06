@@ -6,6 +6,18 @@
     <title>Mpho Yanga . Admin Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/admin-dashboard.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        .af-live-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #64748b; display: inline-block;
+            transition: background 0.4s;
+        }
+        .af-live-dot.connected { background: #3cb54a; box-shadow: 0 0 0 3px rgba(60,181,74,0.25); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{box-shadow:0 0 0 3px rgba(60,181,74,0.25)} 50%{box-shadow:0 0 0 6px rgba(60,181,74,0.1)} }
+        .af-empty { color: #64748b; font-size: 13px; padding: 20px; text-align: center; }
+    </style>
 </head>
 <body>
 
@@ -175,15 +187,10 @@
                 <div class="panel">
                     <div class="panel-hdr">
                         <h3>Recent Activity</h3>
-                        <a href="#" class="panel-link">View all →</a>
+                        <span class="af-live-dot" id="ws-dot" title="Connecting…"></span>
                     </div>
-                    <div class="activity-feed">
-                        <div class="af-item"><div class="af-dot b"></div><div class="af-body"><strong>New quotation received</strong><span>Bathroom tiling — Tendai M. · Harare</span></div><span class="af-time">2h ago</span></div>
-                        <div class="af-item"><div class="af-dot g"></div><div class="af-body"><strong>Project marked complete</strong><span>Exterior painting — Simba M.</span></div><span class="af-time">5h ago</span></div>
-                        <div class="af-item"><div class="af-dot o"></div><div class="af-body"><strong>Quotation accepted</strong><span>Ceiling installation — Patricia N.</span></div><span class="af-time">1d ago</span></div>
-                        <div class="af-item"><div class="af-dot b"></div><div class="af-body"><strong>New project started</strong><span>Full plumbing install — Farai M.</span></div><span class="af-time">2d ago</span></div>
-                        <div class="af-item"><div class="af-dot g"></div><div class="af-body"><strong>New client registered</strong><span>Anesu Ncube — Harare</span></div><span class="af-time">3d ago</span></div>
-                        <div class="af-item"><div class="af-dot o"></div><div class="af-body"><strong>Progress update posted</strong><span>Kitchen tiling — Rudo K.</span></div><span class="af-time">3d ago</span></div>
+                    <div class="activity-feed" id="activity-feed">
+                        <div class="af-empty">Loading activity…</div>
                     </div>
                 </div>
 
@@ -433,11 +440,86 @@ const API_BASE = getApiBase();
       });
     });
 
+    // ── ACTIVITY FEED ─────────────────────────────────────────────
+    const ACTOR_DOT = { CLIENT: 'b', ADMIN: 'g' };
+
+    function timeAgo(isoString) {
+        const diff = Math.floor((Date.now() - new Date(isoString)) / 1000);
+        if (diff < 60)   return `${diff}s ago`;
+        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+        return `${Math.floor(diff / 86400)}d ago`;
+    }
+
+    function buildActivityItem(a) {
+        const dot = ACTOR_DOT[a.actorType] || 'o';
+        const item = document.createElement('div');
+        item.className = 'af-item';
+        item.dataset.id = a.id;
+        item.innerHTML = `
+            <div class="af-dot ${dot}"></div>
+            <div class="af-body">
+                <strong>${a.action}</strong>
+                <span>${a.actorName}</span>
+            </div>
+            <span class="af-time">${timeAgo(a.createdAt)}</span>`;
+        return item;
+    }
+
+    function prependActivity(a) {
+        const feed = document.getElementById('activity-feed');
+        const empty = feed.querySelector('.af-empty');
+        if (empty) empty.remove();
+        const item = buildActivityItem(a);
+        item.style.animation = 'fadeUp 0.4s ease both';
+        feed.insertBefore(item, feed.firstChild);
+        // Keep at most 20 items in the feed
+        while (feed.children.length > 20) feed.removeChild(feed.lastChild);
+    }
+
+    async function loadActivities() {
+        try {
+            const res = await fetch(`${API_BASE}/activities`, { credentials: 'include' });
+            if (!res.ok) return;
+            const items = await res.json();
+            const feed = document.getElementById('activity-feed');
+            if (items.length === 0) {
+                feed.innerHTML = '<div class="af-empty">No activity yet.</div>';
+                return;
+            }
+            feed.innerHTML = '';
+            items.forEach(a => feed.appendChild(buildActivityItem(a)));
+        } catch (e) {
+            console.warn('Could not load activities:', e.message);
+        }
+    }
+
+    function connectActivitySocket() {
+        const dot = document.getElementById('ws-dot');
+        const socket = new SockJS('/ws');
+        const client = Stomp.over(socket);
+        client.debug = null; // silence console noise
+
+        client.connect({}, () => {
+            dot && dot.classList.add('connected');
+            dot && (dot.title = 'Live — connected');
+            client.subscribe('/topic/activities', msg => {
+                try { prependActivity(JSON.parse(msg.body)); } catch (_) {}
+            });
+        }, () => {
+            dot && dot.classList.remove('connected');
+            dot && (dot.title = 'Disconnected — retrying…');
+            setTimeout(connectActivitySocket, 5000);
+        });
+    }
+
     // Initialize on page load
     window.addEventListener('load', () => {
         loadAdminData();
         loadTestimonials('PENDING');
         loadDashboardStats();
+        loadActivities();
+        connectActivitySocket();
     });
 
     /* ── TESTIMONIALS MODERATION ── */
