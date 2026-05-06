@@ -122,4 +122,7 @@ public interface CalendarSlotRepository extends JpaRepository<CalendarSlot, Long
             @Param("start")     LocalDateTime start,
             @Param("end")       LocalDateTime end
     );
+
+    @Query("SELECT COUNT(s) FROM CalendarSlot s WHERE s.isAvailable = true AND s.startDateTime > :now")
+    long countOpenSlots(@Param("now") LocalDateTime now);
 }

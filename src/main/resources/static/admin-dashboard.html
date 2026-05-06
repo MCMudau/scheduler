@@ -62,28 +62,28 @@
             <!-- Stats -->
             <div class="stats-strip">
                 <div class="stat-card s-blue" style="--d:0.05s">
-                    <div class="sc-row"><span class="sc-emoji">📋</span><span class="sc-pill up">+2 this week</span></div>
-                    <div class="sc-num" data-count="12">0</div>
+                    <div class="sc-row"><span class="sc-emoji">📋</span><span class="sc-pill up" id="pill-projects">—</span></div>
+                    <div class="sc-num" id="stat-active-projects">—</div>
                     <div class="sc-lbl">Active Projects</div>
                 </div>
                 <div class="stat-card s-orange" style="--d:0.1s">
-                    <div class="sc-row"><span class="sc-emoji">📄</span><span class="sc-pill warn">3 pending</span></div>
-                    <div class="sc-num" data-count="8">0</div>
+                    <div class="sc-row"><span class="sc-emoji">📄</span><span class="sc-pill warn" id="pill-quotations">—</span></div>
+                    <div class="sc-num" id="stat-quotations">—</div>
                     <div class="sc-lbl">Quotations</div>
                 </div>
                 <div class="stat-card s-green" style="--d:0.15s">
-                    <div class="sc-row"><span class="sc-emoji">👥</span><span class="sc-pill up">+1 new</span></div>
-                    <div class="sc-num" data-count="34">0</div>
+                    <div class="sc-row"><span class="sc-emoji">👥</span><span class="sc-pill up" id="pill-clients">clients</span></div>
+                    <div class="sc-num" id="stat-clients">—</div>
                     <div class="sc-lbl">Total Clients</div>
                 </div>
                 <div class="stat-card s-blue" style="--d:0.2s">
-                    <div class="sc-row"><span class="sc-emoji">📅</span><span class="sc-pill up">5 open</span></div>
-                    <div class="sc-num" data-count="5">0</div>
+                    <div class="sc-row"><span class="sc-emoji">📅</span><span class="sc-pill up" id="pill-slots">—</span></div>
+                    <div class="sc-num" id="stat-slots">—</div>
                     <div class="sc-lbl">Open Slots</div>
                 </div>
                 <div class="stat-card s-green" style="--d:0.25s">
-                    <div class="sc-row"><span class="sc-emoji">✅</span><span class="sc-pill up">this year</span></div>
-                    <div class="sc-num" data-count="47">0</div>
+                    <div class="sc-row"><span class="sc-emoji">✅</span><span class="sc-pill up">total</span></div>
+                    <div class="sc-num" id="stat-completed">—</div>
                     <div class="sc-lbl">Completed Jobs</div>
                 </div>
             </div>
@@ -437,6 +437,7 @@ const API_BASE = getApiBase();
     window.addEventListener('load', () => {
         loadAdminData();
         loadTestimonials('PENDING');
+        loadDashboardStats();
     });
 
     /* ── TESTIMONIALS MODERATION ── */
@@ -505,6 +506,48 @@ const API_BASE = getApiBase();
             if (res.ok) loadTestimonials(currentTestiFilter);
         } catch (e) {
             alert('Action failed. Please try again.');
+        }
+    }
+
+    // ── DASHBOARD STATS ───────────────────────────────────────────
+    function animateCount(el, target) {
+        let current = 0;
+        const step = Math.max(1, Math.ceil(target / 30));
+        const timer = setInterval(() => {
+            current = Math.min(current + step, target);
+            el.textContent = current;
+            if (current >= target) clearInterval(timer);
+        }, 30);
+    }
+
+    async function loadDashboardStats() {
+        try {
+            const res = await fetch(`${API_BASE}/dashboard/stats`, { credentials: 'include' });
+            if (!res.ok) return;
+            const s = await res.json();
+
+            const set = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) animateCount(el, val);
+            };
+
+            set('stat-active-projects', s.activeProjects    || 0);
+            set('stat-quotations',      s.totalQuotations   || 0);
+            set('stat-clients',         s.totalClients       || 0);
+            set('stat-slots',           s.openSlots          || 0);
+            set('stat-completed',       s.completedJobs      || 0);
+
+            const pill = document.getElementById('pill-quotations');
+            if (pill) pill.textContent = `${s.pendingQuotations || 0} pending`;
+
+            const pillSlots = document.getElementById('pill-slots');
+            if (pillSlots) pillSlots.textContent = `${s.openSlots || 0} open`;
+
+            const pillProjects = document.getElementById('pill-projects');
+            if (pillProjects) pillProjects.textContent = `${s.activeProjects || 0} active`;
+
+        } catch (e) {
+            console.warn('Could not load dashboard stats:', e.message);
         }
     }
 </script>
