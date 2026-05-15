@@ -1,13 +1,14 @@
 package com.mphoYanga.scheduler.services;
 
-import com.mphoYanga.scheduler.models.Admin;
-import com.mphoYanga.scheduler.repos.AdminRepository;
+import java.security.SecureRandom;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
-import java.util.Optional;
+import com.mphoYanga.scheduler.models.Admin;
+import com.mphoYanga.scheduler.repos.AdminRepository;
 
 @Service
 public class AdminService {
@@ -17,6 +18,8 @@ public class AdminService {
 
     @Autowired
     private EmailService emailService;
+
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AdminService.class);
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -82,9 +85,12 @@ public class AdminService {
      */
     public Admin loginAdmin(String email, String password) {
 
+        logger.info("before the database ");
+
         Admin admin = adminRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
-
+        logger.info("after the database ");
+        logger.info("admin found: {}", admin.getName());
         if (!passwordEncoder.matches(password, admin.getPassword())) {
             throw new IllegalArgumentException("Invalid email or password");
         }
