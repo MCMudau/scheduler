@@ -943,11 +943,12 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 
 /* ── TOPBAR ────────────────────────────────────────────── */
 .topbar {
-  position: fixed;
-  top: 0; left: var(--sidebar-w); right: 0;
+  position: sticky;
+  top: 0;
   height: var(--topbar-h);
   background: var(--card-bg);
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 1px 10px rgba(0,0,0,0.04);
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 28px;
   z-index: 200;
@@ -1013,33 +1014,25 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 
 .tb-icon-btn {
   border: none;
-  background: linear-gradient(135deg, var(--blue), var(--orange));
+  background: var(--blue);
   color: white;
-  padding: 8px 16px;
+  padding: 8px 18px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-weight: 600;
   font-size: 13px;
-  transition: transform 0.2s;
+  transition: background 0.2s, transform 0.2s;
+  box-shadow: 0 3px 10px rgba(26,95,173,0.22);
 }
 
 .tb-icon-btn:hover {
+  background: #1450a0;
   transform: translateY(-2px);
-}
-
-.tb-avatar {
-  width: 36px; height: 36px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--orange), var(--green));
-  display: flex; align-items: center; justify-content: center;
-  color: white; font-weight: 700; font-size: 12px;
-  cursor: pointer;
 }
 
 /* ── MAIN CONTENT ──────────────────────────────────────── */
 .main {
   margin-left: var(--sidebar-w);
-  margin-top: var(--topbar-h);
   flex: 1;
   overflow: auto;
 }
@@ -1806,10 +1799,6 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 
   .hamburger {
     display: flex;
-  }
-
-  .topbar {
-    left: 0;
   }
 
   .projects-container {
