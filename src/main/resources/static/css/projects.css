@@ -925,16 +925,9 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .sb-user-role { display: block; font-size: 11px; color: rgba(255,255,255,0.4); }
 
 .overlay {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.3s;
+  display: none;
+  position: fixed; inset: 0;
   z-index: 250;
-}
-
-.overlay.show {
-  opacity: 1;
-  pointer-events: auto;
 }
 
 .sidebar.open {

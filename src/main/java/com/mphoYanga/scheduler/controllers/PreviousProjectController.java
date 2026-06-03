@@ -1,13 +1,17 @@
 package com.mphoYanga.scheduler.controllers;
 
+import com.mphoYanga.scheduler.models.Activity;
 import com.mphoYanga.scheduler.models.PreviousProject;
 import com.mphoYanga.scheduler.models.PreviousProject.ServiceCategory;
 import com.mphoYanga.scheduler.models.PreviousProjectComment;
+import com.mphoYanga.scheduler.services.ActivityService;
 import com.mphoYanga.scheduler.services.PreviousProjectService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,9 +47,15 @@ import java.util.Map;
 public class PreviousProjectController {
 
     private final PreviousProjectService service;
+    private final ActivityService        activityService;
+    private final SimpMessagingTemplate  messagingTemplate;
 
-    public PreviousProjectController(PreviousProjectService service) {
-        this.service = service;
+    public PreviousProjectController(PreviousProjectService service,
+                                     ActivityService activityService,
+                                     SimpMessagingTemplate messagingTemplate) {
+        this.service           = service;
+        this.activityService   = activityService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     // ── PROJECT CRUD ──────────────────────────────────────────────────────────
@@ -204,11 +214,48 @@ public class PreviousProjectController {
                 return ResponseEntity.badRequest()
                         .body(Map.of("success", false, "message", "clientId is required."));
             }
-            Long   clientId = ((Number) rawClientId).longValue();
-            String content  = (String) body.get("content");
-            Integer rating  = body.get("rating") != null ? ((Number) body.get("rating")).intValue() : null;
+            Long    clientId = ((Number) rawClientId).longValue();
+            String  content  = (String) body.get("content");
+            Integer rating   = body.get("rating") != null
+                    ? ((Number) body.get("rating")).intValue() : null;
 
             PreviousProjectComment saved = service.postClientComment(id, clientId, content, rating);
+
+            // ── WebSocket broadcast ─────────────────────────────────────────
+            // Non-critical: wrap in its own try so a messaging failure never
+            // rolls back a successfully saved comment.
+            try {
+                String projectName = saved.getPreviousProject().getName();
+
+                // 1. Project-specific topic — "client comment on project <name>"
+                //    Any future subscriber (e.g. a client portfolio page) can
+                //    listen here for live comment events on a single project.
+                String safeName = projectName.replaceAll("[^\\w]", "-").toLowerCase();
+                String projectTopic = "/topic/client-comment-on-project-" + safeName;
+
+                Map<String, Object> payload = new LinkedHashMap<>();
+                payload.put("actorType",   "CLIENT");
+                payload.put("actorName",   saved.getAuthorDisplayName());
+                payload.put("action",      "Client comment on project: " + projectName);
+                payload.put("entityType",  "PREVIOUS_PROJECT_COMMENT");
+                payload.put("entityId",    saved.getId());
+                payload.put("createdAt",   saved.getCreatedAt().toString());
+
+                messagingTemplate.convertAndSend(projectTopic, (Object) payload);
+
+                // 2. Persist the activity and broadcast to /topic/activities
+                //    so the admin dashboard Recent Activity feed updates live.
+                activityService.log(
+                        clientId,
+                        saved.getAuthorDisplayName(),
+                        Activity.ActorType.CLIENT,
+                        "Client comment on project: " + projectName,
+                        "PREVIOUS_PROJECT_COMMENT",
+                        saved.getId()
+                );
+            } catch (Exception ignored) { /* non-critical */ }
+            // ───────────────────────────────────────────────────────────────
+
             return ResponseEntity.status(201).body(Map.of(
                     "success", true,
                     "message", "Comment submitted and awaiting approval.",

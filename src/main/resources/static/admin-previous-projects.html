@@ -75,8 +75,7 @@
         .sb-user-name { display: block; font-size: 13px; color: #fff; font-weight: 600; }
         .sb-user-role { display: block; font-size: 10px; color: rgba(255,255,255,0.4); }
 
-        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 190; }
-        .overlay.active { display: block; }
+        /* overlay controlled by admin-sidebar.js */
 
         /* ── MAIN ── */
         .main { flex: 1; margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
@@ -307,7 +306,7 @@
                     <input type="text" id="search-input" placeholder="Search past projects...">
                 </div>
                 <button class="tb-btn primary" id="add-project-btn">➕ Add Past Project</button>
-                <div class="tb-avatar" id="tb-avatar">MA</div>
+                
             </div>
         </header>
 
@@ -970,16 +969,6 @@
                 p.location.toLowerCase().includes(q)||
                 p.description?.toLowerCase().includes(q)
             ));
-        });
-
-        // Hamburger
-        document.getElementById('hamburger').addEventListener('click', () => {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
-            document.getElementById('overlay').classList.toggle('active');
-        });
-        document.getElementById('overlay').addEventListener('click', () => {
-            document.getElementById('sidebar').classList.remove('mobile-open');
-            document.getElementById('overlay').classList.remove('active');
         });
 
     }

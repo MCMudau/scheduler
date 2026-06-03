@@ -49,9 +49,9 @@
         </div>
         <nav class="sb-nav">${buildNav()}</nav>
         <div class="sb-footer">
-            <div class="sb-avatar" id="sb-avatar">A</div>
+            <div class="sb-avatar" id="sb-avatar">—</div>
             <div>
-                <span class="sb-user-name" id="sb-name">Admin</span>
+                <span class="sb-user-name" id="sb-name">Loading…</span>
                 <span class="sb-user-role">Administrator</span>
             </div>
         </div>`;
@@ -164,11 +164,17 @@
         .sb-user-role { display: block; font-size: 10px; color: rgba(255,255,255,0.4); }
 
         /* ── OVERLAY (mobile) ── */
-        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 190; }
+        .overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(13,27,42,0.45);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 190;
+        }
         .overlay.active { display: block; }
 
         /* ── MAIN ── */
-        .main { flex: 1; margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
+        .main { flex: 1; margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; transition: filter 0.3s ease; }
 
         /* ── TOPBAR ── */
         .topbar {
@@ -265,14 +271,16 @@
 
         if (hamburger && sidebar) {
             hamburger.addEventListener('click', () => {
-                sidebar.classList.toggle('open');
-                overlay && overlay.classList.toggle('active');
+                const isOpen = sidebar.classList.toggle('open');
+                if (overlay) overlay.classList.toggle('active', isOpen);
+                document.body.classList.toggle('sidebar-open', isOpen);
             });
         }
         if (overlay && sidebar) {
             overlay.addEventListener('click', () => {
                 sidebar.classList.remove('open');
                 overlay.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
             });
         }
         if (logoutBtn) {
@@ -296,20 +304,33 @@
     }
 
     async function loadAdminName() {
+        let admin = null;
+
         try {
             const res = await fetch('/api/admin/current-session', { credentials: 'include' });
-            if (!res.ok) return;
-            const data = await res.json();
-            const admin = data && data.data;
-            if (!admin) return;
-            const initials = (admin.name[0] + (admin.surname ? admin.surname[0] : '')).toUpperCase();
-            const sbAvatar = document.getElementById('sb-avatar');
-            const tbAvatar = document.getElementById('tb-avatar');
-            const sbName   = document.getElementById('sb-name');
-            if (sbAvatar) sbAvatar.textContent = initials;
-            if (tbAvatar) tbAvatar.textContent = initials;
-            if (sbName)   sbName.textContent = `${admin.name} ${admin.surname || ''}`.trim();
+            if (res.ok) {
+                const data = await res.json();
+                const candidate = data && data.data;
+                if (candidate && candidate.name) admin = candidate;
+            }
         } catch (_) {}
+
+        // No valid session — send to login
+        if (!admin || !admin.name) {
+            window.location.replace('login.html');
+            return;
+        }
+
+        const fullName = `${admin.name} ${admin.surname || ''}`.trim();
+        const initials = (admin.name[0] + (admin.surname ? admin.surname[0] : '')).toUpperCase();
+
+        const sbAvatar = document.getElementById('sb-avatar');
+        const sbName   = document.getElementById('sb-name');
+        const tbAvatar = document.getElementById('tb-avatar');
+
+        if (sbAvatar) sbAvatar.textContent = initials;
+        if (sbName)   sbName.textContent   = fullName;
+        if (tbAvatar) tbAvatar.textContent  = initials;
     }
 
     /* ── BOOT ──────────────────────────────────────────────────────── */
