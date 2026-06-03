@@ -1,24 +1,26 @@
 /**
- * Shared admin sidebar — drop <aside class="sidebar" id="sidebar"></aside>
- * on any admin page, include this script, and the sidebar is injected automatically.
+ * Shared admin layout — sidebar + topbar CSS
+ * Drop <aside class="sidebar" id="sidebar"></aside> on any admin page,
+ * include this script, and the sidebar is injected automatically.
+ * The topbar CSS is also injected so every page shares the same styling.
  */
 (function () {
 
     const LINKS = [
         { group: 'Main' },
-        { href: 'admin-dashboard.html',       icon: '⊞', label: 'Dashboard'    },
-        { href: 'projects.html',              icon: '📋', label: 'Projects'     },
-        { href: 'admin-quotations.html',      icon: '📄', label: 'Quotations'   },
-        { href: 'calendar.html',              icon: '📅', label: 'Calendar'     },
+        { href: 'admin-dashboard.html',         icon: '⊞', label: 'Dashboard'     },
+        { href: 'projects.html',                icon: '📋', label: 'Projects'      },
+        { href: 'admin-quotations.html',        icon: '📄', label: 'Quotations'    },
+        { href: 'calendar.html',                icon: '📅', label: 'Calendar'      },
         { href: 'admin-previous-projects.html', icon: '🏆', label: 'Past Projects' },
         { group: 'Manage' },
-        { href: 'services.html',              icon: '🔧', label: 'Services'     },
-        { href: 'clients.html',               icon: '👥', label: 'Clients'      },
-        { href: 'team.html',                  icon: '👷', label: 'Team'         },
-        { href: 'reports.html',               icon: '📊', label: 'Reports'      },
+        { href: 'services.html',                icon: '🔧', label: 'Services'      },
+        { href: 'clients.html',                 icon: '👥', label: 'Clients'       },
+        { href: 'team.html',                    icon: '👷', label: 'Team'          },
+        { href: 'reports.html',                 icon: '📊', label: 'Reports'       },
         { group: 'Account' },
-        { href: 'settings.html',              icon: '⚙️', label: 'Settings'     },
-        { logout: true,                        icon: '↩', label: 'Logout'       },
+        { href: 'settings.html',                icon: '⚙️', label: 'Settings'      },
+        { logout: true,                          icon: '↩', label: 'Logout'        },
     ];
 
     const currentPage = window.location.pathname.split('/').pop() || 'admin-dashboard.html';
@@ -55,107 +57,240 @@
         </div>`;
 
     /* ── CSS ───────────────────────────────────────────────────────── */
-    const SIDEBAR_CSS = `
-        :root { --sb-w: 252px; }
+    const LAYOUT_CSS = `
+        :root {
+            --blue:        #1a5fad;
+            --blue-light:  #2471c8;
+            --orange:      #e8762a;
+            --green:       #3cb54a;
+            --red:         #e53e3e;
+            --bg:          #f4f6fb;
+            --sidebar-bg:  #0d1b2a;
+            --card-bg:     #ffffff;
+            --border:      #e2e8f0;
+            --text:        #1a202c;
+            --text-light:  #718096;
+            --text-xlight: #a0aec0;
+            --shadow:      0 2px 12px rgba(0,0,0,0.08);
+            --shadow-lg:   0 8px 32px rgba(0,0,0,0.15);
+            --radius:      12px;
+            --topbar-h:    64px;
+            --sidebar-w:   240px;
+        }
+
+        /* ── APP SHELL ── */
         .app { display: flex; min-height: 100vh; }
+
+        /* ── SIDEBAR ── */
         .sidebar {
-            width: var(--sb-w); flex-shrink: 0;
-            background: #0d1b2a;
-            position: fixed; top: 0; left: 0; height: 100vh;
-            display: flex; flex-direction: column;
-            z-index: 200; overflow-y: auto;
-            transition: transform 0.28s ease;
+            width: var(--sidebar-w);
+            background: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 200;
+            transition: transform 0.3s ease;
         }
-        .sidebar::before {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(180deg,rgba(26,95,173,.08) 0%,transparent 60%);
-            pointer-events: none;
+        .sb-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 20px 16px 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
         }
-        .sb-logo { display: flex; align-items: center; gap: 10px; padding: 22px 18px 14px; flex-shrink: 0; }
         .sb-logo-icons { display: flex; gap: 4px; }
-        .sb-logo-icon { width: 22px; height: 22px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+        .sb-logo-icon {
+            width: 26px; height: 26px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px;
+        }
         .sb-logo-icon.b { background: #1a5fad; }
         .sb-logo-icon.o { background: #e8762a; }
         .sb-logo-icon.g { background: #3cb54a; }
-        .sb-brand { font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 2px; color: #fff; text-transform: uppercase; }
-        .sb-brand em { color: #e8762a; font-style: normal; }
-        .sb-sub { font-size: 9px; color: rgba(255,255,255,.3); letter-spacing: 2.5px; text-transform: uppercase; }
-        .sb-nav { flex: 1; padding: 8px 12px 16px; display: flex; flex-direction: column; gap: 2px; }
-        .sb-section-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.25); padding: 14px 8px 4px; display: block; }
+        .sb-brand-text { line-height: 1.25; }
+        .sb-brand {
+            display: block;
+            font-family: 'Oswald', sans-serif;
+            font-size: 15px; font-weight: 700;
+            color: #fff; letter-spacing: 0.5px;
+        }
+        .sb-brand em { color: var(--orange); font-style: italic; }
+        .sb-sub {
+            display: block;
+            font-size: 10px; letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+        }
+        .sb-nav { flex: 1; padding: 14px 10px; overflow-y: auto; }
+        .sb-section-label {
+            display: block;
+            font-size: 9px; letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.25);
+            padding: 14px 8px 6px;
+        }
         .sb-item {
             display: flex; align-items: center; gap: 10px;
-            padding: 9px 12px; border-radius: 8px;
-            font-size: 13px; font-weight: 500; color: rgba(255,255,255,.55);
-            background: none; border: none; cursor: pointer; width: 100%;
-            text-decoration: none; transition: all .18s;
+            width: 100%; padding: 9px 12px;
+            border: none; border-left: 3px solid transparent;
+            background: none;
+            color: rgba(255,255,255,0.6);
+            font-family: 'Barlow', sans-serif;
+            font-size: 14px; border-radius: 8px;
+            cursor: pointer; text-decoration: none;
+            transition: all 0.2s; text-align: left;
         }
-        .sb-item:hover { background: rgba(255,255,255,.06); color: rgba(255,255,255,.85); }
-        .sb-item.active { background: rgba(26,95,173,.25); color: #fff; font-weight: 600; }
-        .sb-item.active::before { display: none; }
-        .sb-icon { font-size: 15px; width: 22px; text-align: center; flex-shrink: 0; }
-        .sb-footer { display: flex; align-items: center; gap: 10px; padding: 16px 18px; border-top: 1px solid rgba(255,255,255,.07); flex-shrink: 0; }
-        .sb-avatar { width: 34px; height: 34px; border-radius: 50%; background: #1a5fad; color: #fff; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .sb-user-name { display: block; font-size: 13px; font-weight: 600; color: #fff; }
-        .sb-user-role { font-size: 10px; color: rgba(255,255,255,.3); }
-        .main { flex: 1; margin-left: var(--sb-w); min-height: 100vh; }
-        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 199; }
-        .overlay.show { display: block; }
-        .hamburger { display: none; flex-direction: column; gap: 4px; background: none; border: none; cursor: pointer; padding: 6px; }
-        .hamburger span { display: block; width: 22px; height: 2px; background: currentColor; border-radius: 2px; }
+        .sb-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .sb-item.active {
+            background: rgba(26,95,173,0.25);
+            color: #fff;
+            border-left: 3px solid var(--blue);
+        }
+        .sb-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+        .sb-footer {
+            display: flex; align-items: center; gap: 10px;
+            padding: 14px 16px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+            flex-shrink: 0;
+        }
+        .sb-avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: var(--blue); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; flex-shrink: 0;
+        }
+        .sb-user-name { display: block; font-size: 13px; color: #fff; font-weight: 600; }
+        .sb-user-role { display: block; font-size: 10px; color: rgba(255,255,255,0.4); }
+
+        /* ── OVERLAY (mobile) ── */
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 190; }
+        .overlay.active { display: block; }
+
+        /* ── MAIN ── */
+        .main { flex: 1; margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            height: var(--topbar-h);
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .tb-left  { display: flex; align-items: center; gap: 14px; }
+        .tb-right { display: flex; align-items: center; gap: 12px; }
+        .hamburger {
+            display: none; flex-direction: column; gap: 4px;
+            background: none; border: none; cursor: pointer; padding: 4px;
+        }
+        .hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; }
+        .page-heading h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 20px; font-weight: 600;
+            color: var(--text);
+        }
+        .page-date { font-size: 12px; color: var(--text-light); display: block; }
+        .tb-search {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px; padding: 7px 12px;
+        }
+        .tb-search input {
+            border: none; background: none; outline: none;
+            font-family: 'Barlow', sans-serif;
+            font-size: 14px; color: var(--text); width: 180px;
+        }
+        .tb-btn {
+            display: flex; align-items: center; gap: 6px;
+            padding: 8px 16px; border: none; border-radius: 8px;
+            font-family: 'Barlow', sans-serif;
+            font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+        }
+        .tb-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        .tb-btn.primary { background: var(--blue); color: #fff; }
+        .tb-btn.secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+        .tb-btn.danger { background: var(--red); color: #fff; }
+        .tb-avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: var(--blue); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700;
+            cursor: default;
+        }
+
+        /* ── CONTENT AREA ── */
+        .content { padding: 24px; flex: 1; }
+
+        /* ── MOBILE ── */
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.open { transform: translateX(0); }
             .main { margin-left: 0; }
             .hamburger { display: flex; }
+            .tb-search { display: none; }
         }`;
 
     /* ── INJECT ────────────────────────────────────────────────────── */
     function inject() {
-        // CSS
-        if (!document.getElementById('admin-sb-css')) {
+        if (!document.getElementById('admin-layout-css')) {
             const style = document.createElement('style');
-            style.id = 'admin-sb-css';
-            style.textContent = SIDEBAR_CSS;
+            style.id = 'admin-layout-css';
+            style.textContent = LAYOUT_CSS;
             document.head.appendChild(style);
         }
 
-        // Sidebar HTML
         const aside = document.getElementById('sidebar');
         if (aside) aside.innerHTML = SIDEBAR_HTML;
 
-        // Overlay (create if missing)
         if (!document.getElementById('overlay')) {
             const ov = document.createElement('div');
-            ov.id = 'overlay'; ov.className = 'overlay';
+            ov.id = 'overlay';
+            ov.className = 'overlay';
             aside && aside.parentNode.insertBefore(ov, aside.nextSibling);
         }
     }
 
     /* ── BEHAVIOR ──────────────────────────────────────────────────── */
     function setupBehavior() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
+        const sidebar   = document.getElementById('sidebar');
+        const overlay   = document.getElementById('overlay');
         const hamburger = document.getElementById('hamburger');
         const logoutBtn = document.getElementById('sb-logout-btn');
 
         if (hamburger && sidebar) {
             hamburger.addEventListener('click', () => {
                 sidebar.classList.toggle('open');
-                overlay && overlay.classList.toggle('show');
+                overlay && overlay.classList.toggle('active');
             });
         }
         if (overlay && sidebar) {
             overlay.addEventListener('click', () => {
                 sidebar.classList.remove('open');
-                overlay.classList.remove('show');
+                overlay.classList.remove('active');
             });
         }
         if (logoutBtn) {
             logoutBtn.addEventListener('click', async () => {
-                try { await fetch('/api/admin/clear-session', { method: 'POST', credentials: 'include' }); } catch (_) {}
+                try {
+                    await fetch('/api/admin/clear-session', { method: 'POST', credentials: 'include' });
+                } catch (_) {}
                 sessionStorage.clear();
                 localStorage.removeItem('admin');
                 window.location.href = 'login.html';
+            });
+        }
+
+        // Set date on any element with id="page-date"
+        const dateEl = document.getElementById('page-date');
+        if (dateEl && !dateEl.textContent.trim()) {
+            dateEl.textContent = new Date().toLocaleDateString('en-ZW', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
             });
         }
     }
@@ -168,10 +303,12 @@
             const admin = data && data.data;
             if (!admin) return;
             const initials = (admin.name[0] + (admin.surname ? admin.surname[0] : '')).toUpperCase();
-            const el = document.getElementById('sb-avatar');
-            const nm = document.getElementById('sb-name');
-            if (el) el.textContent = initials;
-            if (nm) nm.textContent = `${admin.name} ${admin.surname || ''}`.trim();
+            const sbAvatar = document.getElementById('sb-avatar');
+            const tbAvatar = document.getElementById('tb-avatar');
+            const sbName   = document.getElementById('sb-name');
+            if (sbAvatar) sbAvatar.textContent = initials;
+            if (tbAvatar) tbAvatar.textContent = initials;
+            if (sbName)   sbName.textContent = `${admin.name} ${admin.surname || ''}`.trim();
         } catch (_) {}
     }
 

@@ -271,7 +271,25 @@
 <div class="app">
     <aside class="sidebar" id="sidebar"></aside>
     <div class="overlay" id="overlay"></div>
-    <main class="main" style="background:var(--bg,#f4f6fb);">
+    <main class="main">
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="tb-left">
+                <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+                <div class="page-heading">
+                    <h1>Quotations</h1>
+                    <span class="page-date" id="page-date"></span>
+                </div>
+            </div>
+            <div class="tb-right">
+                <div class="tb-search">
+                    <span>🔍</span>
+                    <input type="text" placeholder="Search quotations...">
+                </div>
+                <div class="tb-avatar" id="tb-avatar">A</div>
+            </div>
+        </header>
+        <div class="content">
     <!-- PAGE HEADER -->
     <div class="page-header">
         <div>
@@ -301,6 +319,7 @@
         <div class="empty-title">No quotations found</div>
         <p class="empty-desc">No quotations match the current filter. Clients can submit quotations from their portal.</p>
     </div>
+        </div><!-- end .content -->
 </main>
 
 <!-- ═══════════════════════════════════════════════════════════════ -->

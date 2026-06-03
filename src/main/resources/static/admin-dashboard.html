@@ -407,21 +407,6 @@ const API_BASE = getApiBase();
       btn.addEventListener('click', () => goTo(btn.dataset.page));
     });
 
-    // ── SIDEBAR TOGGLE ────────────────────────────────────────────
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-
-    function closeSidebar() {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('show');
-    }
-
-    document.getElementById('hamburger').addEventListener('click', () => {
-      sidebar.classList.toggle('open');
-      overlay.classList.toggle('show');
-    });
-    overlay.addEventListener('click', closeSidebar);
-
     // ── QUICK ACCEPT / DECLINE QUOTATIONS ─────────────────────────
     document.querySelectorAll('.qi-btn.acc').forEach(btn => {
       btn.addEventListener('click', function() {
