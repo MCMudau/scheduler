@@ -598,10 +598,10 @@
 <section id="testimonials">
     <div class="section-inner">
         <div class="section-header reveal">
-            <span class="section-tag">What Clients Say</span>
-            <h2 class="section-title">Client <em>Reviews</em></h2>
-            <p class="section-sub">Honest feedback from the people we've worked with across Zimbabwe.</p>
-        </div>
+                <span class="section-tag">What Clients Say</span>
+                <h2 class="section-title">Client <em>Reviews</em></h2>
+                <p class="section-sub">Honest feedback from the people we've worked with across Zimbabwe.</p>
+            </div>
         <div class="testimonials-track">
             <div class="testi-cards" id="testi-cards"></div>
         </div>
@@ -1186,14 +1186,6 @@
     function starsHtml(n) { return '★'.repeat(n) + '☆'.repeat(5 - n); }
     function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-    const FALLBACK_TESTIMONIALS = [
-        { name:'Tendai Mutasa',    initials:'TM', rating:5, comment:'Mpho Yanga completely transformed my kitchen with their tiling work. Absolutely professional from start to finish — on time, clean and the results are stunning.' },
-        { name:'Blessing Kambarami', initials:'BK', rating:5, comment:'We had a burst pipe emergency and they were on site within 2 hours. Fixed it properly and gave us a written report. Saved us from serious damage.' },
-        { name:'Tarisai Rusike',   initials:'TR', rating:5, comment:'The ceiling installation was flawless. Mpho Yanga were clean, punctual and professional throughout.' },
-        { name:'Kudakwashe Dube',  initials:'KD', rating:5, comment:'Used them for painting our office block and warehouse. Very competitive pricing and the finish quality matched what I saw on their portfolio.' },
-        { name:'Sithembile Mpofu', initials:'SM', rating:5, comment:'They tiled our new kitchen and bathrooms and the work is beautiful. Neat, precise and they gave us tips on maintenance.' }
-    ];
-
     async function loadIndexTestimonials() {
         const track          = document.getElementById('testi-cards');
         const dotsContainer  = document.getElementById('testi-dots');
@@ -1202,7 +1194,6 @@
             const res = await fetch('/api/testimonials/approved');
             if (res.ok) items = await res.json();
         } catch (_) {}
-        if (items.length === 0) items = FALLBACK_TESTIMONIALS;
 
         track.innerHTML = '';
         dotsContainer.innerHTML = '';

@@ -551,10 +551,7 @@
         <div class="nav-brand">MPHO <span>YAN</span>GA</div>
     </div>
     <div class="nav-right">
-        <div class="nav-user">
-            <div class="nav-avatar" id="nav-avatar">?</div>
-            <span id="nav-name">Welcome</span>
-        </div>
+        
         <button class="btn-logout" onclick="logout()">Sign Out</button>
     </div>
 </nav>
@@ -805,8 +802,7 @@
             const initial = name.charAt(0).toUpperCase();
 
             document.getElementById('client-name').textContent = name;
-            document.getElementById('nav-name').textContent    = name;
-            document.getElementById('nav-avatar').textContent  = initial;
+            
 
             // Ensure currentClient has id and name for comment posting
             if (!currentClient?.id && data.id) currentClient = data;

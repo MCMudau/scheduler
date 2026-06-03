@@ -101,7 +101,7 @@
     <div class="nav-right">
         <a href="client-dashboard.html" class="back-btn">← Dashboard</a>
         <div class="nav-user">
-            <div class="nav-avatar" id="nav-avatar">?</div>
+            
             <span id="nav-name">Client</span>
         </div>
     </div>
@@ -201,7 +201,9 @@
         if (data.name) {
             document.getElementById('nav-name').textContent = data.name.split(' ')[0];
             const initials = (data.name.match(/\b\w/g) || []).join('').substring(0, 2);
-            document.getElementById('nav-avatar').textContent = initials.toUpperCase();
+            
+        }else{
+            
         }
     }
 

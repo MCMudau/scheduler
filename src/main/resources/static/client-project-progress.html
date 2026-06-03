@@ -109,9 +109,9 @@
         <div class="nav-brand">MPHO <span>YAN</span>GA</div>
     </a>
     <div class="nav-right">
-        <a href="client-dashboard.html" class="back-btn">← Dashboard</a>
+        <a href="client-projects.html" class="back-btn">← Projects</a>
         <div class="nav-user">
-            <div class="nav-avatar" id="nav-avatar">?</div>
+            
             <span id="nav-name">Client</span>
         </div>
     </div>
@@ -160,7 +160,7 @@
     <h2 class="timeline-header">Project Timeline</h2>
     <div class="project-card">
         <div class="timeline-layout">
-            <div class="timeline-line"></div>
+            
             <div class="timeline-stages" id="stages-container">
                 <p style="color: var(--muted); text-align: center; padding: 40px 20px;">Loading stages...</p>
             </div>
@@ -186,7 +186,29 @@
     // Fallback SVG shown when an image fails to load
     const BROKEN_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect fill='%23333' width='120' height='120'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23666' font-size='14'%3E?%3C/text%3E%3C/svg%3E";
 
-    document.addEventListener('DOMContentLoaded', () => {
+    // ── SESSION ──────────────────────────────────────────────
+
+    async function loadSession() {
+        try {
+            const res = await fetch(`${API_BASE}/client/session`, { credentials: 'include' });
+            if (!res.ok) { window.location.replace('login.html'); return false; }
+            const data   = await res.json();
+            const client = data.data || (data.id ? data : null);
+            if (!client) { window.location.replace('login.html'); return false; }
+            const name = client.name || 'Client';
+            document.getElementById('nav-name').textContent    = name;
+            
+            return true;
+        } catch (_) {
+            window.location.replace('login.html');
+            return false;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const loggedIn = await loadSession();
+        if (!loggedIn) return;
+
         const urlParams      = new URLSearchParams(window.location.search);
         currentProjectId     = urlParams.get('id');
 
