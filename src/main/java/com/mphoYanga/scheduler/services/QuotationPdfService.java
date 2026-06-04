@@ -1,20 +1,5 @@
 package com.mphoYanga.scheduler.services;
 
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
-import com.mphoYanga.scheduler.models.Client;
-import com.mphoYanga.scheduler.models.Quotation;
-import com.mphoYanga.scheduler.models.QuotationDocument;
-import com.mphoYanga.scheduler.models.QuotationItem;
-import com.mphoYanga.scheduler.repos.AdminRepository;
-import com.mphoYanga.scheduler.repos.QuotationDocumentRepository;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Service;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,6 +8,36 @@ import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Service;
+
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.mphoYanga.scheduler.models.Client;
+import com.mphoYanga.scheduler.models.Quotation;
+import com.mphoYanga.scheduler.models.QuotationDocument;
+import com.mphoYanga.scheduler.models.QuotationItem;
+import com.mphoYanga.scheduler.repos.AdminRepository;
+import com.mphoYanga.scheduler.repos.QuotationDocumentRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -292,7 +307,7 @@ public class QuotationPdfService {
 
         Paragraph p = new Paragraph();
         p.setSpacingAfter(8f);
-        p.add(new Chunk("Comments or special instructions:\n", labelFont));
+        p.add(new Chunk("Comments or special instructions: Quote is in US$ but payeable in ZiG at the ruling exchange rate\n", labelFont));
         if (desc != null && !desc.isBlank())
             p.add(new Chunk(desc + "\n", bodyFont));
         if (title != null && !title.isBlank())
