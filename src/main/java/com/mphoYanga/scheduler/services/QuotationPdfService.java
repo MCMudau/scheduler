@@ -2,12 +2,16 @@ package com.mphoYanga.scheduler.services;
 
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
+import com.mphoYanga.scheduler.models.Client;
 import com.mphoYanga.scheduler.models.Quotation;
 import com.mphoYanga.scheduler.models.QuotationDocument;
 import com.mphoYanga.scheduler.models.QuotationItem;
 import com.mphoYanga.scheduler.repos.QuotationDocumentRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -19,107 +23,53 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Generates a professional PDF quotation document using iText 5,
- * saves it to the local filesystem, and tracks it in the database.
- *
- * ── HOW TO CHANGE THE LAYOUT ──────────────────────────────────────────────
- *  All visual constants are at the top of this class.
- *  Each PDF section is a private helper — rearrange or extend freely:
- *
- *   Column widths   → TABLE_COL_WIDTHS  (must sum to 100)
- *   Add a column    → extend addItemTable()
- *   Colours         → COLOUR_* constants
- *   Terms text      → TERMS_TEXT constant
- *   Header design   → HeaderFooterEvent.drawHeader()
- *   New section     → add a method, call it inside buildPdfBytes()
- *   Storage folder  → quotation.pdf-dir in application.properties
- * ─────────────────────────────────────────────────────────────────────────
- */
 @Service
 @RequiredArgsConstructor
 public class QuotationPdfService {
 
+    private static final Logger log = LoggerFactory.getLogger(QuotationPdfService.class);
     private final QuotationDocumentRepository documentRepository;
 
-    /**
-     * Root directory for saved PDFs.
-     * Set in application.properties:
-     *   quotation.pdf-dir=C:/uploads/quotations
-     */
     @Value("${quotation.pdf-dir:uploads/quotations}")
     private String pdfDir;
 
     // ── Colours ───────────────────────────────────────────────────────────────
-    private static final BaseColor COLOUR_NAVY         = new BaseColor(13,  27,  42);
-    private static final BaseColor COLOUR_BLUE         = new BaseColor(26,  95,  173);
-    private static final BaseColor COLOUR_BLUE_LIGHT   = new BaseColor(238, 243, 252);
-    private static final BaseColor COLOUR_ORANGE       = new BaseColor(232, 118, 42);
-    private static final BaseColor COLOUR_GREEN        = new BaseColor(60,  181, 74);
-    private static final BaseColor COLOUR_WHITE        = BaseColor.WHITE;
-    private static final BaseColor COLOUR_TEXT         = new BaseColor(26,  36,  51);
-    private static final BaseColor COLOUR_MUTED        = new BaseColor(124, 139, 161);
-    private static final BaseColor COLOUR_BORDER       = new BaseColor(221, 227, 240);
-    private static final BaseColor COLOUR_ROW_ALT      = new BaseColor(248, 250, 253);
-    private static final BaseColor COLOUR_TERMS_BG     = new BaseColor(240, 246, 255);
-    private static final BaseColor COLOUR_TERMS_BORDER = new BaseColor(191, 219, 254);
-    private static final BaseColor COLOUR_FOOTER_BG    = new BaseColor(248, 249, 250);
+    private static final BaseColor C_BLUE      = new BaseColor(26,  95,  173);
+    private static final BaseColor C_DARK      = new BaseColor(26,  34,  51);
+    private static final BaseColor C_WHITE     = BaseColor.WHITE;
+    private static final BaseColor C_MUTED     = new BaseColor(110, 110, 110);
+    private static final BaseColor C_BORDER    = new BaseColor(180, 180, 180);
+    private static final BaseColor C_ROW_ALT   = new BaseColor(245, 245, 245);
 
-    // ── Table column widths (must sum to 100) ─────────────────────────────────
-    private static final float[] TABLE_COL_WIDTHS = { 25f, 55f, 20f };
+    private static final float MARGIN   = 36f;
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("MMMM d, yyyy");
 
-    // ── Page margins and header height (points) ───────────────────────────────
-    private static final float MARGIN        = 50f;
-    private static final float HEADER_HEIGHT = 105f;
-
-    // ── Terms & Conditions ────────────────────────────────────────────────────
-    private static final String TERMS_TEXT =
-            "50% deposit required upon acceptance. Balance due upon project completion. " +
-                    "This quotation is valid for 30 days from the date of issue. " +
-                    "All prices are in Zimbabwe Dollars (ZWL) and include applicable taxes. " +
-                    "Work will commence within 5 business days of deposit receipt.";
-
-    private static final DateTimeFormatter DATE_FMT =
-            DateTimeFormatter.ofPattern("dd MMMM yyyy");
+    // ── Company constants ─────────────────────────────────────────────────────
+    private static final String COMPANY_ADDRESS = "1867 Industry Site\nBeitbridge";
 
     // ─────────────────────────────────────────────────────────────────────────
     // PUBLIC API
     // ─────────────────────────────────────────────────────────────────────────
 
-    /**
-     * Generate PDF bytes only — used for the admin preview endpoint
-     * before the quotation is confirmed.
-     */
     public byte[] generateQuotationPdf(Quotation quotation) throws DocumentException {
-        return buildPdfBytes(quotation);
+        try {
+            return buildPdfBytes(quotation);
+        } catch (IOException e) {
+            throw new DocumentException("Failed to build PDF: " + e.getMessage());
+        }
     }
 
-    /**
-     * Generate the PDF, save it to disk, persist a {@link QuotationDocument}
-     * record, and return it.  Called when the admin confirms the quotation.
-     *
-     * @param quotation          fully-loaded entity (client + items eager-loaded)
-     * @param confirmedByAdminId the admin's session ID
-     */
     public QuotationDocument generateAndSave(Quotation quotation, Long confirmedByAdminId)
             throws DocumentException, IOException {
-
-        // 1. Build bytes
         byte[] pdfBytes = buildPdfBytes(quotation);
-
-        // 2. Ensure storage directory exists
         Path dir = Paths.get(pdfDir);
         Files.createDirectories(dir);
-
-        // 3. Write file using NIO (reliable under Tomcat's temp-dir restrictions)
         String fileName = "Quotation_" + quotation.getQuotationNumber() + ".pdf";
         Path   filePath = dir.resolve(fileName);
         Files.write(filePath, pdfBytes);
 
-        // 4. Upsert the QuotationDocument record (re-confirm regenerates the file)
         Optional<QuotationDocument> existing =
                 documentRepository.findByQuotation_QuotationId(quotation.getQuotationId());
-
         QuotationDocument doc = existing.orElse(new QuotationDocument());
         doc.setQuotation(quotation);
         doc.setConfirmedByAdminId(confirmedByAdminId);
@@ -128,14 +78,9 @@ public class QuotationPdfService {
         doc.setFileName(fileName);
         doc.setFileSizeBytes((long) pdfBytes.length);
         doc.setEmailSent(false);
-
         return documentRepository.save(doc);
     }
 
-    /**
-     * Mark the confirmation email as successfully sent.
-     * Called by the service layer after the email has been dispatched.
-     */
     public void markEmailSent(Long documentId) {
         documentRepository.findById(documentId).ifPresent(doc -> {
             doc.setEmailSent(true);
@@ -143,310 +88,320 @@ public class QuotationPdfService {
         });
     }
 
-    /**
-     * Read the saved PDF bytes from disk for a given {@link QuotationDocument}.
-     * Used by download endpoints so the file is never regenerated unnecessarily.
-     */
     public byte[] loadPdfBytes(QuotationDocument doc) throws IOException {
         Path path = Paths.get(doc.getFilePath());
-        if (!Files.exists(path)) {
-            throw new IOException("PDF not found on disk: " + path);
-        }
+        if (!Files.exists(path)) throw new IOException("PDF not found on disk: " + path);
         return Files.readAllBytes(path);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // PDF BUILDER
+    // BUILDER
     // ─────────────────────────────────────────────────────────────────────────
 
-    private byte[] buildPdfBytes(Quotation quotation) throws DocumentException {
+    private byte[] buildPdfBytes(Quotation quotation) throws DocumentException, IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Document document = new Document(
-                PageSize.A4, MARGIN, MARGIN, HEADER_HEIGHT + 20f, 60f);
-        PdfWriter writer = PdfWriter.getInstance(document, out);
-        writer.setPageEvent(new HeaderFooterEvent(quotation));
+        Document document = new Document(PageSize.A4, MARGIN, MARGIN, MARGIN, MARGIN);
+        PdfWriter.getInstance(document, out);
         document.open();
-        addMetaSection(document, quotation);
+
+        addTopHeader(document, quotation);
+        addBlueDivider(document);
+        addBillToSection(document, quotation);
+        addComments(document, quotation);
         addItemTable(document, quotation);
-        addTermsBox(document);
+        addFooter(document);
+
         document.close();
         return out.toByteArray();
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // SECTION BUILDERS
+    // SECTIONS
     // ─────────────────────────────────────────────────────────────────────────
 
-    private void addMetaSection(Document document, Quotation quotation)
-            throws DocumentException {
-        String clientName  = quotation.getClient() != null
-                ? quotation.getClient().getName() + " " + quotation.getClient().getSurname()
-                : "—";
-        String clientEmail = (quotation.getClient() != null
-                && quotation.getClient().getEmail() != null)
-                ? quotation.getClient().getEmail() : "";
-        String dateIssued  = quotation.getCreatedAt()  != null
-                ? quotation.getCreatedAt().format(DATE_FMT)  : "—";
-        String validUntil  = quotation.getValidUntil() != null
-                ? quotation.getValidUntil().format(DATE_FMT) : "N/A";
+    private void addTopHeader(Document document, Quotation quotation)
+            throws DocumentException, IOException {
 
-        PdfPTable meta = new PdfPTable(2);
-        meta.setWidthPercentage(100);
-        meta.setSpacingAfter(20f);
+        // ── Row 1: logo | "Quotation" ─────────────────────────────────────────
+        PdfPTable row1 = new PdfPTable(2);
+        row1.setWidthPercentage(100);
+        row1.setWidths(new float[]{ 55f, 45f });
+        row1.setSpacingAfter(4f);
 
-        meta.addCell(metaBox("BILLED TO",
-                clientName + (clientEmail.isEmpty() ? "" : "\n" + clientEmail)));
-        meta.addCell(metaBox("PROJECT",
-                (quotation.getTitle() != null ? quotation.getTitle() : "Construction Project")
-                        + (quotation.getDescription() != null && !quotation.getDescription().isBlank()
-                        ? "\n" + truncate(quotation.getDescription(), 80) : "")));
-        meta.addCell(metaBox("DATE ISSUED", dateIssued));
-        meta.addCell(metaBox("VALID UNTIL", validUntil));
+        PdfPCell logoCell = new PdfPCell();
+        logoCell.setBorder(Rectangle.NO_BORDER);
+        logoCell.setPadding(0f);
+        try {
+            ClassPathResource res = new ClassPathResource("static/Screenshot 2026-06-03 182310.png");
+            byte[] imgBytes = res.getInputStream().readAllBytes();
+            Image logo = Image.getInstance(imgBytes);
+            logo.scaleToFit(200f, 65f);
+            logoCell.addElement(logo);
+        } catch (Exception e) {
+            log.warn("Logo not found, using text fallback: {}", e.getMessage());
+            logoCell.addElement(new Phrase("MPHO YANGA",
+                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16f, C_BLUE)));
+        }
+        row1.addCell(logoCell);
 
-        document.add(meta);
+        PdfPCell quotTitleCell = new PdfPCell(new Phrase("Quotation",
+                FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 34f, C_MUTED)));
+        quotTitleCell.setBorder(Rectangle.NO_BORDER);
+        quotTitleCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        quotTitleCell.setVerticalAlignment(Element.ALIGN_BOTTOM);
+        row1.addCell(quotTitleCell);
+
+        document.add(row1);
+
+        // ── Row 2: "MPHO YAN GA" | "BP No." ──────────────────────────────────
+        PdfPTable row2 = new PdfPTable(2);
+        row2.setWidthPercentage(100);
+        row2.setWidths(new float[]{ 55f, 45f });
+        row2.setSpacingAfter(0f);
+
+        Paragraph namePara = new Paragraph();
+        namePara.add(new Chunk("MPHO ",
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD,   22f, C_DARK)));
+        namePara.add(new Chunk("YAN",
+                FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 22f, C_DARK)));
+        namePara.add(new Chunk("GA",
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22f, Font.UNDERLINE, C_DARK)));
+        PdfPCell nameCell = new PdfPCell(namePara);
+        nameCell.setBorder(Rectangle.NO_BORDER);
+        nameCell.setPaddingBottom(0f);
+        row2.addCell(nameCell);
+
+        PdfPCell bpCell = new PdfPCell(new Phrase("BP No.0200269091",
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9f, C_DARK)));
+        bpCell.setBorder(Rectangle.NO_BORDER);
+        bpCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        bpCell.setVerticalAlignment(Element.ALIGN_BOTTOM);
+        row2.addCell(bpCell);
+
+        document.add(row2);
+
+        // ── Row 3: "CONSTRUCTION" + address | DATE / Quotation # / Customer ID ─
+        String dateStr = quotation.getCreatedAt()  != null
+                ? quotation.getCreatedAt().format(DATE_FMT) : "—";
+        String quotNum = quotation.getQuotationNumber() != null
+                ? quotation.getQuotationNumber() : "—";
+        String custId  = quotation.getClient() != null
+                ? "C" + quotation.getClient().getId() : "—";
+
+        PdfPTable row3 = new PdfPTable(2);
+        row3.setWidthPercentage(100);
+        row3.setWidths(new float[]{ 55f, 45f });
+        row3.setSpacingAfter(6f);
+
+        Paragraph leftPara = new Paragraph();
+        leftPara.add(new Chunk("CONSTRUCTION\n",
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 13f, C_DARK)));
+        leftPara.add(new Chunk(COMPANY_ADDRESS,
+                FontFactory.getFont(FontFactory.HELVETICA, 8f, C_DARK)));
+        PdfPCell leftCell = new PdfPCell(leftPara);
+        leftCell.setBorder(Rectangle.NO_BORDER);
+        leftCell.setPaddingTop(0f);
+        row3.addCell(leftCell);
+
+        Font lbl = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8f, C_DARK);
+        Font val = FontFactory.getFont(FontFactory.HELVETICA,      8f, C_DARK);
+        Paragraph metaPara = new Paragraph();
+        metaPara.setAlignment(Element.ALIGN_RIGHT);
+        metaPara.add(new Chunk("DATE  ",       lbl)); metaPara.add(new Chunk(dateStr + "\n", val));
+        metaPara.add(new Chunk("Quotation #  ", lbl)); metaPara.add(new Chunk(quotNum + "\n", val));
+        metaPara.add(new Chunk("Customer ID  ", lbl)); metaPara.add(new Chunk(custId,          val));
+        PdfPCell rightCell = new PdfPCell(metaPara);
+        rightCell.setBorder(Rectangle.NO_BORDER);
+        rightCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        row3.addCell(rightCell);
+
+        document.add(row3);
     }
 
-    private void addItemTable(Document document, Quotation quotation)
+    private void addBlueDivider(Document document) throws DocumentException {
+        PdfPTable divider = new PdfPTable(1);
+        divider.setWidthPercentage(100);
+        divider.setSpacingAfter(10f);
+        PdfPCell cell = new PdfPCell(new Phrase(" "));
+        cell.setBackgroundColor(C_BLUE);
+        cell.setBorder(Rectangle.NO_BORDER);
+        cell.setFixedHeight(3f);
+        cell.setPadding(0f);
+        divider.addCell(cell);
+        document.add(divider);
+    }
+
+    private void addBillToSection(Document document, Quotation quotation)
             throws DocumentException {
-        List<QuotationItem> items = quotation.getQuotationItems();
+        Client client       = quotation.getClient();
+        String clientName   = client != null
+                ? (client.getName() + " " + client.getSurname()).toUpperCase() : "—";
+        String clientAddr   = (client != null && client.getAddress() != null
+                && !client.getAddress().isBlank())
+                ? client.getAddress().toUpperCase() : "";
+        String validUntil   = quotation.getValidUntil() != null
+                ? quotation.getValidUntil().format(DATE_FMT) : "N/A";
+        String preparedBy   = (quotation.getCreatedBy() != null
+                && !quotation.getCreatedBy().isBlank())
+                ? quotation.getCreatedBy() : "Admin";
 
-        PdfPTable table = new PdfPTable(3);
+        PdfPTable table = new PdfPTable(2);
         table.setWidthPercentage(100);
-        table.setWidths(TABLE_COL_WIDTHS);
-        table.setSpacingAfter(16f);
+        table.setWidths(new float[]{ 55f, 45f });
+        table.setSpacingAfter(10f);
 
-        table.addCell(tableHeader("ITEM"));
-        table.addCell(tableHeader("DESCRIPTION"));
-        table.addCell(tableHeaderRight("PRICE (ZWL)"));
+        Font sectionLabel = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8.5f, C_DARK);
+        Font bodyNormal   = FontFactory.getFont(FontFactory.HELVETICA,      9f,   C_DARK);
+        Font bodyBold     = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9f,   C_DARK);
 
-        double grandTotal = 0;
-        for (int i = 0; i < items.size(); i++) {
-            QuotationItem item     = items.get(i);
-            BaseColor     rowBg    = (i % 2 == 0) ? COLOUR_WHITE : COLOUR_ROW_ALT;
-            double        rowTotal = item.getTotalPrice() != null ? item.getTotalPrice() : 0;
-            grandTotal += rowTotal;
-
-            table.addCell(tableCell(
-                    item.getServiceType() != null ? item.getServiceType() : "Item " + (i + 1),
-                    rowBg, Element.ALIGN_LEFT, true));
-            table.addCell(tableCell(
-                    item.getDescription() != null ? item.getDescription() : "—",
-                    rowBg, Element.ALIGN_LEFT, false));
-            table.addCell(tableCell(
-                    String.format("ZWL %.2f", rowTotal),
-                    rowBg, Element.ALIGN_RIGHT, true));
+        Paragraph billPara = new Paragraph();
+        billPara.add(new Chunk("Bill To:\n", sectionLabel));
+        billPara.add(new Chunk(clientName + "\n", bodyBold));
+        if (!clientAddr.isEmpty()) {
+            billPara.add(new Chunk(clientAddr, bodyNormal));
         }
+        PdfPCell billCell = new PdfPCell(billPara);
+        billCell.setBorder(Rectangle.NO_BORDER);
+        table.addCell(billCell);
 
-        // Grand total footer
-        PdfPCell totalLabel = new PdfPCell(new Phrase("GRAND TOTAL",
-                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, COLOUR_BLUE)));
-        totalLabel.setColspan(2);
-        totalLabel.setBackgroundColor(COLOUR_BLUE_LIGHT);
-        totalLabel.setPadding(10f);
-        totalLabel.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        totalLabel.setBorderColor(COLOUR_BORDER);
-        totalLabel.setBorderWidthTop(1.5f);
-        table.addCell(totalLabel);
-
-        PdfPCell totalAmount = new PdfPCell(new Phrase(
-                String.format("ZWL %.2f", grandTotal),
-                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 13, COLOUR_BLUE)));
-        totalAmount.setBackgroundColor(COLOUR_BLUE_LIGHT);
-        totalAmount.setPadding(10f);
-        totalAmount.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        totalAmount.setBorderColor(COLOUR_BORDER);
-        totalAmount.setBorderWidthTop(1.5f);
-        table.addCell(totalAmount);
+        Font italicMuted = FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 8f, C_MUTED);
+        Font valFont     = FontFactory.getFont(FontFactory.HELVETICA,         8f, C_DARK);
+        Paragraph rightPara = new Paragraph();
+        rightPara.setAlignment(Element.ALIGN_RIGHT);
+        rightPara.add(new Chunk("Quotation valid until:  ", italicMuted));
+        rightPara.add(new Chunk(validUntil + "\n", valFont));
+        rightPara.add(new Chunk("Prepared by:  ",          italicMuted));
+        rightPara.add(new Chunk(preparedBy,                valFont));
+        PdfPCell rightCell = new PdfPCell(rightPara);
+        rightCell.setBorder(Rectangle.NO_BORDER);
+        rightCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        table.addCell(rightCell);
 
         document.add(table);
     }
 
-    private void addTermsBox(Document document) throws DocumentException {
-        PdfPTable terms = new PdfPTable(1);
-        terms.setWidthPercentage(100);
-        terms.setSpacingAfter(10f);
+    private void addComments(Document document, Quotation quotation) throws DocumentException {
+        String title = quotation.getTitle();
+        String desc  = quotation.getDescription();
+        if ((title == null || title.isBlank()) && (desc == null || desc.isBlank())) return;
 
-        Paragraph content = new Paragraph();
-        content.add(new Chunk("TERMS & CONDITIONS\n",
-                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8, COLOUR_BLUE)));
-        content.add(new Chunk(TERMS_TEXT,
-                FontFactory.getFont(FontFactory.HELVETICA, 8, COLOUR_TEXT)));
+        Font labelFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8.5f, C_DARK);
+        Font bodyFont  = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8.5f, C_DARK);
 
-        PdfPCell cell = new PdfPCell(content);
-        cell.setBackgroundColor(COLOUR_TERMS_BG);
-        cell.setBorderColor(COLOUR_TERMS_BORDER);
-        cell.setBorderWidth(1f);
-        cell.setPadding(12f);
-        terms.addCell(cell);
-        document.add(terms);
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // CELL FACTORIES
-    // ─────────────────────────────────────────────────────────────────────────
-
-    private PdfPCell metaBox(String label, String value) {
         Paragraph p = new Paragraph();
-        p.add(new Chunk(label + "\n",
-                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 7.5f, COLOUR_MUTED)));
-        p.add(new Chunk(value,
-                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10f, COLOUR_TEXT)));
-        PdfPCell cell = new PdfPCell(p);
-        cell.setBackgroundColor(COLOUR_ROW_ALT);
-        cell.setBorderColor(COLOUR_BORDER);
-        cell.setPadding(10f);
-        return cell;
+        p.setSpacingAfter(8f);
+        p.add(new Chunk("Comments or special instructions:\n", labelFont));
+        if (title != null && !title.isBlank())
+            p.add(new Chunk(title + "\n", bodyFont));
+        if (desc != null && !desc.isBlank())
+            p.add(new Chunk(desc,         bodyFont));
+        document.add(p);
     }
 
-    private PdfPCell tableHeader(String text) {
-        PdfPCell cell = new PdfPCell(new Phrase(text,
-                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, COLOUR_WHITE)));
-        cell.setBackgroundColor(COLOUR_BLUE);
-        cell.setPadding(8f);
-        cell.setBorderColor(COLOUR_BLUE);
-        return cell;
+    private void addItemTable(Document document, Quotation quotation)
+            throws DocumentException {
+        List<QuotationItem> items    = quotation.getQuotationItems();
+        String              currency = quotation.getCurrency() != null
+                ? quotation.getCurrency() : "US$";
+
+        PdfPTable table = new PdfPTable(2);
+        table.setWidthPercentage(100);
+        table.setWidths(new float[]{ 75f, 25f });
+        table.setSpacingAfter(10f);
+
+        // Header
+        Font hdrFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9f, C_WHITE);
+        PdfPCell hDesc = cell(new Phrase("Description",           hdrFont), C_DARK, Element.ALIGN_LEFT);
+        PdfPCell hAmt  = cell(new Phrase("AMOUNT " + currency,    hdrFont), C_DARK, Element.ALIGN_RIGHT);
+        hDesc.setBorder(Rectangle.NO_BORDER);
+        hAmt.setBorder(Rectangle.NO_BORDER);
+        table.addCell(hDesc);
+        table.addCell(hAmt);
+
+        // Rows
+        Font rowFont  = FontFactory.getFont(FontFactory.HELVETICA,      9f,  C_DARK);
+        Font totalFnt = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10f,  C_DARK);
+        double grandTotal = 0;
+
+        for (int i = 0; i < items.size(); i++) {
+            QuotationItem item  = items.get(i);
+            BaseColor     bg    = (i % 2 == 0) ? C_WHITE : C_ROW_ALT;
+            double        price = item.getTotalPrice() != null ? item.getTotalPrice() : 0;
+            grandTotal += price;
+
+            String descTxt = item.getDescription() != null ? item.getDescription() : "—";
+            String amtTxt  = price == 0 ? "Incl." : String.format("$ %.2f", price);
+
+            PdfPCell dc = borderedCell(new Phrase(descTxt, rowFont), bg, Element.ALIGN_LEFT);
+            PdfPCell ac = borderedCell(new Phrase(amtTxt,  rowFont), bg, Element.ALIGN_RIGHT);
+            table.addCell(dc);
+            table.addCell(ac);
+        }
+
+        // Total
+        PdfPCell totalLbl = borderedCell(new Phrase("TOTAL", totalFnt), C_WHITE, Element.ALIGN_RIGHT);
+        totalLbl.setBorderWidthTop(1f);
+        PdfPCell totalAmt = borderedCell(
+                new Phrase(String.format("$ %.2f", grandTotal), totalFnt), C_WHITE, Element.ALIGN_RIGHT);
+        totalAmt.setBorderWidthTop(1f);
+        table.addCell(totalLbl);
+        table.addCell(totalAmt);
+
+        document.add(table);
     }
 
-    private PdfPCell tableHeaderRight(String text) {
-        PdfPCell cell = tableHeader(text);
-        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        return cell;
-    }
+    private void addFooter(Document document) throws DocumentException {
+        Font bold   = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8f, C_DARK);
+        Font normal = FontFactory.getFont(FontFactory.HELVETICA,      8f, C_DARK);
 
-    private PdfPCell tableCell(String text, BaseColor bg, int align, boolean bold) {
-        Font f = bold
-                ? FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, COLOUR_TEXT)
-                : FontFactory.getFont(FontFactory.HELVETICA,      9, COLOUR_MUTED);
-        PdfPCell cell = new PdfPCell(new Phrase(text, f));
-        cell.setBackgroundColor(bg);
-        cell.setPadding(7f);
-        cell.setHorizontalAlignment(align);
-        cell.setBorderColor(COLOUR_BORDER);
-        return cell;
-    }
+        Paragraph contact = new Paragraph();
+        contact.setSpacingAfter(10f);
+        contact.add(new Chunk(
+            "If you have any questions concerning this quotation, contact Mpho Mudau ,\n" +
+            "Phone Number 0712332083 / 0771527368,  E-mail  mudaumuthusi@gmail.com", bold));
+        document.add(contact);
 
-    private String truncate(String s, int max) {
-        return (s == null || s.length() <= max) ? (s != null ? s : "—") : s.substring(0, max) + "…";
+        Paragraph payment = new Paragraph();
+        payment.setSpacingAfter(14f);
+        payment.add(new Chunk("Payment Methods\n",                bold));
+        payment.add(new Chunk("We Accept Visa, Master Card, EcoCash.\n", normal));
+        payment.add(new Chunk("Banking Details\n",                bold));
+        payment.add(new Chunk("Mpho Yanga Investments\n",         normal));
+        payment.add(new Chunk("Acc / ZB 4555470019200 ZiG\n",     normal));
+        payment.add(new Chunk("4555470019405 US$",                normal));
+        document.add(payment);
+
+        PdfPTable thankYou = new PdfPTable(1);
+        thankYou.setWidthPercentage(100);
+        PdfPCell tyCell = new PdfPCell(new Phrase("THANK YOU FOR YOUR BUSINESS!",
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10f, C_WHITE)));
+        tyCell.setBackgroundColor(C_DARK);
+        tyCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        tyCell.setPadding(12f);
+        tyCell.setBorder(Rectangle.NO_BORDER);
+        thankYou.addCell(tyCell);
+        document.add(thankYou);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // PAGE EVENT  — header band + footer on every page
+    // CELL HELPERS
     // ─────────────────────────────────────────────────────────────────────────
 
-    private static class HeaderFooterEvent extends PdfPageEventHelper {
+    private PdfPCell cell(Phrase phrase, BaseColor bg, int align) {
+        PdfPCell c = new PdfPCell(phrase);
+        c.setBackgroundColor(bg);
+        c.setHorizontalAlignment(align);
+        c.setPadding(7f);
+        return c;
+    }
 
-        private final Quotation quotation;
-
-        HeaderFooterEvent(Quotation quotation) {
-            this.quotation = quotation;
-        }
-
-        @Override
-        public void onEndPage(PdfWriter writer, Document document) {
-            PdfContentByte cb   = writer.getDirectContent();
-            Rectangle      page = document.getPageSize();
-            drawHeader(cb, page);
-            drawFooter(cb, page);
-        }
-
-        private void drawHeader(PdfContentByte cb, Rectangle page) {
-            float w   = page.getWidth();
-            float top = page.getTop();
-
-            // Navy background band
-            cb.saveState();
-            cb.setColorFill(COLOUR_NAVY);
-            cb.rectangle(0, top - HEADER_HEIGHT, w, HEADER_HEIGHT);
-            cb.fill();
-            cb.restoreState();
-
-            // Three coloured icon squares — 40x40, 10px gap between each
-            float iconSize = 40f;
-            float iconGap  = 10f;
-            float iconY    = top - HEADER_HEIGHT + (HEADER_HEIGHT - iconSize) / 2f;
-            drawRect(cb, MARGIN,                              iconY, iconSize, iconSize, COLOUR_BLUE);
-            drawRect(cb, MARGIN + iconSize + iconGap,         iconY, iconSize, iconSize, COLOUR_ORANGE);
-            drawRect(cb, MARGIN + (iconSize + iconGap) * 2f, iconY, iconSize, iconSize, COLOUR_GREEN);
-
-            // Company name + sub-line starting just after the icon strip
-            float textX     = MARGIN + (iconSize * 3f) + (iconGap * 2f) + 16f;
-            float midY      = top - HEADER_HEIGHT / 2f;
-
-            cb.saveState();
-            try {
-                BaseFont bold   = BaseFont.createFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, false);
-                BaseFont normal = BaseFont.createFont(BaseFont.HELVETICA,      BaseFont.CP1252, false);
-
-                // Company name
-                cb.setColorFill(COLOUR_WHITE);
-                cb.beginText();
-                cb.setFontAndSize(bold, 15f);
-                cb.setTextMatrix(textX, midY + 7f);
-                cb.showText("MPHO YANGA CONSTRUCTION");
-                cb.endText();
-
-                // Sub-line
-                cb.setColorFill(new BaseColor(160, 175, 200));
-                cb.beginText();
-                cb.setFontAndSize(normal, 7.5f);
-                cb.setTextMatrix(textX, midY - 7f);
-                cb.showText("BP No. 0200269091  ·  Zimbabwe  ·  admin@mphoyanga.co.zw");
-                cb.endText();
-
-                // "QUOTATION" — white, large, right-aligned
-                cb.setColorFill(COLOUR_WHITE);
-                cb.beginText();
-                cb.setFontAndSize(bold, 28f);
-                cb.setTextMatrix(w - MARGIN - 152f, midY + 7f);
-                cb.showText("QUOTATION");
-                cb.endText();
-
-                // Quotation number below
-                if (quotation.getQuotationNumber() != null) {
-                    cb.setColorFill(new BaseColor(160, 175, 200));
-                    cb.beginText();
-                    cb.setFontAndSize(normal, 8f);
-                    cb.setTextMatrix(w - MARGIN - 152f, midY - 7f);
-                    cb.showText(quotation.getQuotationNumber());
-                    cb.endText();
-                }
-            } catch (DocumentException | java.io.IOException ignored) {}
-            cb.restoreState();
-        }
-
-        private void drawFooter(PdfContentByte cb, Rectangle page) {
-            float w  = page.getWidth();
-            float fh = 30f;
-            cb.saveState();
-            cb.setColorFill(COLOUR_FOOTER_BG);
-            cb.rectangle(0, 0, w, fh);
-            cb.fill();
-            cb.setColorStroke(COLOUR_BORDER);
-            cb.setLineWidth(0.5f);
-            cb.moveTo(MARGIN, fh);
-            cb.lineTo(w - MARGIN, fh);
-            cb.stroke();
-            try {
-                cb.setColorFill(COLOUR_MUTED);
-                cb.beginText();
-                cb.setFontAndSize(
-                        BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, false), 7.5f);
-                cb.showTextAligned(PdfContentByte.ALIGN_CENTER,
-                        "© " + java.time.Year.now().getValue()
-                                + " Mpho Yanga Construction · BP No. 0200269091 · Zimbabwe",
-                        w / 2f, 10f, 0);
-                cb.endText();
-            } catch (DocumentException | java.io.IOException ignored) {}
-            cb.restoreState();
-        }
-
-        private void drawRect(PdfContentByte cb, float x, float y,
-                              float w, float h, BaseColor colour) {
-            cb.saveState();
-            cb.setColorFill(colour);
-            cb.roundRectangle(x, y, w, h, 3f);
-            cb.fill();
-            cb.restoreState();
-        }
+    private PdfPCell borderedCell(Phrase phrase, BaseColor bg, int align) {
+        PdfPCell c = cell(phrase, bg, align);
+        c.setBorderColor(C_BORDER);
+        c.setBorderWidthTop(0f);
+        c.setBorderWidthLeft(0.5f);
+        c.setBorderWidthRight(0.5f);
+        c.setBorderWidthBottom(0.5f);
+        return c;
     }
 }
