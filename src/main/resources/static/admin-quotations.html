@@ -248,6 +248,29 @@
         .dl-all-btn { display: flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: 8px; border: 1.5px solid rgba(26,95,173,0.3); background: rgba(26,95,173,0.07); color: var(--blue); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; margin-bottom: 14px; }
         .dl-all-btn:hover { background: rgba(26,95,173,0.14); border-color: var(--blue); }
 
+        /* ─── IMAGE SLIDER ───────────────────────────────────────────── */
+        .img-slider { position: relative; }
+        .img-slider-track { overflow: hidden; border-radius: 12px; background: #1a2233; }
+        .img-slide { display: none; flex-direction: column; }
+        .img-slide.active { display: flex; }
+        .img-slide-img { width: 100%; max-height: 320px; object-fit: contain; cursor: zoom-in; border-radius: 12px 12px 0 0; }
+        .img-slide-footer { display: flex; justify-content: space-between; align-items: center; padding: 9px 14px; background: var(--surface2); border: 1px solid var(--border); border-top: none; border-radius: 0 0 12px 12px; gap: 8px; }
+        .img-slide-name { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+        .img-slide-counter { font-size: 12px; font-weight: 700; color: var(--blue); white-space: nowrap; }
+        .img-slide-btns { display: flex; gap: 6px; }
+        .img-slider-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .sl-nav-btn { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .sl-nav-btn:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); background: rgba(26,95,173,0.08); }
+        .sl-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .sl-dots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+        .sl-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); cursor: pointer; transition: background 0.2s, transform 0.2s; border: none; padding: 0; }
+        .sl-dot.active { background: var(--blue); transform: scale(1.3); }
+
+        /* clickable price-table row hint */
+        .price-table tbody tr.has-detail { cursor: pointer; }
+        .price-table tbody tr.has-detail:hover { background: rgba(26,95,173,0.05) !important; }
+        .row-detail-hint { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: var(--blue); opacity: 0.7; margin-top: 3px; }
+
         /* ─── ANIMATIONS ─────────────────────────────────────────────── */
         @keyframes fadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
 
@@ -487,8 +510,10 @@
             this.quotations = [];
             this.currentFilter = 'all';
             this.currentQuotation = null;
-            this.currentItemPrices = {}; // itemId → { unitPrice, qty }
+            this.currentItemPrices = {};
             this.confirmAction = null;
+            this.adminName = 'Admin';
+            this.adminId   = null;
             this.init();
         }
 
@@ -499,12 +524,21 @@
             this.loadStats();
         }
 
-        loadSession() {
-            // Try sessionStorage first, then server session
-            const name = sessionStorage.getItem('adminName') || sessionStorage.getItem('userName');
-            if (name) {
-                document.getElementById('userName').textContent = name;
-                document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+        async loadSession() {
+            try {
+                const res = await fetch(`${API_BASE}/admin/current-session`, { credentials: 'include' });
+                if (res.ok) {
+                    const data = await res.json();
+                    const admin = data && data.data;
+                    if (admin && admin.name) {
+                        this.adminId   = admin.id;
+                        this.adminName = `${admin.name} ${admin.surname || ''}`.trim();
+                    }
+                }
+            } catch (_) {
+                // fall back to sessionStorage
+                const stored = sessionStorage.getItem('adminName') || sessionStorage.getItem('userName');
+                if (stored) this.adminName = stored;
             }
         }
 
@@ -517,6 +551,15 @@
             });
             document.getElementById('confirmBtn').addEventListener('click', () => this.handleConfirmation());
             document.getElementById('lightboxOverlay').addEventListener('click', () => closeLightbox());
+
+            // Arrow-key navigation for image slider when item detail modal is open
+            document.addEventListener('keydown', e => {
+                const modal = document.getElementById('itemDetailModal');
+                if (!modal?.classList.contains('active')) return;
+                if (e.key === 'ArrowLeft')  { e.preventDefault(); this.sliderNav(-1); }
+                if (e.key === 'ArrowRight') { e.preventDefault(); this.sliderNav(1);  }
+                if (e.key === 'Escape')     { closeModal('itemDetailModal'); }
+            });
         }
 
         // ════════════════════════════════════════════════════════════════
@@ -717,14 +760,20 @@
                     const unitPrice = item.unitPrice || 0;
                     this.currentItemPrices[item.id] = { unitPrice, qty };
                     const rowTotal = qty * unitPrice;
+                    const hasNotes = item.notes && item.notes.trim().length > 0;
+                    const hasImages = item.images && item.images.length > 0;
+                    const hint = (hasNotes || hasImages)
+                        ? `<div class="row-detail-hint"><i class="fas fa-circle-info"></i>${hasImages ? ` ${item.images.length} img` : ''}${hasNotes ? ' · notes' : ''} — click row</div>`
+                        : `<div class="row-detail-hint"><i class="fas fa-arrow-up-right-from-square"></i> view detail</div>`;
                     return `
-                        <tr>
+                        <tr class="has-detail" onclick="adminApp.openItemDetail(${item.id})">
                             <td class="item-name-cell">
                                 <div>${item.serviceType || 'Item ' + (idx + 1)}</div>
+                                ${hint}
                             </td>
                             <td class="item-desc-cell">${item.description || '—'}</td>
                             <td style="text-align:center;"><span class="qty-badge">${qty} ${item.unitOfMeasure || ''}</span></td>
-                            <td>
+                            <td onclick="event.stopPropagation()">
                                 <div class="price-input-wrap">
                                     <span class="price-currency">ZWL</span>
                                     <input type="number"
@@ -905,10 +954,10 @@
             if (!q) return;
 
             try {
-                // POST /confirm saves the PDF to disk, emails the client,
-                // and sets status → ACCEPTED all in one call
+                // POST /confirm: sets ACCEPTED + generates PDF + emails client
                 const res = await fetch(`${API_BASE}/quotations/${q.quotationId}/confirm`, {
-                    method: 'POST'
+                    method: 'POST',
+                    credentials: 'include'
                 });
 
                 if (!res.ok) {
@@ -918,10 +967,10 @@
 
                 const data = await res.json();
                 const emailNote = data.emailSent
-                    ? 'Client has been notified by email ✉️'
-                    : 'Quotation confirmed (email delivery pending)';
+                    ? 'Client notified by email ✉️'
+                    : 'Confirmed (email delivery pending)';
 
-                this.showToast(`Confirmed & saved! ${emailNote}`, 'success');
+                this.showToast(`Quotation confirmed ✓ — ${emailNote}`, 'success');
                 closeModal('pdfPreviewModal');
                 await this.loadQuotations();
                 await this.loadStats();
@@ -953,12 +1002,16 @@
 
             try {
                 if (type === 'reject') {
-                    const res = await fetch(`${API_BASE}/quotations/${quotationId}/decline`, { method: 'POST' });
+                    // POST /decline: sets REJECTED + emails client
+                    const res = await fetch(`${API_BASE}/quotations/${quotationId}/decline`, {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
                     if (!res.ok) {
                         const err = await res.json().catch(() => ({}));
                         throw new Error(err.error || 'Server error');
                     }
-                    this.showToast('Quotation declined — client has been notified by email', 'info');
+                    this.showToast('Quotation rejected — client has been notified by email', 'info');
                     closeModal('reviewModal');
                     closeModal('pdfPreviewModal');
                     await this.loadQuotations();
@@ -994,35 +1047,63 @@
                 const imgs = item.images || [];
                 document.getElementById('imgBadge').textContent = imgs.length;
                 const gallery = document.getElementById('imagesGallery');
+                const dlWrap  = document.getElementById('dlAllWrap');
 
                 if (imgs.length === 0) {
-                    gallery.innerHTML = `<div class="no-images"><i class="fas fa-images"></i>No images attached by client</div>`;
-                    document.getElementById('dlAllWrap').style.display = 'none';
+                    gallery.innerHTML = `<div class="no-images"><i class="fas fa-images"></i><p>No images attached by client</p></div>`;
+                    dlWrap.style.display = 'none';
                 } else {
-                    // Show "Download All" button
-                    document.getElementById('dlAllWrap').style.display = 'flex';
+                    dlWrap.style.display = 'flex';
                     document.getElementById('dlAllBtn').onclick = () => this.downloadAllImages(imgs, item.serviceType || 'item');
 
-                    gallery.innerHTML = imgs.map(img => {
+                    const slides = imgs.map((img, i) => {
                         const rawPath = img.imagePath || '';
                         const urlPath = '/uploads/' + rawPath.replace(/\\/g, '/').split('uploads/').pop();
-                        const filename = img.imageFilename || rawPath.split(/[/\\]/).pop() || 'image.jpg';
+                        const filename = img.imageFilename || rawPath.split(/[/\\]/).pop() || `image_${i + 1}.jpg`;
+                        const safeName = filename.replace(/'/g, "\\'");
+                        const safeUrl  = urlPath.replace(/'/g, "\\'");
                         return `
-                            <div class="gallery-item">
-                                <img src="${urlPath}" alt="Client image"
-                                    onerror="this.parentElement.style.background='var(--surface2)'; this.style.display='none';">
-                                <div class="gallery-overlay">
-                                    <button class="gallery-action-btn gallery-btn-view" title="View full size"
-                                        onclick="openLightbox('${urlPath}')">
-                                        <i class="fas fa-expand"></i>
-                                    </button>
-                                    <button class="gallery-action-btn gallery-btn-dl" title="Download image"
-                                        onclick="adminApp.downloadImage('${urlPath}', '${filename}')">
-                                        <i class="fas fa-download"></i>
-                                    </button>
+                            <div class="img-slide ${i === 0 ? 'active' : ''}" data-index="${i}">
+                                <img class="img-slide-img" src="${urlPath}" alt="Image ${i + 1}"
+                                    title="Click to view full size"
+                                    onclick="openLightbox('${safeUrl}')"
+                                    onerror="this.style.display='none'">
+                                <div class="img-slide-footer">
+                                    <span class="img-slide-name" title="${safeName}">${filename}</span>
+                                    <span class="img-slide-counter">${i + 1} / ${imgs.length}</span>
+                                    <div class="img-slide-btns">
+                                        <button class="gallery-action-btn gallery-btn-view" title="View full size"
+                                            onclick="openLightbox('${safeUrl}')">
+                                            <i class="fas fa-expand"></i>
+                                        </button>
+                                        <button class="gallery-action-btn gallery-btn-dl" title="Download"
+                                            onclick="adminApp.downloadImage('${safeUrl}', '${safeName}')">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>`;
                     }).join('');
+
+                    const dots = imgs.map((_, i) =>
+                        `<button class="sl-dot ${i === 0 ? 'active' : ''}" onclick="adminApp.goToSlide(${i})" aria-label="Image ${i + 1}"></button>`
+                    ).join('');
+
+                    gallery.innerHTML = `
+                        <div class="img-slider" id="imgSlider">
+                            <div class="img-slider-track">${slides}</div>
+                            <div class="img-slider-nav">
+                                <button class="sl-nav-btn" id="slPrev" onclick="adminApp.sliderNav(-1)"
+                                    ${imgs.length <= 1 ? 'disabled' : ''} aria-label="Previous">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <div class="sl-dots">${dots}</div>
+                                <button class="sl-nav-btn" id="slNext" onclick="adminApp.sliderNav(1)"
+                                    ${imgs.length <= 1 ? 'disabled' : ''} aria-label="Next">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>`;
                 }
 
                 this.switchTab('details');
@@ -1075,6 +1156,27 @@
                 } catch {}
             }
             this.showToast(`${count} of ${imgs.length} images downloaded ✓`, 'success');
+        }
+
+        sliderNav(dir) {
+            const slides = document.querySelectorAll('#imgSlider .img-slide');
+            const dots   = document.querySelectorAll('#imgSlider .sl-dot');
+            if (!slides.length) return;
+            let cur = [...slides].findIndex(s => s.classList.contains('active'));
+            slides[cur].classList.remove('active');
+            dots[cur]?.classList.remove('active');
+            cur = (cur + dir + slides.length) % slides.length;
+            slides[cur].classList.add('active');
+            dots[cur]?.classList.add('active');
+        }
+
+        goToSlide(index) {
+            const slides = document.querySelectorAll('#imgSlider .img-slide');
+            const dots   = document.querySelectorAll('#imgSlider .sl-dot');
+            slides.forEach(s => s.classList.remove('active'));
+            dots.forEach(d => d.classList.remove('active'));
+            slides[index]?.classList.add('active');
+            dots[index]?.classList.add('active');
         }
 
         switchTab(tabName) {

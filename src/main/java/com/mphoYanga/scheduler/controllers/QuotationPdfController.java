@@ -1,9 +1,13 @@
 package com.mphoYanga.scheduler.controllers;
 
+import com.mphoYanga.scheduler.models.Activity;
+import com.mphoYanga.scheduler.models.Admin;
 import com.mphoYanga.scheduler.models.Quotation;
 import com.mphoYanga.scheduler.models.QuotationDocument;
 import com.mphoYanga.scheduler.models.QuotationStatus;
+import com.mphoYanga.scheduler.repos.AdminRepository;
 import com.mphoYanga.scheduler.repos.QuotationDocumentRepository;
+import com.mphoYanga.scheduler.services.ActivityService;
 import com.mphoYanga.scheduler.services.EmailService;
 import com.mphoYanga.scheduler.services.QuotationPdfService;
 import com.mphoYanga.scheduler.services.QuotationService;
@@ -61,6 +65,8 @@ public class QuotationPdfController {
     private final QuotationPdfService          quotationPdfService;
     private final QuotationDocumentRepository  documentRepository;
     private final EmailService                 emailService;
+    private final ActivityService              activityService;
+    private final AdminRepository              adminRepository;
 
     // ─────────────────────────────────────────────────────────────────────────
     // ADMIN — PREVIEW / GENERATE ON THE FLY
@@ -191,6 +197,23 @@ public class QuotationPdfController {
                 System.err.println("[QuotationPdfController] Email failed: " + emailErr.getMessage());
             }
 
+            // Publish to /topic/activities so every open admin dashboard sees this live
+            try {
+                String adminName  = adminRepository.findById(adminId)
+                        .map(a -> a.getName() + " " + a.getSurname())
+                        .orElse("Admin");
+                String clientName = quotation.getClient().getName()
+                        + " " + quotation.getClient().getSurname();
+                activityService.log(
+                        adminId,
+                        adminName,
+                        Activity.ActorType.ADMIN,
+                        adminName + " confirmed " + clientName + "'s quotation: " + quotation.getTitle(),
+                        "QUOTATION",
+                        quotationId
+                );
+            } catch (Exception ignored) {}
+
             return ResponseEntity.ok(Map.of(
                     "success",    true,
                     "message",    "Quotation confirmed and client notified",
@@ -241,6 +264,23 @@ public class QuotationPdfController {
             } catch (Exception emailErr) {
                 System.err.println("[QuotationPdfController] Rejection email failed: " + emailErr.getMessage());
             }
+
+            // Publish to /topic/activities
+            try {
+                String adminName  = adminRepository.findById(adminId)
+                        .map(a -> a.getName() + " " + a.getSurname())
+                        .orElse("Admin");
+                String clientName = quotation.getClient().getName()
+                        + " " + quotation.getClient().getSurname();
+                activityService.log(
+                        adminId,
+                        adminName,
+                        Activity.ActorType.ADMIN,
+                        adminName + " rejected " + clientName + "'s quotation: " + quotation.getTitle(),
+                        "QUOTATION",
+                        quotationId
+                );
+            } catch (Exception ignored) {}
 
             return ResponseEntity.ok(Map.of("success", true, "message", "Quotation declined and client notified"));
 

@@ -70,7 +70,7 @@ public class QuotationPdfService {
 
     // ── Page margins and header height (points) ───────────────────────────────
     private static final float MARGIN        = 50f;
-    private static final float HEADER_HEIGHT = 90f;
+    private static final float HEADER_HEIGHT = 105f;
 
     // ── Terms & Conditions ────────────────────────────────────────────────────
     private static final String TERMS_TEXT =
@@ -353,52 +353,64 @@ public class QuotationPdfService {
             float w   = page.getWidth();
             float top = page.getTop();
 
+            // Navy background band
             cb.saveState();
             cb.setColorFill(COLOUR_NAVY);
             cb.rectangle(0, top - HEADER_HEIGHT, w, HEADER_HEIGHT);
             cb.fill();
             cb.restoreState();
 
-            float iconY = top - 52f;
-            drawRect(cb, MARGIN,       iconY, 22f, 22f, COLOUR_BLUE);
-            drawRect(cb, MARGIN + 27f, iconY, 22f, 22f, COLOUR_ORANGE);
-            drawRect(cb, MARGIN + 54f, iconY, 22f, 22f, COLOUR_GREEN);
+            // Three coloured icon squares — 40x40, 10px gap between each
+            float iconSize = 40f;
+            float iconGap  = 10f;
+            float iconY    = top - HEADER_HEIGHT + (HEADER_HEIGHT - iconSize) / 2f;
+            drawRect(cb, MARGIN,                              iconY, iconSize, iconSize, COLOUR_BLUE);
+            drawRect(cb, MARGIN + iconSize + iconGap,         iconY, iconSize, iconSize, COLOUR_ORANGE);
+            drawRect(cb, MARGIN + (iconSize + iconGap) * 2f, iconY, iconSize, iconSize, COLOUR_GREEN);
+
+            // Company name + sub-line starting just after the icon strip
+            float textX     = MARGIN + (iconSize * 3f) + (iconGap * 2f) + 16f;
+            float midY      = top - HEADER_HEIGHT / 2f;
 
             cb.saveState();
             try {
                 BaseFont bold   = BaseFont.createFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, false);
                 BaseFont normal = BaseFont.createFont(BaseFont.HELVETICA,      BaseFont.CP1252, false);
 
+                // Company name
                 cb.setColorFill(COLOUR_WHITE);
                 cb.beginText();
-                cb.setFontAndSize(bold, 14);
-                cb.setTextMatrix(MARGIN + 84f, top - 44f);
+                cb.setFontAndSize(bold, 15f);
+                cb.setTextMatrix(textX, midY + 7f);
                 cb.showText("MPHO YANGA CONSTRUCTION");
                 cb.endText();
 
-                cb.setColorFill(new BaseColor(180, 190, 210));
+                // Sub-line
+                cb.setColorFill(new BaseColor(160, 175, 200));
                 cb.beginText();
                 cb.setFontAndSize(normal, 7.5f);
-                cb.setTextMatrix(MARGIN + 84f, top - 56f);
+                cb.setTextMatrix(textX, midY - 7f);
                 cb.showText("BP No. 0200269091  ·  Zimbabwe  ·  admin@mphoyanga.co.zw");
                 cb.endText();
 
-                cb.setColorFill(COLOUR_BLUE_LIGHT);
+                // "QUOTATION" — white, large, right-aligned
+                cb.setColorFill(COLOUR_WHITE);
                 cb.beginText();
-                cb.setFontAndSize(bold, 22f);
-                cb.setTextMatrix(w - MARGIN - 130f, top - 42f);
+                cb.setFontAndSize(bold, 28f);
+                cb.setTextMatrix(w - MARGIN - 152f, midY + 7f);
                 cb.showText("QUOTATION");
                 cb.endText();
 
+                // Quotation number below
                 if (quotation.getQuotationNumber() != null) {
-                    cb.setColorFill(new BaseColor(180, 190, 210));
+                    cb.setColorFill(new BaseColor(160, 175, 200));
                     cb.beginText();
                     cb.setFontAndSize(normal, 8f);
-                    cb.setTextMatrix(w - MARGIN - 130f, top - 55f);
+                    cb.setTextMatrix(w - MARGIN - 152f, midY - 7f);
                     cb.showText(quotation.getQuotationNumber());
                     cb.endText();
                 }
-            } catch (Exception ignored) {}
+            } catch (DocumentException | java.io.IOException ignored) {}
             cb.restoreState();
         }
 
@@ -424,7 +436,7 @@ public class QuotationPdfService {
                                 + " Mpho Yanga Construction · BP No. 0200269091 · Zimbabwe",
                         w / 2f, 10f, 0);
                 cb.endText();
-            } catch (Exception ignored) {}
+            } catch (DocumentException | java.io.IOException ignored) {}
             cb.restoreState();
         }
 

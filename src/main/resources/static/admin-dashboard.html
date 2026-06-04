@@ -49,6 +49,8 @@
         <!-- ── DASHBOARD ──────────────────────────────────────── -->
         <div class="page" id="page-dashboard">
 
+           
+
             <!-- Welcome -->
             <div class="welcome-banner">
                 <div class="wb-text">
@@ -61,6 +63,42 @@
                     <div class="deco-block d3"></div>
                     <div class="deco-block d4"></div>
                     <div class="deco-block d5"></div>
+                </div>
+            </div>
+
+             <!-- Bottom panels -->
+            <div class="bottom-row">
+
+                <!-- Recent Activity -->
+                <div class="panel">
+                    <div class="panel-hdr">
+                        <h3>Recent Activity</h3>
+                        <span class="af-live-dot" id="ws-dot" title="Connecting…"></span>
+                    </div>
+                    <div class="activity-feed" id="activity-feed">
+                        <div class="af-empty">Loading activity…</div>
+                    </div>
+                </div>
+
+                <!-- Pending Quotations -->
+                
+
+            </div>
+            <!-- TESTIMONIALS MODERATION -->
+            <div style="margin-top:32px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+                    <div>
+                        <h3 style="margin:0;font-size:16px;color:#fff;">Testimonials</h3>
+                        <p style="margin:4px 0 0;font-size:12px;color:#64748b;">Review and approve client testimonials before they go live.</p>
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button onclick="loadTestimonials('PENDING')" id="testi-filter-pending" style="padding:6px 14px;background:rgba(232,118,42,0.2);border:1px solid rgba(232,118,42,0.4);color:#fdba74;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600;">Pending</button>
+                        <button onclick="loadTestimonials('APPROVED')" id="testi-filter-approved" style="padding:6px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:8px;font-size:12px;cursor:pointer;">Approved</button>
+                        <button onclick="loadTestimonials('ALL')" id="testi-filter-all" style="padding:6px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:8px;font-size:12px;cursor:pointer;">All</button>
+                    </div>
+                </div>
+                <div id="testi-list" style="display:flex;flex-direction:column;gap:10px;">
+                    <div style="color:#64748b;font-size:13px;padding:16px;text-align:center;">Loading testimonials…</div>
                 </div>
             </div>
 
@@ -173,41 +211,7 @@
 
             </div>
 
-            <!-- Bottom panels -->
-            <div class="bottom-row">
-
-                <!-- Recent Activity -->
-                <div class="panel">
-                    <div class="panel-hdr">
-                        <h3>Recent Activity</h3>
-                        <span class="af-live-dot" id="ws-dot" title="Connecting…"></span>
-                    </div>
-                    <div class="activity-feed" id="activity-feed">
-                        <div class="af-empty">Loading activity…</div>
-                    </div>
-                </div>
-
-                <!-- Pending Quotations -->
-                
-
-            </div>
-            <!-- TESTIMONIALS MODERATION -->
-            <div style="margin-top:32px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
-                    <div>
-                        <h3 style="margin:0;font-size:16px;color:#fff;">Testimonials</h3>
-                        <p style="margin:4px 0 0;font-size:12px;color:#64748b;">Review and approve client testimonials before they go live.</p>
-                    </div>
-                    <div style="display:flex;gap:8px;">
-                        <button onclick="loadTestimonials('PENDING')" id="testi-filter-pending" style="padding:6px 14px;background:rgba(232,118,42,0.2);border:1px solid rgba(232,118,42,0.4);color:#fdba74;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600;">Pending</button>
-                        <button onclick="loadTestimonials('APPROVED')" id="testi-filter-approved" style="padding:6px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:8px;font-size:12px;cursor:pointer;">Approved</button>
-                        <button onclick="loadTestimonials('ALL')" id="testi-filter-all" style="padding:6px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:8px;font-size:12px;cursor:pointer;">All</button>
-                    </div>
-                </div>
-                <div id="testi-list" style="display:flex;flex-direction:column;gap:10px;">
-                    <div style="color:#64748b;font-size:13px;padding:16px;text-align:center;">Loading testimonials…</div>
-                </div>
-            </div>
+            
 
         </div><!-- end dashboard page -->
 

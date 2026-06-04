@@ -130,7 +130,8 @@ public class QuotationRestController {
     @PutMapping("/{quotationId}/status")
     public ResponseEntity<?> updateQuotationStatus(@PathVariable Long quotationId,
                                                    @RequestParam String status,
-                                                   @RequestParam(required = false) String updatedBy) {
+                                                   @RequestParam(required = false) String updatedBy,
+                                                   HttpSession session) {
         try {
             QuotationStatus statusEnum = QuotationStatus.valueOf(status.toUpperCase());
             Quotation quotation = quotationService.updateQuotationStatus(quotationId, statusEnum, updatedBy);

@@ -349,30 +349,47 @@
 <div class="modal-overlay" id="addItemModal">
     <div class="modal modal-lg">
         <h2 class="modal-title">Add Item to Quotation</h2>
-        <p class="modal-sub">Add a new item with details and optional images</p>
+        <p class="modal-sub">Fill in the item details — the more specific you are, the more accurate the quote.</p>
         <form id="addItemForm">
             <input type="hidden" id="quotationIdForItem">
 
             <div class="form-group">
                 <label class="form-label">Description *</label>
-                <textarea class="form-textarea" id="itemDesc" placeholder="Describe the item or service..." required></textarea>
+                <textarea class="form-textarea" id="itemDesc" placeholder="Describe the item or service in detail..." required></textarea>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Service Type</label>
-                <select class="form-select" id="serviceType">
-                    <option value="">Select type...</option>
-                    <option value="Plumbing">Plumbing</option>
-                    <option value="Tiling">Tiling</option>
-                    <option value="Painting">Painting</option>
-                    <option value="Ceiling">Ceiling</option>
-                    <option value="Other">Other</option>
-                </select>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Service Type</label>
+                    <select class="form-select" id="serviceType">
+                        <option value="">Select type...</option>
+                        <option value="Plumbing">Plumbing</option>
+                        <option value="Tiling">Tiling</option>
+                        <option value="Painting">Painting</option>
+                        <option value="Ceiling">Ceiling</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Quantity *</label>
+                    <input type="number" class="form-input" id="itemQuantity"
+                           placeholder="e.g. 3" min="1" step="1" value="1" required>
+                </div>
             </div>
 
+            <!-- Notes — emphasised -->
             <div class="form-group">
-                <label class="form-label">Notes</label>
-                <textarea class="form-textarea" id="itemNotes" placeholder="Additional notes..." style="min-height: 60px;"></textarea>
+                <label class="form-label" style="display:flex;align-items:center;gap:8px;">
+                    <span style="background:rgba(232,118,42,0.2);color:#ffb347;border:1px solid rgba(232,118,42,0.4);border-radius:6px;padding:2px 8px;font-size:10px;letter-spacing:1px;">IMPORTANT</span>
+                    Additional Notes &amp; Clarifications
+                </label>
+                <textarea class="form-textarea" id="itemNotes" rows="4"
+                    placeholder="Be as specific as possible — e.g. room dimensions, material preferences, access constraints, any known issues. Clear notes help us give you the most accurate price."
+                    style="min-height:100px;border-color:rgba(232,118,42,0.3);"></textarea>
+                <p style="margin-top:6px;font-size:11px;color:rgba(232,118,42,0.75);display:flex;align-items:center;gap:5px;">
+                    <i class="fas fa-lightbulb"></i>
+                    Tip: vague items may require a site visit before a price can be confirmed.
+                </p>
             </div>
 
             <div class="form-group">
@@ -950,18 +967,23 @@ debugger;
             e.preventDefault();
 
             const quotationId = document.getElementById('quotationIdForItem').value;
-            const description = document.getElementById('itemDesc').value;
+            const description = document.getElementById('itemDesc').value.trim();
             const serviceType = document.getElementById('serviceType').value;
-            const notes = document.getElementById('itemNotes').value;
+            const quantity    = parseInt(document.getElementById('itemQuantity').value) || 1;
+            const notes       = document.getElementById('itemNotes').value.trim();
 
             if (!description) {
-                this.showToast('Please fill required fields', 'error');
+                this.showToast('Please add a description for the item.', 'error');
+                return;
+            }
+            if (quantity < 1) {
+                this.showToast('Quantity must be at least 1.', 'error');
                 return;
             }
 
             try {
                 const params = new URLSearchParams({
-                    description, serviceType, quantity: 1, unitPrice: 0, notes
+                    description, serviceType, quantity, unitPrice: 0, notes
                 });
 
                 const response = await fetch(`/api/quotations/${quotationId}/items?${params}`, {
@@ -1298,6 +1320,7 @@ debugger;
             this.currentQuotationId = quotationId;
             document.getElementById('quotationIdForItem').value = quotationId;
             document.getElementById('addItemForm').reset();
+            document.getElementById('itemQuantity').value = 1;
             this.selectedImages = [];
             document.getElementById('imgPreview').innerHTML = '';
             openModal('addItemModal');
