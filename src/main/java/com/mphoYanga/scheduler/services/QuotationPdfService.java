@@ -6,6 +6,7 @@ import com.mphoYanga.scheduler.models.Client;
 import com.mphoYanga.scheduler.models.Quotation;
 import com.mphoYanga.scheduler.models.QuotationDocument;
 import com.mphoYanga.scheduler.models.QuotationItem;
+import com.mphoYanga.scheduler.repos.AdminRepository;
 import com.mphoYanga.scheduler.repos.QuotationDocumentRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -29,39 +30,46 @@ public class QuotationPdfService {
 
     private static final Logger log = LoggerFactory.getLogger(QuotationPdfService.class);
     private final QuotationDocumentRepository documentRepository;
+    private final AdminRepository             adminRepository;
 
     @Value("${quotation.pdf-dir:uploads/quotations}")
     private String pdfDir;
 
     // ── Colours ───────────────────────────────────────────────────────────────
-    private static final BaseColor C_BLUE      = new BaseColor(26,  95,  173);
-    private static final BaseColor C_DARK      = new BaseColor(26,  34,  51);
-    private static final BaseColor C_WHITE     = BaseColor.WHITE;
-    private static final BaseColor C_MUTED     = new BaseColor(110, 110, 110);
-    private static final BaseColor C_BORDER    = new BaseColor(180, 180, 180);
-    private static final BaseColor C_ROW_ALT   = new BaseColor(245, 245, 245);
+    private static final BaseColor C_BLUE    = new BaseColor(26,  95,  173);
+    private static final BaseColor C_DARK    = new BaseColor(26,  34,  51);
+    private static final BaseColor C_WHITE   = BaseColor.WHITE;
+    private static final BaseColor C_MUTED   = new BaseColor(110, 110, 110);
+    private static final BaseColor C_BORDER  = new BaseColor(180, 180, 180);
+    private static final BaseColor C_ROW_ALT = new BaseColor(245, 245, 245);
 
     private static final float MARGIN   = 36f;
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("MMMM d, yyyy");
 
-    // ── Company constants ─────────────────────────────────────────────────────
     private static final String COMPANY_ADDRESS = "1867 Industry Site\nBeitbridge";
 
     // ─────────────────────────────────────────────────────────────────────────
     // PUBLIC API
     // ─────────────────────────────────────────────────────────────────────────
 
+    /** Preview — no admin info available yet. */
     public byte[] generateQuotationPdf(Quotation quotation) throws DocumentException {
         try {
-            return buildPdfBytes(quotation);
+            return buildPdfBytes(quotation, "Admin");
         } catch (IOException e) {
             throw new DocumentException("Failed to build PDF: " + e.getMessage());
         }
     }
 
+    /** Confirm + save — looks up the real admin name from the ID. */
     public QuotationDocument generateAndSave(Quotation quotation, Long confirmedByAdminId)
             throws DocumentException, IOException {
-        byte[] pdfBytes = buildPdfBytes(quotation);
+
+        String adminName = adminRepository.findById(confirmedByAdminId)
+                .map(a -> a.getName() + " " + a.getSurname())
+                .orElse("Admin");
+
+        byte[] pdfBytes = buildPdfBytes(quotation, adminName);
         Path dir = Paths.get(pdfDir);
         Files.createDirectories(dir);
         String fileName = "Quotation_" + quotation.getQuotationNumber() + ".pdf";
@@ -98,7 +106,8 @@ public class QuotationPdfService {
     // BUILDER
     // ─────────────────────────────────────────────────────────────────────────
 
-    private byte[] buildPdfBytes(Quotation quotation) throws DocumentException, IOException {
+    private byte[] buildPdfBytes(Quotation quotation, String adminName)
+            throws DocumentException, IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         Document document = new Document(PageSize.A4, MARGIN, MARGIN, MARGIN, MARGIN);
         PdfWriter.getInstance(document, out);
@@ -106,7 +115,7 @@ public class QuotationPdfService {
 
         addTopHeader(document, quotation);
         addBlueDivider(document);
-        addBillToSection(document, quotation);
+        addBillToSection(document, quotation, adminName);
         addComments(document, quotation);
         addItemTable(document, quotation);
         addFooter(document);
@@ -150,7 +159,6 @@ public class QuotationPdfService {
         quotTitleCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
         quotTitleCell.setVerticalAlignment(Element.ALIGN_BOTTOM);
         row1.addCell(quotTitleCell);
-
         document.add(row1);
 
         // ── Row 2: "MPHO YAN GA" | "BP No." ──────────────────────────────────
@@ -161,9 +169,9 @@ public class QuotationPdfService {
 
         Paragraph namePara = new Paragraph();
         namePara.add(new Chunk("MPHO ",
-                FontFactory.getFont(FontFactory.HELVETICA_BOLD,   22f, C_DARK)));
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD,    22f, C_DARK)));
         namePara.add(new Chunk("YAN",
-                FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 22f, C_DARK)));
+                FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE,  22f, C_DARK)));
         namePara.add(new Chunk("GA",
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22f, Font.UNDERLINE, C_DARK)));
         PdfPCell nameCell = new PdfPCell(namePara);
@@ -177,11 +185,10 @@ public class QuotationPdfService {
         bpCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
         bpCell.setVerticalAlignment(Element.ALIGN_BOTTOM);
         row2.addCell(bpCell);
-
         document.add(row2);
 
         // ── Row 3: "CONSTRUCTION" + address | DATE / Quotation # / Customer ID ─
-        String dateStr = quotation.getCreatedAt()  != null
+        String dateStr = quotation.getCreatedAt() != null
                 ? quotation.getCreatedAt().format(DATE_FMT) : "—";
         String quotNum = quotation.getQuotationNumber() != null
                 ? quotation.getQuotationNumber() : "—";
@@ -207,14 +214,13 @@ public class QuotationPdfService {
         Font val = FontFactory.getFont(FontFactory.HELVETICA,      8f, C_DARK);
         Paragraph metaPara = new Paragraph();
         metaPara.setAlignment(Element.ALIGN_RIGHT);
-        metaPara.add(new Chunk("DATE  ",       lbl)); metaPara.add(new Chunk(dateStr + "\n", val));
-        metaPara.add(new Chunk("Quotation #  ", lbl)); metaPara.add(new Chunk(quotNum + "\n", val));
-        metaPara.add(new Chunk("Customer ID  ", lbl)); metaPara.add(new Chunk(custId,          val));
+        metaPara.add(new Chunk("DATE  ",        lbl)); metaPara.add(new Chunk(dateStr + "\n", val));
+        metaPara.add(new Chunk("Quotation #  ", lbl)); metaPara.add(new Chunk(quotNum + "\n",  val));
+        metaPara.add(new Chunk("Customer ID  ", lbl)); metaPara.add(new Chunk(custId,           val));
         PdfPCell rightCell = new PdfPCell(metaPara);
         rightCell.setBorder(Rectangle.NO_BORDER);
         rightCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
         row3.addCell(rightCell);
-
         document.add(row3);
     }
 
@@ -231,19 +237,16 @@ public class QuotationPdfService {
         document.add(divider);
     }
 
-    private void addBillToSection(Document document, Quotation quotation)
+    private void addBillToSection(Document document, Quotation quotation, String adminName)
             throws DocumentException {
-        Client client       = quotation.getClient();
-        String clientName   = client != null
+        Client client     = quotation.getClient();
+        String clientName = client != null
                 ? (client.getName() + " " + client.getSurname()).toUpperCase() : "—";
-        String clientAddr   = (client != null && client.getAddress() != null
+        String clientAddr = (client != null && client.getAddress() != null
                 && !client.getAddress().isBlank())
                 ? client.getAddress().toUpperCase() : "";
-        String validUntil   = quotation.getValidUntil() != null
+        String validUntil = quotation.getValidUntil() != null
                 ? quotation.getValidUntil().format(DATE_FMT) : "N/A";
-        String preparedBy   = (quotation.getCreatedBy() != null
-                && !quotation.getCreatedBy().isBlank())
-                ? quotation.getCreatedBy() : "Admin";
 
         PdfPTable table = new PdfPTable(2);
         table.setWidthPercentage(100);
@@ -255,11 +258,10 @@ public class QuotationPdfService {
         Font bodyBold     = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9f,   C_DARK);
 
         Paragraph billPara = new Paragraph();
-        billPara.add(new Chunk("Bill To:\n", sectionLabel));
-        billPara.add(new Chunk(clientName + "\n", bodyBold));
-        if (!clientAddr.isEmpty()) {
-            billPara.add(new Chunk(clientAddr, bodyNormal));
-        }
+        billPara.add(new Chunk("Bill To:\n",        sectionLabel));
+        billPara.add(new Chunk(clientName + "\n",   bodyBold));
+        if (!clientAddr.isEmpty())
+            billPara.add(new Chunk(clientAddr,      bodyNormal));
         PdfPCell billCell = new PdfPCell(billPara);
         billCell.setBorder(Rectangle.NO_BORDER);
         table.addCell(billCell);
@@ -269,9 +271,9 @@ public class QuotationPdfService {
         Paragraph rightPara = new Paragraph();
         rightPara.setAlignment(Element.ALIGN_RIGHT);
         rightPara.add(new Chunk("Quotation valid until:  ", italicMuted));
-        rightPara.add(new Chunk(validUntil + "\n", valFont));
-        rightPara.add(new Chunk("Prepared by:  ",          italicMuted));
-        rightPara.add(new Chunk(preparedBy,                valFont));
+        rightPara.add(new Chunk(validUntil + "\n",          valFont));
+        rightPara.add(new Chunk("Prepared by:  ",           italicMuted));
+        rightPara.add(new Chunk(adminName,                  valFont));
         PdfPCell rightCell = new PdfPCell(rightPara);
         rightCell.setBorder(Rectangle.NO_BORDER);
         rightCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -281,9 +283,9 @@ public class QuotationPdfService {
     }
 
     private void addComments(Document document, Quotation quotation) throws DocumentException {
-        String title = quotation.getTitle();
         String desc  = quotation.getDescription();
-        if ((title == null || title.isBlank()) && (desc == null || desc.isBlank())) return;
+        String title = quotation.getTitle();
+        if ((desc == null || desc.isBlank()) && (title == null || title.isBlank())) return;
 
         Font labelFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8.5f, C_DARK);
         Font bodyFont  = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8.5f, C_DARK);
@@ -291,10 +293,10 @@ public class QuotationPdfService {
         Paragraph p = new Paragraph();
         p.setSpacingAfter(8f);
         p.add(new Chunk("Comments or special instructions:\n", labelFont));
-        if (title != null && !title.isBlank())
-            p.add(new Chunk(title + "\n", bodyFont));
         if (desc != null && !desc.isBlank())
-            p.add(new Chunk(desc,         bodyFont));
+            p.add(new Chunk(desc + "\n", bodyFont));
+        if (title != null && !title.isBlank())
+            p.add(new Chunk(title,       bodyFont));
         document.add(p);
     }
 
@@ -304,23 +306,24 @@ public class QuotationPdfService {
         String              currency = quotation.getCurrency() != null
                 ? quotation.getCurrency() : "US$";
 
-        PdfPTable table = new PdfPTable(2);
+        // 3 columns: Description | Qty | Amount
+        PdfPTable table = new PdfPTable(3);
         table.setWidthPercentage(100);
-        table.setWidths(new float[]{ 75f, 25f });
+        table.setWidths(new float[]{ 65f, 10f, 25f });
         table.setSpacingAfter(10f);
 
-        // Header
+        // ── Header ────────────────────────────────────────────────────────────
         Font hdrFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9f, C_WHITE);
-        PdfPCell hDesc = cell(new Phrase("Description",           hdrFont), C_DARK, Element.ALIGN_LEFT);
-        PdfPCell hAmt  = cell(new Phrase("AMOUNT " + currency,    hdrFont), C_DARK, Element.ALIGN_RIGHT);
-        hDesc.setBorder(Rectangle.NO_BORDER);
-        hAmt.setBorder(Rectangle.NO_BORDER);
+        PdfPCell hDesc = headerCell("Description",        hdrFont, Element.ALIGN_LEFT);
+        PdfPCell hQty  = headerCell("Qty",                hdrFont, Element.ALIGN_CENTER);
+        PdfPCell hAmt  = headerCell("AMOUNT " + currency, hdrFont, Element.ALIGN_RIGHT);
         table.addCell(hDesc);
+        table.addCell(hQty);
         table.addCell(hAmt);
 
-        // Rows
+        // ── Item rows ─────────────────────────────────────────────────────────
         Font rowFont  = FontFactory.getFont(FontFactory.HELVETICA,      9f,  C_DARK);
-        Font totalFnt = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10f,  C_DARK);
+        Font totalFnt = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10f, C_DARK);
         double grandTotal = 0;
 
         for (int i = 0; i < items.size(); i++) {
@@ -330,16 +333,22 @@ public class QuotationPdfService {
             grandTotal += price;
 
             String descTxt = item.getDescription() != null ? item.getDescription() : "—";
-            String amtTxt  = price == 0 ? "Incl." : String.format("$ %.2f", price);
+            String qtyTxt  = item.getQuantity() != null ? formatQty(item.getQuantity()) : "1";
+            String amtTxt  = price == 0 ? "" : String.format("$ %.2f", price);
 
-            PdfPCell dc = borderedCell(new Phrase(descTxt, rowFont), bg, Element.ALIGN_LEFT);
-            PdfPCell ac = borderedCell(new Phrase(amtTxt,  rowFont), bg, Element.ALIGN_RIGHT);
-            table.addCell(dc);
-            table.addCell(ac);
+            table.addCell(borderedCell(new Phrase(descTxt, rowFont), bg, Element.ALIGN_LEFT));
+            table.addCell(borderedCell(new Phrase(qtyTxt,  rowFont), bg, Element.ALIGN_CENTER));
+            table.addCell(borderedCell(new Phrase(amtTxt,  rowFont), bg, Element.ALIGN_RIGHT));
         }
 
-        // Total
+        // ── TAX row (always shown as Incl.) ──────────────────────────────────
+        table.addCell(borderedCell(new Phrase("TAX",   rowFont), C_WHITE, Element.ALIGN_LEFT));
+        table.addCell(borderedCell(new Phrase("",      rowFont), C_WHITE, Element.ALIGN_CENTER));
+        table.addCell(borderedCell(new Phrase("Incl.", rowFont), C_WHITE, Element.ALIGN_RIGHT));
+
+        // ── Total row (label spans 2 cols) ────────────────────────────────────
         PdfPCell totalLbl = borderedCell(new Phrase("TOTAL", totalFnt), C_WHITE, Element.ALIGN_RIGHT);
+        totalLbl.setColspan(2);
         totalLbl.setBorderWidthTop(1f);
         PdfPCell totalAmt = borderedCell(
                 new Phrase(String.format("$ %.2f", grandTotal), totalFnt), C_WHITE, Element.ALIGN_RIGHT);
@@ -358,7 +367,7 @@ public class QuotationPdfService {
         contact.setSpacingAfter(10f);
         contact.add(new Chunk(
             "If you have any questions concerning this quotation, contact Mpho Mudau ,\n" +
-            "Phone Number 0712332083 / 0771527368,  E-mail  mudaumuthusi@gmail.com", bold));
+            "Phone Number 0712332083 / 0771527368,  E-mail  mphoyangainvestment@gmail.com", bold));
         document.add(contact);
 
         Paragraph payment = new Paragraph();
@@ -387,21 +396,29 @@ public class QuotationPdfService {
     // CELL HELPERS
     // ─────────────────────────────────────────────────────────────────────────
 
-    private PdfPCell cell(Phrase phrase, BaseColor bg, int align) {
-        PdfPCell c = new PdfPCell(phrase);
-        c.setBackgroundColor(bg);
+    private PdfPCell headerCell(String text, Font font, int align) {
+        PdfPCell c = new PdfPCell(new Phrase(text, font));
+        c.setBackgroundColor(C_DARK);
         c.setHorizontalAlignment(align);
         c.setPadding(7f);
+        c.setBorder(Rectangle.NO_BORDER);
         return c;
     }
 
     private PdfPCell borderedCell(Phrase phrase, BaseColor bg, int align) {
-        PdfPCell c = cell(phrase, bg, align);
+        PdfPCell c = new PdfPCell(phrase);
+        c.setBackgroundColor(bg);
+        c.setHorizontalAlignment(align);
+        c.setPadding(7f);
         c.setBorderColor(C_BORDER);
         c.setBorderWidthTop(0f);
         c.setBorderWidthLeft(0.5f);
         c.setBorderWidthRight(0.5f);
         c.setBorderWidthBottom(0.5f);
         return c;
+    }
+
+    private String formatQty(double qty) {
+        return qty == Math.floor(qty) ? String.valueOf((long) qty) : String.valueOf(qty);
     }
 }
