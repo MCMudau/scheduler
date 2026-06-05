@@ -24,7 +24,7 @@ public class AdminService {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     // All verification PINs are sent to this address during development
-    private static final String PIN_RECIPIENT = "mudaumuthusi@gmail.com";
+    private static final String PIN_RECIPIENT = "mphoyangainvestment@gmail.com";
 
     // ── REGISTRATION ──────────────────────────────────────────
 
